@@ -14,7 +14,7 @@
             buildForAnalyzing = "YES">
             <BuildableReference
                BuildableIdentifier = "primary"
-               BlueprintIdentifier = "BA0001"
+               BlueprintIdentifier = "BA0057"
                BuildableName = "BabyTracker.app"
                BlueprintName = "BabyTracker"
                ReferencedContainer = "container:BabyTracker.xcodeproj">
@@ -26,20 +26,7 @@
       buildConfiguration = "Debug"
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
-      shouldUseLaunchSchemeArgsEnv = "YES"
-      shouldAutocreateTestPlan = "YES">
-      <Testables>
-         <TestableReference
-            skipped = "NO">
-            <BuildableReference
-               BuildableIdentifier = "primary"
-               BlueprintIdentifier = "BA0002"
-               BuildableName = "BabyTrackerTests.xctest"
-               BlueprintName = "BabyTrackerTests"
-               ReferencedContainer = "container:BabyTracker.xcodeproj">
-            </BuildableReference>
-         </TestableReference>
-      </Testables>
+      shouldUseLaunchSchemeArgsEnv = "YES">
    </TestAction>
    <LaunchAction
       buildConfiguration = "Debug"
@@ -55,7 +42,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "BA0001"
+            BlueprintIdentifier = "BA0057"
             BuildableName = "BabyTracker.app"
             BlueprintName = "BabyTracker"
             ReferencedContainer = "container:BabyTracker.xcodeproj">
@@ -72,7 +59,7 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "BA0001"
+            BlueprintIdentifier = "BA0057"
             BuildableName = "BabyTracker.app"
             BlueprintName = "BabyTracker"
             ReferencedContainer = "container:BabyTracker.xcodeproj">
