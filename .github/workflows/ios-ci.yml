@@ -7,8 +7,8 @@ on:
     branches: [ main, develop ]
 
 jobs:
-  check:
-    name: Environment Check
+  build:
+    name: Build and Test
     runs-on: macos-14
     
     steps:
@@ -21,35 +21,36 @@ jobs:
         xcodebuild -version
         swift --version
       
-    - name: Check Project
+    - name: Check Environment
       run: |
-        echo "=== Project Structure ==="
-        ls -R BabyTracker/ | head -50
+        echo "=== Available iPhone 15 Simulators ==="
+        xcrun simctl list devices available | grep "iPhone 15" || echo "No iPhone 15 found, using any iPhone"
         echo ""
-        echo "=== Swift Files Count ==="
-        find BabyTracker -name "*.swift" | wc -l
-        echo ""
-        echo "=== Schemes ==="
+        echo "=== Project Schemes ==="
         xcodebuild -list -project BabyTracker.xcodeproj
-        echo ""
-        echo "=== Available iPhone Simulators ==="
-        xcrun simctl list devices available | grep "iPhone 15"
       
-    - name: Summary
+    - name: Build
       run: |
-        echo "✅ Project structure verified"
-        echo "✅ Xcode 15.2 ready"
-        echo "✅ iPhone 15 simulator available"
-        echo ""
-        echo "⚠️  Note: Full build disabled until all source files are added to Xcode project"
-        echo "    Current: 18 files in project.pbxproj"
-        echo "    Actual: 33 Swift files in filesystem"
-        echo ""
-        echo "📝 TODO: Open project in Xcode and add missing files:"
-        echo "   - PhotoRecord.swift"
-        echo "   - All Utilities/*.swift (7 files)"
-        echo "   - All Settings views (3 files)"  
-        echo "   - Authentication, Export, Growth, Photo views (4 files)"
+        xcodebuild clean build \
+          -project BabyTracker.xcodeproj \
+          -scheme BabyTracker \
+          -destination 'platform=iOS Simulator,name=iPhone 15' \
+          -sdk iphonesimulator \
+          CODE_SIGNING_ALLOWED=NO \
+          CODE_SIGN_IDENTITY="" \
+          DEVELOPMENT_TEAM=""
+      
+    - name: Test
+      run: |
+        xcodebuild test \
+          -project BabyTracker.xcodeproj \
+          -scheme BabyTracker \
+          -destination 'platform=iOS Simulator,name=iPhone 15' \
+          -sdk iphonesimulator \
+          CODE_SIGNING_ALLOWED=NO \
+          CODE_SIGN_IDENTITY="" \
+          DEVELOPMENT_TEAM=""
+      continue-on-error: true
 
   lint:
     name: SwiftLint
@@ -59,7 +60,9 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
       
-    - name: Install and run SwiftLint
-      run: |
-        brew install swiftlint
-        swiftlint lint --lenient || echo "SwiftLint completed with warnings"
+    - name: Install SwiftLint
+      run: brew install swiftlint
+      
+    - name: Run SwiftLint
+      run: swiftlint lint --lenient
+      continue-on-error: true

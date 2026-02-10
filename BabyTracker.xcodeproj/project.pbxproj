@@ -14,6 +14,7 @@
 		BA0009 /* SleepRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0010; };
 		BA0011 /* DiaperRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0012; };
 		BA0013 /* GrowthRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0014; };
+		BA0067 /* PhotoRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0068; };
 		BA0015 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0016; };
 		BA0017 /* QuickActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0018; };
 		BA0019 /* TimelineItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0020; };
@@ -25,6 +26,20 @@
 		BA0031 /* StatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0032; };
 		BA0033 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0034; };
 		BA0035 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0036; };
+		BA0069 /* Theme.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0070; };
+		BA0071 /* HapticManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0072; };
+		BA0073 /* CloudKitManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0074; };
+		BA0075 /* AnimationExtensions.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0076; };
+		BA0077 /* AuthenticationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0078; };
+		BA0079 /* ExportManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0080; };
+		BA0081 /* NotificationManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0082; };
+		BA0083 /* iCloudSyncView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0084; };
+		BA0085 /* ReminderSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0086; };
+		BA0087 /* SecuritySettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0088; };
+		BA0089 /* AuthenticationView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0090; };
+		BA0091 /* ExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0092; };
+		BA0093 /* GrowthChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0094; };
+		BA0095 /* PhotoGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0096; };
 		BA0037 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BA0038; };
 		BA0039 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BA0040; };
 /* End PBXBuildFile section */
@@ -37,6 +52,7 @@
 		BA0010 /* SleepRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepRecord.swift; };
 		BA0012 /* DiaperRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiaperRecord.swift; };
 		BA0014 /* GrowthRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthRecord.swift; };
+		BA0068 /* PhotoRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoRecord.swift; };
 		BA0016 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; };
 		BA0018 /* QuickActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickActionButton.swift; };
 		BA0020 /* TimelineItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineItemView.swift; };
@@ -48,6 +64,20 @@
 		BA0032 /* StatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsView.swift; };
 		BA0034 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; };
 		BA0036 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; };
+		BA0070 /* Theme.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Theme.swift; };
+		BA0072 /* HapticManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HapticManager.swift; };
+		BA0074 /* CloudKitManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CloudKitManager.swift; };
+		BA0076 /* AnimationExtensions.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AnimationExtensions.swift; };
+		BA0078 /* AuthenticationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationManager.swift; };
+		BA0080 /* ExportManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportManager.swift; };
+		BA0082 /* NotificationManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationManager.swift; };
+		BA0084 /* iCloudSyncView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = iCloudSyncView.swift; };
+		BA0086 /* ReminderSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ReminderSettingsView.swift; };
+		BA0088 /* SecuritySettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SecuritySettingsView.swift; };
+		BA0090 /* AuthenticationView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AuthenticationView.swift; };
+		BA0092 /* ExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportView.swift; };
+		BA0094 /* GrowthChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthChartView.swift; };
+		BA0096 /* PhotoGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGalleryView.swift; };
 		BA0038 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; };
 		BA0040 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; };
 		BA0041 /* BabyTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BabyTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -111,6 +141,7 @@
 				BA0010 /* SleepRecord.swift */,
 				BA0012 /* DiaperRecord.swift */,
 				BA0014 /* GrowthRecord.swift */,
+				BA0068 /* PhotoRecord.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -123,6 +154,11 @@
 				BA0054 /* Statistics */,
 				BA0055 /* Calendar */,
 				BA0056 /* Profile */,
+				BA0097 /* Settings */,
+				BA0098 /* Authentication */,
+				BA0099 /* Export */,
+				BA0100 /* Growth */,
+				BA0101 /* Photo */,
 			);
 			path = Views;
 			sourceTree = "<group>";
@@ -138,6 +174,13 @@
 		BA0050 /* Utilities */ = {
 			isa = PBXGroup;
 			children = (
+				BA0070 /* Theme.swift */,
+				BA0072 /* HapticManager.swift */,
+				BA0074 /* CloudKitManager.swift */,
+				BA0076 /* AnimationExtensions.swift */,
+				BA0078 /* AuthenticationManager.swift */,
+				BA0080 /* ExportManager.swift */,
+				BA0082 /* NotificationManager.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -193,6 +236,48 @@
 				BA0036 /* ProfileView.swift */,
 			);
 			path = Profile;
+			sourceTree = "<group>";
+		};
+		BA0097 /* Settings */ = {
+			isa = PBXGroup;
+			children = (
+				BA0084 /* iCloudSyncView.swift */,
+				BA0086 /* ReminderSettingsView.swift */,
+				BA0088 /* SecuritySettingsView.swift */,
+			);
+			path = Settings;
+			sourceTree = "<group>";
+		};
+		BA0098 /* Authentication */ = {
+			isa = PBXGroup;
+			children = (
+				BA0090 /* AuthenticationView.swift */,
+			);
+			path = Authentication;
+			sourceTree = "<group>";
+		};
+		BA0099 /* Export */ = {
+			isa = PBXGroup;
+			children = (
+				BA0092 /* ExportView.swift */,
+			);
+			path = Export;
+			sourceTree = "<group>";
+		};
+		BA0100 /* Growth */ = {
+			isa = PBXGroup;
+			children = (
+				BA0094 /* GrowthChartView.swift */,
+			);
+			path = Growth;
+			sourceTree = "<group>";
+		};
+		BA0101 /* Photo */ = {
+			isa = PBXGroup;
+			children = (
+				BA0096 /* PhotoGalleryView.swift */,
+			);
+			path = Photo;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -272,6 +357,7 @@
 				BA0009 /* SleepRecord.swift in Sources */,
 				BA0011 /* DiaperRecord.swift in Sources */,
 				BA0013 /* GrowthRecord.swift in Sources */,
+				BA0067 /* PhotoRecord.swift in Sources */,
 				BA0015 /* HomeView.swift in Sources */,
 				BA0017 /* QuickActionButton.swift in Sources */,
 				BA0019 /* TimelineItemView.swift in Sources */,
@@ -283,6 +369,20 @@
 				BA0031 /* StatisticsView.swift in Sources */,
 				BA0033 /* CalendarView.swift in Sources */,
 				BA0035 /* ProfileView.swift in Sources */,
+				BA0069 /* Theme.swift in Sources */,
+				BA0071 /* HapticManager.swift in Sources */,
+				BA0073 /* CloudKitManager.swift in Sources */,
+				BA0075 /* AnimationExtensions.swift in Sources */,
+				BA0077 /* AuthenticationManager.swift in Sources */,
+				BA0079 /* ExportManager.swift in Sources */,
+				BA0081 /* NotificationManager.swift in Sources */,
+				BA0083 /* iCloudSyncView.swift in Sources */,
+				BA0085 /* ReminderSettingsView.swift in Sources */,
+				BA0087 /* SecuritySettingsView.swift in Sources */,
+				BA0089 /* AuthenticationView.swift in Sources */,
+				BA0091 /* ExportView.swift in Sources */,
+				BA0093 /* GrowthChartView.swift in Sources */,
+				BA0095 /* PhotoGalleryView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
