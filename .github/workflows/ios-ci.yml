@@ -9,60 +9,81 @@ on:
 jobs:
   build:
     name: Build Project
-    runs-on: macos-latest
+    runs-on: macos-14
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
       
-    - name: Show Xcode and Swift version
+    - name: Select Xcode
       run: |
+        sudo xcode-select -s /Applications/Xcode_15.2.app
         xcodebuild -version
         swift --version
       
-    - name: List available simulators
-      run: xcrun simctl list devices available
+    - name: List all available simulators
+      run: |
+        xcrun simctl list devices available
+        echo "---"
+        xcrun simctl list devices | grep "iPhone 15"
       
-    - name: List schemes in project
+    - name: Create iPhone 15 simulator if needed
+      run: |
+        # Check if iPhone 15 with iOS 17 exists
+        if ! xcrun simctl list devices | grep -q "iPhone 15.*17"; then
+          echo "Creating iPhone 15 simulator..."
+          RUNTIME=$(xcrun simctl list runtimes | grep "iOS 17" | tail -1 | awk '{print $NF}')
+          xcrun simctl create "iPhone 15" "com.apple.CoreSimulator.SimDeviceType.iPhone-15" "$RUNTIME" || true
+        fi
+        xcrun simctl list devices | grep "iPhone 15"
+      
+    - name: List schemes
       run: xcodebuild -list -project BabyTracker.xcodeproj
+      
+    - name: Show build destinations
+      run: |
+        xcodebuild -showdestinations \
+          -project BabyTracker.xcodeproj \
+          -scheme BabyTracker
       
     - name: Build project
       run: |
-        set -o pipefail
         xcodebuild clean build \
           -project BabyTracker.xcodeproj \
           -scheme BabyTracker \
-          -destination 'platform=iOS Simulator,name=iPhone 15' \
+          -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.2' \
           -sdk iphonesimulator \
           CODE_SIGNING_ALLOWED=NO \
           CODE_SIGN_IDENTITY="" \
           CODE_SIGN_ENTITLEMENTS="" \
           DEVELOPMENT_TEAM="" \
-          ONLY_ACTIVE_ARCH=NO | tee build.log
+          ONLY_ACTIVE_ARCH=NO
       
     - name: Upload build log on failure
       if: failure()
       uses: actions/upload-artifact@v4
       with:
         name: build-log
-        path: build.log
+        path: ~/Library/Developer/Xcode/DerivedData/*/Logs/Build/*.xcactivitylog
 
   test:
     name: Run Tests
-    runs-on: macos-latest
+    runs-on: macos-14
     needs: build
-    if: success()
     
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
+      
+    - name: Select Xcode
+      run: sudo xcode-select -s /Applications/Xcode_15.2.app
       
     - name: Run unit tests
       run: |
         xcodebuild test \
           -project BabyTracker.xcodeproj \
           -scheme BabyTracker \
-          -destination 'platform=iOS Simulator,name=iPhone 15' \
+          -destination 'platform=iOS Simulator,name=iPhone 15,OS=17.2' \
           -sdk iphonesimulator \
           CODE_SIGNING_ALLOWED=NO \
           CODE_SIGN_IDENTITY="" \
@@ -71,8 +92,8 @@ jobs:
       continue-on-error: true
 
   lint:
-    name: SwiftLint (Optional)
-    runs-on: macos-latest
+    name: SwiftLint
+    runs-on: macos-14
     
     steps:
     - name: Checkout code
@@ -80,7 +101,6 @@ jobs:
       
     - name: Install SwiftLint
       run: brew install swiftlint
-      continue-on-error: true
       
     - name: Run SwiftLint
       run: swiftlint lint --lenient
