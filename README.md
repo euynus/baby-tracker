@@ -1,5 +1,11 @@
 # Baby Tracker
 
+[![iOS CI](https://github.com/euynus/baby-tracker/actions/workflows/ios-ci.yml/badge.svg)](https://github.com/euynus/baby-tracker/actions/workflows/ios-ci.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![Swift Version](https://img.shields.io/badge/Swift-5.9+-orange.svg)](https://swift.org)
+[![Platform](https://img.shields.io/badge/Platform-iOS%2016.0+-blue.svg)](https://developer.apple.com/ios/)
+[![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
+
 一个专为新生儿护理设计的 iOS 应用，帮助父母轻松记录和追踪宝宝的日常护理数据。
 
 ## 功能特性
@@ -116,14 +122,42 @@ BabyTracker/
 ```bash
 # 克隆仓库
 git clone https://github.com/euynus/baby-tracker.git
+cd baby-tracker
+
+# 安装 SwiftLint (可选但推荐)
+brew install swiftlint
 
 # 使用 Xcode 打开项目
 open BabyTracker.xcodeproj
 ```
 
+### 环境要求
+
+- macOS 14.0+
+- Xcode 15.0+
+- iOS 16.0+ SDK
+- Swift 5.9+
+
+### 运行测试
+
+```bash
+xcodebuild test \
+  -project BabyTracker.xcodeproj \
+  -scheme BabyTracker \
+  -destination 'platform=iOS Simulator,name=iPhone 15'
+```
+
+## 文档
+
+- [变更日志](CHANGELOG.md) - 查看所有版本变更
+- [贡献指南](CONTRIBUTING.md) - 如何参与项目开发
+- [行为准则](CODE_OF_CONDUCT.md) - 社区行为规范
+
 ## 贡献
 
 欢迎提交 Issue 和 Pull Request！
+
+在开始之前，请阅读我们的 [贡献指南](CONTRIBUTING.md)。
 
 ### Commit 规范
 
@@ -158,10 +192,21 @@ feat(timer): add pause/resume functionality
 Closes #42
 ```
 
+## 路线图
+
+查看我们的 [项目路线图](https://github.com/euynus/baby-tracker/projects) 了解即将推出的功能。
+
 ## License
 
-MIT License
+MIT License - 查看 [LICENSE](LICENSE) 文件了解详情。
+
+## 致谢
+
+- [Swift Charts](https://developer.apple.com/documentation/charts) - 数据可视化
+- [WHO Child Growth Standards](https://www.who.int/tools/child-growth-standards) - 生长曲线参考数据
 
 ---
 
 **开发中** 🚧 持续更新...
+
+如有问题或建议，请提交 [Issue](https://github.com/euynus/baby-tracker/issues)。

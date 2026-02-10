@@ -1,0 +1,53 @@
+# SwiftLint Configuration
+
+disabled_rules:
+  - trailing_whitespace
+  - line_length
+  - file_length
+
+opt_in_rules:
+  - empty_count
+  - force_unwrapping
+  - implicitly_unwrapped_optional
+  - unused_optional_binding
+
+included:
+  - BabyTracker
+
+excluded:
+  - Pods
+  - BabyTrackerWidget
+  - build
+  - .build
+
+# Customized Rules
+
+type_body_length:
+  warning: 300
+  error: 400
+
+function_body_length:
+  warning: 50
+  error: 100
+
+cyclomatic_complexity:
+  warning: 10
+  error: 20
+
+nesting:
+  type_level: 2
+
+identifier_name:
+  min_length:
+    warning: 2
+    error: 1
+  max_length:
+    warning: 40
+    error: 50
+  excluded:
+    - id
+    - x
+    - y
+
+# Custom reporter
+reporter: "xcode"
