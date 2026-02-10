@@ -1,0 +1,501 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 56;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		BA0001 /* BabyTrackerApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0002; };
+		BA0003 /* ContentView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0004; };
+		BA0005 /* Baby.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0006; };
+		BA0007 /* FeedingRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0008; };
+		BA0009 /* SleepRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0010; };
+		BA0011 /* DiaperRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0012; };
+		BA0013 /* GrowthRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0014; };
+		BA0015 /* HomeView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0016; };
+		BA0017 /* QuickActionButton.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0018; };
+		BA0019 /* TimelineItemView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0020; };
+		BA0021 /* FeedingRecordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0022; };
+		BA0023 /* BreastfeedingTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0024; };
+		BA0025 /* BreastfeedingTimerViewModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0026; };
+		BA0027 /* SleepTimerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0028; };
+		BA0029 /* DiaperRecordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0030; };
+		BA0031 /* StatisticsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0032; };
+		BA0033 /* CalendarView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0034; };
+		BA0035 /* ProfileView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0036; };
+		BA0037 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BA0038; };
+		BA0039 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BA0040; };
+/* End PBXBuildFile section */
+
+/* Begin PBXFileReference section */
+		BA0002 /* BabyTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BabyTrackerApp.swift; };
+		BA0004 /* ContentView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ContentView.swift; };
+		BA0006 /* Baby.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Baby.swift; };
+		BA0008 /* FeedingRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedingRecord.swift; };
+		BA0010 /* SleepRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepRecord.swift; };
+		BA0012 /* DiaperRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiaperRecord.swift; };
+		BA0014 /* GrowthRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthRecord.swift; };
+		BA0016 /* HomeView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = HomeView.swift; };
+		BA0018 /* QuickActionButton.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = QuickActionButton.swift; };
+		BA0020 /* TimelineItemView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TimelineItemView.swift; };
+		BA0022 /* FeedingRecordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedingRecordView.swift; };
+		BA0024 /* BreastfeedingTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreastfeedingTimerView.swift; };
+		BA0026 /* BreastfeedingTimerViewModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BreastfeedingTimerViewModel.swift; };
+		BA0028 /* SleepTimerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepTimerView.swift; };
+		BA0030 /* DiaperRecordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiaperRecordView.swift; };
+		BA0032 /* StatisticsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsView.swift; };
+		BA0034 /* CalendarView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CalendarView.swift; };
+		BA0036 /* ProfileView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ProfileView.swift; };
+		BA0038 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; };
+		BA0040 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; };
+		BA0041 /* BabyTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BabyTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		BA0042 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		BA0043 = {
+			isa = PBXGroup;
+			children = (
+				BA0044 /* BabyTracker */,
+				BA0045 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		BA0044 /* BabyTracker */ = {
+			isa = PBXGroup;
+			children = (
+				BA0046 /* App */,
+				BA0047 /* Models */,
+				BA0048 /* Views */,
+				BA0049 /* ViewModels */,
+				BA0050 /* Utilities */,
+				BA0038 /* Assets.xcassets */,
+				BA0051 /* Preview Content */,
+			);
+			path = BabyTracker;
+			sourceTree = "<group>";
+		};
+		BA0045 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				BA0041 /* BabyTracker.app */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		BA0046 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				BA0002 /* BabyTrackerApp.swift */,
+				BA0004 /* ContentView.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		BA0047 /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				BA0006 /* Baby.swift */,
+				BA0008 /* FeedingRecord.swift */,
+				BA0010 /* SleepRecord.swift */,
+				BA0012 /* DiaperRecord.swift */,
+				BA0014 /* GrowthRecord.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+		BA0048 /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				BA0052 /* Home */,
+				BA0053 /* Record */,
+				BA0054 /* Statistics */,
+				BA0055 /* Calendar */,
+				BA0056 /* Profile */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		BA0049 /* ViewModels */ = {
+			isa = PBXGroup;
+			children = (
+				BA0026 /* BreastfeedingTimerViewModel.swift */,
+			);
+			path = ViewModels;
+			sourceTree = "<group>";
+		};
+		BA0050 /* Utilities */ = {
+			isa = PBXGroup;
+			children = (
+			);
+			path = Utilities;
+			sourceTree = "<group>";
+		};
+		BA0051 /* Preview Content */ = {
+			isa = PBXGroup;
+			children = (
+				BA0040 /* Preview Assets.xcassets */,
+			);
+			path = "Preview Content";
+			sourceTree = "<group>";
+		};
+		BA0052 /* Home */ = {
+			isa = PBXGroup;
+			children = (
+				BA0016 /* HomeView.swift */,
+				BA0018 /* QuickActionButton.swift */,
+				BA0020 /* TimelineItemView.swift */,
+			);
+			path = Home;
+			sourceTree = "<group>";
+		};
+		BA0053 /* Record */ = {
+			isa = PBXGroup;
+			children = (
+				BA0022 /* FeedingRecordView.swift */,
+				BA0024 /* BreastfeedingTimerView.swift */,
+				BA0028 /* SleepTimerView.swift */,
+				BA0030 /* DiaperRecordView.swift */,
+			);
+			path = Record;
+			sourceTree = "<group>";
+		};
+		BA0054 /* Statistics */ = {
+			isa = PBXGroup;
+			children = (
+				BA0032 /* StatisticsView.swift */,
+			);
+			path = Statistics;
+			sourceTree = "<group>";
+		};
+		BA0055 /* Calendar */ = {
+			isa = PBXGroup;
+			children = (
+				BA0034 /* CalendarView.swift */,
+			);
+			path = Calendar;
+			sourceTree = "<group>";
+		};
+		BA0056 /* Profile */ = {
+			isa = PBXGroup;
+			children = (
+				BA0036 /* ProfileView.swift */,
+			);
+			path = Profile;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		BA0057 /* BabyTracker */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BA0058 /* Build configuration list for PBXNativeTarget "BabyTracker" */;
+			buildPhases = (
+				BA0059 /* Sources */,
+				BA0042 /* Frameworks */,
+				BA0060 /* Resources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = BabyTracker;
+			productName = BabyTracker;
+			productReference = BA0041 /* BabyTracker.app */;
+			productType = "com.apple.product-type.application";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		BA0061 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = 1;
+				LastSwiftUpdateCheck = 1500;
+				LastUpgradeCheck = 1500;
+				TargetAttributes = {
+					BA0057 = {
+						CreatedOnToolsVersion = 15.0;
+					};
+				};
+			};
+			buildConfigurationList = BA0062 /* Build configuration list for PBXProject "BabyTracker" */;
+			compatibilityVersion = "Xcode 14.0";
+			developmentRegion = zh-Hans;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				en,
+				"zh-Hans",
+			);
+			mainGroup = BA0043;
+			productRefGroup = BA0045 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				BA0057 /* BabyTracker */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		BA0060 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BA0039 /* Preview Assets.xcassets in Resources */,
+				BA0037 /* Assets.xcassets in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		BA0059 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BA0001 /* BabyTrackerApp.swift in Sources */,
+				BA0003 /* ContentView.swift in Sources */,
+				BA0005 /* Baby.swift in Sources */,
+				BA0007 /* FeedingRecord.swift in Sources */,
+				BA0009 /* SleepRecord.swift in Sources */,
+				BA0011 /* DiaperRecord.swift in Sources */,
+				BA0013 /* GrowthRecord.swift in Sources */,
+				BA0015 /* HomeView.swift in Sources */,
+				BA0017 /* QuickActionButton.swift in Sources */,
+				BA0019 /* TimelineItemView.swift in Sources */,
+				BA0021 /* FeedingRecordView.swift in Sources */,
+				BA0023 /* BreastfeedingTimerView.swift in Sources */,
+				BA0025 /* BreastfeedingTimerViewModel.swift in Sources */,
+				BA0027 /* SleepTimerView.swift in Sources */,
+				BA0029 /* DiaperRecordView.swift in Sources */,
+				BA0031 /* StatisticsView.swift in Sources */,
+				BA0033 /* CalendarView.swift in Sources */,
+				BA0035 /* ProfileView.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin XCBuildConfiguration section */
+		BA0063 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"DEBUG=1",
+					"$(inherited)",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = "DEBUG $(inherited)";
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+			};
+			name = Debug;
+		};
+		BA0064 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				ASSETCATALOG_COMPILER_GENERATE_SWIFT_ASSET_SYMBOL_EXTENSIONS = YES;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++20";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu17;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				VALIDATE_PRODUCT = YES;
+			};
+			name = Release;
+		};
+		BA0065 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"BabyTracker/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.babytracker.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		BA0066 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				DEVELOPMENT_ASSET_PATHS = "\"BabyTracker/Preview Content\"";
+				ENABLE_PREVIEWS = YES;
+				GENERATE_INFOPLIST_FILE = YES;
+				INFOPLIST_KEY_UIApplicationSceneManifest_Generation = YES;
+				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
+				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations = UIInterfaceOrientationPortrait;
+				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown";
+				IPHONEOS_DEPLOYMENT_TARGET = 16.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.babytracker.app;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SUPPORTS_MACCATALYST = NO;
+				SUPPORTS_MAC_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SUPPORTS_XR_DESIGNED_FOR_IPHONE_IPAD = NO;
+				SWIFT_EMIT_LOC_STRINGS = YES;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		BA0058 /* Build configuration list for PBXNativeTarget "BabyTracker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BA0065 /* Debug */,
+				BA0066 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BA0062 /* Build configuration list for PBXProject "BabyTracker" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BA0063 /* Debug */,
+				BA0064 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+/* End XCConfigurationList section */
+	};
+	rootObject = BA0061 /* Project object */;
+}
