@@ -35,15 +35,39 @@ struct ProfileView: View {
                     Text("我的宝宝")
                 }
                 
+                if let baby = babies.first {
+                    Section("快速访问") {
+                        NavigationLink {
+                            PhotoGalleryView(baby: baby)
+                        } label: {
+                            Label("照片", systemImage: "photo.on.rectangle")
+                        }
+                    }
+                }
+                
                 Section {
-                    NavigationLink {
-                        Text("设置页面")
-                    } label: {
-                        Label("设置", systemImage: "gearshape")
+                    if let baby = babies.first {
+                        NavigationLink {
+                            ReminderSettingsView(baby: baby)
+                        } label: {
+                            Label("提醒设置", systemImage: "bell.badge")
+                        }
+                        
+                        NavigationLink {
+                            GrowthChartView(baby: baby)
+                        } label: {
+                            Label("生长曲线", systemImage: "chart.line.uptrend.xyaxis")
+                        }
                     }
                     
                     NavigationLink {
-                        Text("导出数据")
+                        SecuritySettingsView()
+                    } label: {
+                        Label("安全设置", systemImage: "lock.shield")
+                    }
+                    
+                    NavigationLink {
+                        ExportView()
                     } label: {
                         Label("导出数据", systemImage: "square.and.arrow.up")
                     }

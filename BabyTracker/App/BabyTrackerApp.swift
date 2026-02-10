@@ -10,10 +10,18 @@ import SwiftData
 
 @main
 struct BabyTrackerApp: App {
+    @StateObject private var authManager = AuthenticationManager()
+    
     var body: some Scene {
         WindowGroup {
-            ContentView()
+            if authManager.isAuthenticated {
+                ContentView()
+                    .environmentObject(authManager)
+            } else {
+                AuthenticationView()
+                    .environmentObject(authManager)
+            }
         }
-        .modelContainer(for: [Baby.self, FeedingRecord.self, SleepRecord.self, DiaperRecord.self, GrowthRecord.self])
+        .modelContainer(for: [Baby.self, FeedingRecord.self, SleepRecord.self, DiaperRecord.self, GrowthRecord.self, PhotoRecord.self])
     }
 }
