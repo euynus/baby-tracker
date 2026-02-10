@@ -121,13 +121,46 @@ git clone https://github.com/euynus/baby-tracker.git
 open BabyTracker.xcodeproj
 ```
 
-## License
-
-MIT License
-
 ## 贡献
 
 欢迎提交 Issue 和 Pull Request！
+
+### Commit 规范
+
+本项目使用 [Conventional Commits](https://www.conventionalcommits.org/) 规范：
+
+```
+<type>(<scope>): <subject>
+
+<body>
+
+<footer>
+```
+
+**类型（type）**：
+- `feat`: 新功能
+- `fix`: Bug 修复
+- `docs`: 文档更新
+- `style`: 代码格式（不影响功能）
+- `refactor`: 重构
+- `perf`: 性能优化
+- `test`: 测试相关
+- `chore`: 构建/工具配置
+
+**示例**：
+```bash
+feat(timer): add pause/resume functionality
+
+- Implement pause button in timer view
+- Save elapsed time when paused
+- Resume from saved state
+
+Closes #42
+```
+
+## License
+
+MIT License
 
 ---
 
