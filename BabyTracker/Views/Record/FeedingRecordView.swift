@@ -1,0 +1,113 @@
+//
+//  FeedingRecordView.swift
+//  BabyTracker
+//
+//  Created on 2026-02-10.
+//
+
+import SwiftUI
+import SwiftData
+
+struct FeedingRecordView: View {
+    @Environment(\.modelContext) private var modelContext
+    @Environment(\.dismiss) private var dismiss
+    
+    let baby: Baby
+    
+    @State private var feedingMethod: FeedingMethod = .breastfeeding
+    @State private var showBreastfeedingTimer = false
+    @State private var amount: String = ""
+    @State private var notes: String = ""
+    
+    var body: some View {
+        NavigationStack {
+            Form {
+                Section("喂养方式") {
+                    Picker("方式", selection: $feedingMethod) {
+                        Text("母乳").tag(FeedingMethod.breastfeeding)
+                        Text("奶粉").tag(FeedingMethod.bottle)
+                        Text("混合").tag(FeedingMethod.mixed)
+                    }
+                    .pickerStyle(.segmented)
+                }
+                
+                if feedingMethod == .breastfeeding {
+                    Section {
+                        Button(action: { showBreastfeedingTimer = true }) {
+                            HStack {
+                                Image(systemName: "timer")
+                                Text("开始母乳计时")
+                                Spacer()
+                                Image(systemName: "chevron.right")
+                                    .font(.caption)
+                                    .foregroundStyle(.secondary)
+                            }
+                        }
+                    } header: {
+                        Text("母乳喂养")
+                    } footer: {
+                        Text("点击开始计时，可以记录左右侧时长")
+                    }
+                } else {
+                    Section("奶量") {
+                        HStack {
+                            TextField("奶量", text: $amount)
+                                .keyboardType(.decimalPad)
+                            Text("ml")
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+                }
+                
+                Section("备注") {
+                    TextEditor(text: $notes)
+                        .frame(height: 80)
+                }
+                
+                if feedingMethod != .breastfeeding {
+                    Section {
+                        Button("保存记录") {
+                            saveQuickRecord()
+                        }
+                        .frame(maxWidth: .infinity)
+                        .foregroundStyle(.blue)
+                    }
+                }
+            }
+            .navigationTitle("喂养记录")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("取消") {
+                        dismiss()
+                    }
+                }
+            }
+            .sheet(isPresented: $showBreastfeedingTimer) {
+                BreastfeedingTimerView(baby: baby) {
+                    dismiss()
+                }
+            }
+        }
+    }
+    
+    private func saveQuickRecord() {
+        let record = FeedingRecord(babyId: baby.id, timestamp: Date(), method: feedingMethod)
+        
+        if let amountValue = Double(amount), amountValue > 0 {
+            record.amount = amountValue
+        }
+        
+        if !notes.isEmpty {
+            record.notes = notes
+        }
+        
+        modelContext.insert(record)
+        dismiss()
+    }
+}
+
+#Preview {
+    FeedingRecordView(baby: Baby(name: "小宝", birthday: Date(), gender: .male))
+        .modelContainer(for: [FeedingRecord.self])
+}
