@@ -14,11 +14,17 @@ struct QuickActionButton: View {
     let gradient: [Color]
     let action: () -> Void
     
+    @State private var isPressed = false
+    
     var body: some View {
-        Button(action: action) {
+        Button(action: {
+            HapticManager.shared.light()
+            action()
+        }) {
             VStack(spacing: 12) {
                 Text(icon)
                     .font(.system(size: 48))
+                    .scaleEffect(isPressed ? 0.9 : 1.0)
                 
                 Text(title)
                     .font(.headline)
@@ -38,9 +44,27 @@ struct QuickActionButton: View {
                 )
             )
             .cornerRadius(16)
-            .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+            .shadow(
+                color: .black.opacity(isPressed ? 0.15 : 0.08),
+                radius: isPressed ? 12 : 8,
+                y: isPressed ? 6 : 4
+            )
+            .scaleEffect(isPressed ? 0.96 : 1.0)
         }
         .buttonStyle(.plain)
+        .simultaneousGesture(
+            DragGesture(minimumDistance: 0)
+                .onChanged { _ in
+                    withAnimation(.spring) {
+                        isPressed = true
+                    }
+                }
+                .onEnded { _ in
+                    withAnimation(.spring) {
+                        isPressed = false
+                    }
+                }
+        )
     }
 }
 

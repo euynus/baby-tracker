@@ -61,9 +61,21 @@ struct ProfileView: View {
                     }
                     
                     NavigationLink {
+                        iCloudSyncView()
+                    } label: {
+                        Label("iCloud 同步", systemImage: "icloud")
+                    }
+                    
+                    NavigationLink {
                         SecuritySettingsView()
                     } label: {
                         Label("安全设置", systemImage: "lock.shield")
+                    }
+                    
+                    NavigationLink {
+                        AppearanceSettingsView()
+                    } label: {
+                        Label("外观设置", systemImage: "paintbrush")
                     }
                     
                     NavigationLink {
