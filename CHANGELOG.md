@@ -57,7 +57,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 30+ unit tests
 
 ### Technical
-- iOS 16+ minimum requirement
+- iOS 17+ minimum requirement
 - SwiftUI + SwiftData architecture
 - Swift Charts integration
 - LocalAuthentication integration

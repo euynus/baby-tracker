@@ -117,7 +117,7 @@ xcodebuild test \
 
 - macOS 14+
 - Xcode 15+
-- iOS 16+ SDK
+- iOS 17+ SDK
 - SwiftLint (可选但推荐)
 
 ### 安装依赖

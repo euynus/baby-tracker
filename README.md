@@ -3,7 +3,7 @@
 [![iOS CI](https://github.com/euynus/baby-tracker/actions/workflows/ios-ci.yml/badge.svg)](https://github.com/euynus/baby-tracker/actions/workflows/ios-ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Swift Version](https://img.shields.io/badge/Swift-5.9+-orange.svg)](https://swift.org)
-[![Platform](https://img.shields.io/badge/Platform-iOS%2016.0+-blue.svg)](https://developer.apple.com/ios/)
+[![Platform](https://img.shields.io/badge/Platform-iOS%2017.0+-blue.svg)](https://developer.apple.com/ios/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](CONTRIBUTING.md)
 
 一个专为新生儿护理设计的 iOS 应用，帮助父母轻松记录和追踪宝宝的日常护理数据。
@@ -31,7 +31,7 @@
 
 ## 技术栈
 
-- **最低系统要求**: iOS 16.0+
+- **最低系统要求**: iOS 17.0+
 - **UI 框架**: SwiftUI
 - **数据持久化**: SwiftData
 - **图表**: Swift Charts
@@ -135,7 +135,7 @@ open BabyTracker.xcodeproj
 
 - macOS 14.0+
 - Xcode 15.0+
-- iOS 16.0+ SDK
+- iOS 17.0+ SDK
 - Swift 5.9+
 
 ### 运行测试

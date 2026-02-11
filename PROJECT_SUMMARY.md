@@ -6,7 +6,7 @@
 **GitHub**: https://github.com/euynus/baby-tracker  
 **开发时间**: 2026-02-10  
 **技术栈**: SwiftUI + SwiftData + Swift Charts  
-**目标平台**: iOS 16.0+
+**目标平台**: iOS 17.0+
 
 ---
 
