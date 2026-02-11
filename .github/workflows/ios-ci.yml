@@ -23,6 +23,10 @@ jobs:
       
     - name: Check Environment
       run: |
+        echo "=== Working Directory ==="
+        pwd
+        ls -la
+        echo ""
         echo "=== Available Simulators ==="
         xcrun simctl list devices available | grep "iPhone" | head -10
         echo ""
@@ -31,6 +35,8 @@ jobs:
       
     - name: Build
       run: |
+        cd "$GITHUB_WORKSPACE"
+        echo "Building from: $(pwd)"
         xcodebuild clean build \
           -project BabyTracker.xcodeproj \
           -scheme BabyTracker \
