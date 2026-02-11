@@ -18,7 +18,14 @@ let package = Package(
             path: "BabyTracker",
             exclude: [
                 "Assets.xcassets",
-                "Preview Content"
+                "Preview Content",
+                "Utilities/AuthenticationManager.swift",
+                "Utilities/CloudKitManager.swift",
+                "Utilities/NotificationManager.swift",
+                "Views/Authentication",
+                "Views/Settings/SecuritySettingsView.swift",
+                "Views/Settings/iCloudSyncView.swift",
+                "Views/Settings/ReminderSettingsView.swift"
             ]
         ),
         .testTarget(
