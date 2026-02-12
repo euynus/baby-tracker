@@ -36,6 +36,8 @@ jobs:
           export
           ui
           deps
+          ci
+          build
         requireScope: false
         subjectPattern: ^[a-z].+$
         subjectPatternError: |

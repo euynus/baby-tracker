@@ -206,10 +206,3 @@ class BreastfeedingTimerViewModel: ObservableObject {
         rightTimer?.cancel()
     }
 }
-
-// MARK: - BreastSide Enum
-
-enum BreastSide {
-    case left
-    case right
-}
