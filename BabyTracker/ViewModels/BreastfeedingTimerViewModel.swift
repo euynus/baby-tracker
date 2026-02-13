@@ -3,50 +3,66 @@
 //  BabyTracker
 //
 //  Created on 2026-02-10.
-//  Updated for BDD tests: 2026-02-11
+//  Updated: 2026-02-13 - Simplified unified interface
 //
 
 import Foundation
 import Combine
 import SwiftData
 
+enum BreastSide {
+    case left
+    case right
+}
+
 class BreastfeedingTimerViewModel: ObservableObject {
     // MARK: - Published Properties
     
-    @Published var isLeftRunning = false
-    @Published var isRightRunning = false
+    @Published var currentSide: BreastSide = .left
+    @Published var isRunning = false
     @Published var hasStarted = false
     
-    @Published var leftElapsed: TimeInterval = 0
-    @Published var rightElapsed: TimeInterval = 0
+    @Published var leftDuration: TimeInterval = 0
+    @Published var rightDuration: TimeInterval = 0
     
-    var leftStartTime: Date?
-    var rightStartTime: Date?
+    var startTime: Date?
+    private var currentStartTime: Date?
+    private var pausedDuration: TimeInterval = 0
     
-    private var leftPausedDuration: TimeInterval = 0
-    private var rightPausedDuration: TimeInterval = 0
-    
-    private var leftTimer: AnyCancellable?
-    private var rightTimer: AnyCancellable?
-    
+    private var timer: AnyCancellable?
     private let baby: Baby
     
     // MARK: - Computed Properties
     
+    var currentDuration: TimeInterval {
+        currentSide == .left ? leftDuration : rightDuration
+    }
+    
     var totalDuration: TimeInterval {
-        leftElapsed + rightElapsed
+        leftDuration + rightDuration
     }
     
-    var leftElapsedTime: String {
-        formatTime(leftElapsed)
-    }
-    
-    var rightElapsedTime: String {
-        formatTime(rightElapsed)
+    var formattedCurrentTime: String {
+        formatTime(currentDuration)
     }
     
     var formattedTotalTime: String {
         formatTime(totalDuration)
+    }
+    
+    var formattedStartTime: String {
+        guard let start = startTime else { return "--:--" }
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: start)
+    }
+    
+    var formattedEndTime: String {
+        guard let start = startTime else { return "--:--" }
+        let end = start.addingTimeInterval(totalDuration)
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: end)
     }
     
     // MARK: - Initialization
@@ -55,144 +71,120 @@ class BreastfeedingTimerViewModel: ObservableObject {
         self.baby = baby
     }
     
-    // MARK: - Left Side Actions
+    // MARK: - Actions
     
-    func startLeft() {
-        guard !isLeftRunning else { return }
+    func start(side: BreastSide) {
+        guard !hasStarted else { return }
         
+        currentSide = side
         hasStarted = true
-        isLeftRunning = true
-        leftStartTime = Date()
+        isRunning = true
+        startTime = Date()
+        currentStartTime = Date()
         
-        leftTimer = Timer.publish(every: 0.1, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in
-                self?.updateLeftElapsed()
-            }
+        startTimer()
     }
     
-    func pauseLeft() {
-        guard isLeftRunning else { return }
-        
-        isLeftRunning = false
-        leftTimer?.cancel()
-        leftTimer = nil
-        leftPausedDuration = leftElapsed
+    func togglePause() {
+        if isRunning {
+            pause()
+        } else {
+            resume()
+        }
     }
     
-    func resumeLeft() {
-        guard !isLeftRunning else { return }
-        
-        isLeftRunning = true
-        leftStartTime = Date()
-        
-        leftTimer = Timer.publish(every: 0.1, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in
-                self?.updateLeftElapsed()
-            }
+    func stop() {
+        isRunning = false
+        timer?.cancel()
+        timer = nil
     }
-    
-    func stopLeft() {
-        pauseLeft()
-    }
-    
-    // MARK: - Right Side Actions
-    
-    func startRight() {
-        guard !isRightRunning else { return }
-        
-        hasStarted = true
-        isRightRunning = true
-        rightStartTime = Date()
-        
-        rightTimer = Timer.publish(every: 0.1, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in
-                self?.updateRightElapsed()
-            }
-    }
-    
-    func pauseRight() {
-        guard isRightRunning else { return }
-        
-        isRightRunning = false
-        rightTimer?.cancel()
-        rightTimer = nil
-        rightPausedDuration = rightElapsed
-    }
-    
-    func resumeRight() {
-        guard !isRightRunning else { return }
-        
-        isRightRunning = true
-        rightStartTime = Date()
-        
-        rightTimer = Timer.publish(every: 0.1, on: .main, in: .common)
-            .autoconnect()
-            .sink { [weak self] _ in
-                self?.updateRightElapsed()
-            }
-    }
-    
-    func stopRight() {
-        pauseRight()
-    }
-    
-    // MARK: - Switch Side Action
     
     func switchSide() {
-        // Stop left, start right
-        if isLeftRunning {
-            stopLeft()
+        // Pause current side
+        if isRunning {
+            pause()
         }
-        startRight()
+        
+        // Switch side
+        currentSide = currentSide == .left ? .right : .left
+        
+        // Reset for new side
+        pausedDuration = currentSide == .left ? leftDuration : rightDuration
+        currentStartTime = Date()
+        
+        // Resume
+        resume()
     }
-    
-    // MARK: - Save Record
     
     func saveRecord(context: ModelContext) {
         let record = FeedingRecord(
             babyId: baby.id,
-            timestamp: Date(),
+            timestamp: startTime ?? Date(),
             method: .breastfeeding
         )
-        record.leftDuration = Int(leftElapsed)
-        record.rightDuration = Int(rightElapsed)
+        record.leftDuration = Int(leftDuration)
+        record.rightDuration = Int(rightDuration)
         
         context.insert(record)
         try? context.save()
         
-        // Reset
         reset()
     }
     
     func reset() {
-        stopLeft()
-        stopRight()
-        
-        leftElapsed = 0
-        rightElapsed = 0
-        leftPausedDuration = 0
-        rightPausedDuration = 0
-        leftStartTime = nil
-        rightStartTime = nil
+        stop()
+        leftDuration = 0
+        rightDuration = 0
+        pausedDuration = 0
+        startTime = nil
+        currentStartTime = nil
         hasStarted = false
+        currentSide = .left
     }
     
     // MARK: - Private Methods
     
-    private func updateLeftElapsed() {
-        guard let start = leftStartTime else { return }
-        leftElapsed = leftPausedDuration + Date().timeIntervalSince(start)
+    private func startTimer() {
+        timer = Timer.publish(every: 0.1, on: .main, in: .common)
+            .autoconnect()
+            .sink { [weak self] _ in
+                self?.updateDuration()
+            }
     }
     
-    private func updateRightElapsed() {
-        guard let start = rightStartTime else { return }
-        rightElapsed = rightPausedDuration + Date().timeIntervalSince(start)
+    private func pause() {
+        guard isRunning else { return }
+        
+        isRunning = false
+        timer?.cancel()
+        timer = nil
+        
+        // Save paused duration
+        if currentSide == .left {
+            pausedDuration = leftDuration
+        } else {
+            pausedDuration = rightDuration
+        }
     }
     
-    // MARK: - Formatters
+    private func resume() {
+        guard !isRunning else { return }
+        
+        isRunning = true
+        currentStartTime = Date()
+        startTimer()
+    }
+    
+    private func updateDuration() {
+        guard let start = currentStartTime else { return }
+        let elapsed = pausedDuration + Date().timeIntervalSince(start)
+        
+        if currentSide == .left {
+            leftDuration = elapsed
+        } else {
+            rightDuration = elapsed
+        }
+    }
     
     private func formatTime(_ duration: TimeInterval) -> String {
         let total = Int(duration)
@@ -202,7 +194,6 @@ class BreastfeedingTimerViewModel: ObservableObject {
     }
     
     deinit {
-        leftTimer?.cancel()
-        rightTimer?.cancel()
+        timer?.cancel()
     }
 }
