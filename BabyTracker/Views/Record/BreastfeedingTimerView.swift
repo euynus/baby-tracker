@@ -416,7 +416,7 @@ struct BreastfeedingTimerView: View {
     private func saveRecord() {
         let record = FeedingRecord(
             babyId: baby.id,
-            timestamp: viewModel.startTime,
+            timestamp: viewModel.startTime ?? Date(),
             method: .breastfeeding
         )
         
