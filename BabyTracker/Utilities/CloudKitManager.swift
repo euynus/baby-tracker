@@ -19,7 +19,7 @@ class CloudKitManager: ObservableObject {
     private let container = CKContainer(identifier: "iCloud.com.babytracker.app")
     private let privateDatabase: CKDatabase
     
-    enum SyncStatus {
+    enum SyncStatus: Equatable {
         case idle
         case syncing
         case success
