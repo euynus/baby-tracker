@@ -10,11 +10,6 @@ import Foundation
 import Combine
 import SwiftData
 
-enum BreastSide {
-    case left
-    case right
-}
-
 class BreastfeedingTimerViewModel: ObservableObject {
     // MARK: - Published Properties
     
