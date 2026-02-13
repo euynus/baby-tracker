@@ -153,12 +153,12 @@ class BreastfeedingTimerViewModel: ObservableObject {
     
     func saveRecord(context: ModelContext) {
         let record = FeedingRecord(
-            baby: baby,
-            type: .breastfeeding,
-            leftDuration: leftElapsed,
-            rightDuration: rightElapsed,
-            timestamp: Date()
+            babyId: baby.id,
+            timestamp: Date(),
+            method: .breastfeeding
         )
+        record.leftDuration = Int(leftElapsed)
+        record.rightDuration = Int(rightElapsed)
         
         context.insert(record)
         try? context.save()

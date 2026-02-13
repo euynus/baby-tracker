@@ -15,7 +15,13 @@ struct BreastfeedingTimerView: View {
     let baby: Baby
     let onComplete: () -> Void
     
-    @StateObject private var viewModel = BreastfeedingTimerViewModel()
+    @StateObject private var viewModel: BreastfeedingTimerViewModel
+    
+    init(baby: Baby, onComplete: @escaping () -> Void) {
+        self.baby = baby
+        self.onComplete = onComplete
+        _viewModel = StateObject(wrappedValue: BreastfeedingTimerViewModel(baby: baby))
+    }
     @State private var estimatedAmount: String = ""
     @State private var notes: String = ""
     @State private var showingCompletion = false
