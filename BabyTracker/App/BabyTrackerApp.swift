@@ -11,15 +11,26 @@ import SwiftData
 @main
 struct BabyTrackerApp: App {
     @StateObject private var authManager = AuthenticationManager()
+    @AppStorage("appearance") private var appearance: String = "跟随系统"
+    
+    private var preferredScheme: ColorScheme? {
+        switch appearance {
+        case "浅色": return .light
+        case "深色": return .dark
+        default: return nil
+        }
+    }
     
     var body: some Scene {
         WindowGroup {
             if authManager.isAuthenticated {
                 ContentView()
                     .environmentObject(authManager)
+                    .preferredColorScheme(preferredScheme)
             } else {
                 AuthenticationView()
                     .environmentObject(authManager)
+                    .preferredColorScheme(preferredScheme)
             }
         }
         .modelContainer(for: [Baby.self, FeedingRecord.self, SleepRecord.self, DiaperRecord.self, GrowthRecord.self, PhotoRecord.self])

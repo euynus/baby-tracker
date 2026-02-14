@@ -61,8 +61,8 @@ struct AuthenticationView: View {
                 Text("解锁")
                     .frame(maxWidth: .infinity)
                     .padding()
-                    .background(Color.white)
-                    .foregroundStyle(.blue)
+                    .background(.regularMaterial)
+                    .foregroundStyle(.primary)
                     .fontWeight(.semibold)
                     .cornerRadius(12)
             }
@@ -90,7 +90,7 @@ struct AuthenticationView: View {
             }
             .foregroundStyle(.white)
             .padding(32)
-            .background(Color.white.opacity(0.2))
+            .background(.ultraThinMaterial)
             .cornerRadius(20)
         }
     }
