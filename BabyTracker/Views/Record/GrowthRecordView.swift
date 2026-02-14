@@ -21,8 +21,7 @@ struct GrowthRecordView: View {
     @State private var notes: String = ""
     @State private var recordDate = Date()
     
-    @State private var showingWeightAlert = false
-    @State private var showingTemperatureAlert = false
+    @State private var showingAlert = false
     @State private var alertMessage = ""
     
     var body: some View {
@@ -91,12 +90,7 @@ struct GrowthRecordView: View {
                     .disabled(!hasValidInput)
                 }
             }
-            .alert("提示", isPresented: $showingWeightAlert) {
-                Button("确定", role: .cancel) { }
-            } message: {
-                Text(alertMessage)
-            }
-            .alert("体温提示", isPresented: $showingTemperatureAlert) {
+            .alert("提示", isPresented: $showingAlert) {
                 Button("确定", role: .cancel) { }
             } message: {
                 Text(alertMessage)
@@ -109,70 +103,42 @@ struct GrowthRecordView: View {
     }
     
     private func saveRecord() {
-        // 验证体重
-        if let weightValue = Double(weight), !weight.isEmpty {
-            if isAbnormalWeight(weightValue) {
-                alertMessage = weightValue < 1.0 ? "体重异常低，请确认" : "体重异常高，请确认"
-                showingWeightAlert = true
-                return
-            }
+        if recordDate > Date() {
+            alertMessage = "记录时间不能晚于当前时间"
+            showingAlert = true
+            return
         }
         
-        // 验证体温
-        if let tempValue = Double(temperature), !temperature.isEmpty {
-            if let alert = getTemperatureAlert(tempValue) {
-                alertMessage = alert
-                showingTemperatureAlert = true
-                return
-            }
-        }
+        let weightValue = parse(weight, validate: { (1.0...30.0).contains($0) }, message: "体重应在 1~30kg 之间")
+        if showingAlert { return }
+        let heightValue = parse(height, validate: { (30.0...150.0).contains($0) }, message: "身高应在 30~150cm 之间")
+        if showingAlert { return }
+        let headValue = parse(headCircumference, validate: { (25.0...60.0).contains($0) }, message: "头围应在 25~60cm 之间")
+        if showingAlert { return }
+        let tempValue = parse(temperature, validate: { (34.0...42.0).contains($0) }, message: "体温应在 34~42°C 之间")
+        if showingAlert { return }
         
-        // 保存记录
-        if let weightValue = Double(weight), !weight.isEmpty {
-            let record = GrowthRecord(
-                baby: baby,
-                weight: weightValue,
-                timestamp: recordDate
-            )
-            if !notes.isEmpty {
-                record.notes = notes
-            }
+        if let weightValue {
+            let record = GrowthRecord(baby: baby, weight: weightValue, timestamp: recordDate)
+            if !notes.isEmpty { record.notes = notes }
             modelContext.insert(record)
         }
         
-        if let heightValue = Double(height), !height.isEmpty {
-            let record = GrowthRecord(
-                baby: baby,
-                height: heightValue,
-                timestamp: recordDate
-            )
-            if !notes.isEmpty {
-                record.notes = notes
-            }
+        if let heightValue {
+            let record = GrowthRecord(baby: baby, height: heightValue, timestamp: recordDate)
+            if !notes.isEmpty { record.notes = notes }
             modelContext.insert(record)
         }
         
-        if let headValue = Double(headCircumference), !headCircumference.isEmpty {
-            let record = GrowthRecord(
-                baby: baby,
-                headCircumference: headValue,
-                timestamp: recordDate
-            )
-            if !notes.isEmpty {
-                record.notes = notes
-            }
+        if let headValue {
+            let record = GrowthRecord(baby: baby, headCircumference: headValue, timestamp: recordDate)
+            if !notes.isEmpty { record.notes = notes }
             modelContext.insert(record)
         }
         
-        if let tempValue = Double(temperature), !temperature.isEmpty {
-            let record = GrowthRecord(
-                baby: baby,
-                temperature: tempValue,
-                timestamp: recordDate
-            )
-            if !notes.isEmpty {
-                record.notes = notes
-            }
+        if let tempValue {
+            let record = GrowthRecord(baby: baby, temperature: tempValue, timestamp: recordDate)
+            if !notes.isEmpty { record.notes = notes }
             modelContext.insert(record)
         }
         
@@ -180,18 +146,24 @@ struct GrowthRecordView: View {
         dismiss()
     }
     
-    private func isAbnormalWeight(_ weight: Double) -> Bool {
-        return weight < 1.0 || weight > 15.0
+    private func validate(_ value: Double, with rule: (Double) -> Bool, message: String) -> Bool {
+        if !rule(value) {
+            alertMessage = message
+            showingAlert = true
+            return false
+        }
+        return true
     }
     
-    private func getTemperatureAlert(_ temp: Double) -> String? {
-        if temp < 35.5 {
-            return "体温偏低，请注意保暖"
-        } else if temp >= 38.0 {
-            return "发烧，建议就医"
-        } else if temp >= 37.5 {
-            return "体温略高，请持续监测"
+    private func parse(_ input: String, validate rule: (Double) -> Bool, message: String) -> Double? {
+        let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return nil }
+        guard let value = Double(trimmed) else {
+            alertMessage = "请输入有效数字"
+            showingAlert = true
+            return nil
         }
-        return nil
+        guard validate(value, with: rule, message: message) else { return nil }
+        return value
     }
 }

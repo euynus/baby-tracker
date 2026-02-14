@@ -97,6 +97,7 @@ struct DiaperRecordView: View {
         }
         
         modelContext.insert(record)
+        try? modelContext.save()
         dismiss()
     }
 }

@@ -18,6 +18,8 @@ struct FeedingRecordView: View {
     @State private var showBreastfeedingTimer = false
     @State private var amount: String = ""
     @State private var notes: String = ""
+    @State private var showingAlert = false
+    @State private var alertMessage = ""
     
     var body: some View {
         NavigationStack {
@@ -83,6 +85,11 @@ struct FeedingRecordView: View {
                     }
                 }
             }
+            .alert("提示", isPresented: $showingAlert) {
+                Button("确定", role: .cancel) { }
+            } message: {
+                Text(alertMessage)
+            }
             .sheet(isPresented: $showBreastfeedingTimer) {
                 BreastfeedingTimerView(baby: baby) {
                     dismiss()
@@ -94,7 +101,18 @@ struct FeedingRecordView: View {
     private func saveQuickRecord() {
         let record = FeedingRecord(babyId: baby.id, timestamp: Date(), method: feedingMethod)
         
-        if let amountValue = Double(amount), amountValue > 0 {
+        let trimmedAmount = amount.trimmingCharacters(in: .whitespacesAndNewlines)
+        if !trimmedAmount.isEmpty {
+            guard let amountValue = Double(trimmedAmount) else {
+                alertMessage = "请输入有效奶量"
+                showingAlert = true
+                return
+            }
+            guard amountValue > 0, amountValue <= 500 else {
+                alertMessage = "奶量应在 1~500ml 之间"
+                showingAlert = true
+                return
+            }
             record.amount = amountValue
         }
         
@@ -103,6 +121,7 @@ struct FeedingRecordView: View {
         }
         
         modelContext.insert(record)
+        try? modelContext.save()
         dismiss()
     }
 }
