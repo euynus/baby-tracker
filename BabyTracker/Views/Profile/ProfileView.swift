@@ -113,6 +113,7 @@ struct ProfileView: View {
         for index in offsets {
             modelContext.delete(babies[index])
         }
+        try? modelContext.save()
     }
 }
 
@@ -229,7 +230,7 @@ struct BabyDetailView: View {
     }
     
     private func saveBaby() {
-        baby.name = name
+        baby.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
         baby.birthday = birthday
         baby.gender = gender
         
@@ -244,6 +245,8 @@ struct BabyDetailView: View {
         if let headValue = Double(headCircumference) {
             baby.latestHeadCircumference = headValue
         }
+        
+        try? modelContext.save()
     }
 }
 
@@ -284,15 +287,19 @@ struct AddBabyView: View {
                     Button("保存") {
                         addBaby()
                     }
-                    .disabled(name.isEmpty)
+                    .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
             }
         }
     }
     
     private func addBaby() {
-        let baby = Baby(name: name, birthday: birthday, gender: gender)
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else { return }
+        
+        let baby = Baby(name: trimmedName, birthday: birthday, gender: gender)
         modelContext.insert(baby)
+        try? modelContext.save()
         dismiss()
     }
 }
