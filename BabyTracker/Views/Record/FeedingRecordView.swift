@@ -20,6 +20,7 @@ struct FeedingRecordView: View {
     @State private var notes: String = ""
     @State private var showingAlert = false
     @State private var alertMessage = ""
+    @State private var showingSaveSuccess = false
     
     var body: some View {
         NavigationStack {
@@ -73,6 +74,7 @@ struct FeedingRecordView: View {
                         }
                         .frame(maxWidth: .infinity)
                         .foregroundStyle(.blue)
+                        .scaleButton()
                     }
                 }
             }
@@ -94,6 +96,9 @@ struct FeedingRecordView: View {
                 BreastfeedingTimerView(baby: baby) {
                     dismiss()
                 }
+            }
+            .saveSuccessOverlay(isPresented: $showingSaveSuccess) {
+                dismiss()
             }
         }
     }
@@ -122,7 +127,8 @@ struct FeedingRecordView: View {
         
         modelContext.insert(record)
         try? modelContext.save()
-        dismiss()
+        HapticManager.shared.success()
+        showingSaveSuccess = true
     }
 }
 

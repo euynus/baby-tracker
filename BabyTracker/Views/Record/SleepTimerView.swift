@@ -83,6 +83,7 @@ struct SleepTimerView: View {
                     .fontWeight(.semibold)
                     .cornerRadius(16)
             }
+            .scaleButton()
             
             Spacer()
         }
@@ -105,6 +106,7 @@ struct SleepTimerView: View {
                 .padding(.vertical, 8)
                 .background(Color.purple.opacity(0.2))
                 .cornerRadius(20)
+                .pulse()
             }
             
             // Timer display
@@ -184,6 +186,7 @@ struct SleepTimerView: View {
                     .fontWeight(.semibold)
                     .cornerRadius(12)
             }
+            .scaleButton()
         }
     }
     
@@ -192,13 +195,15 @@ struct SleepTimerView: View {
     private func startSleep() {
         let sleep = SleepRecord(babyId: baby.id, startTime: Date())
         modelContext.insert(sleep)
+        HapticManager.shared.medium()
     }
-    
+
     private func endSleep(_ sleep: SleepRecord) {
         sleep.endTime = Date()
         if !notes.isEmpty {
             sleep.notes = notes
         }
+        HapticManager.shared.medium()
         dismiss()
     }
     

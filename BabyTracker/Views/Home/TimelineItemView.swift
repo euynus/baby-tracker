@@ -39,9 +39,7 @@ struct TimelineItemView: View {
             Spacer()
         }
         .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.06), radius: 4, y: 2)
+        .cardStyle()
     }
     
     private var icon: String {

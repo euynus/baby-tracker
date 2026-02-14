@@ -97,11 +97,9 @@ struct CalendarView: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.06), radius: 4, y: 2)
+        .cardStyle()
     }
-    
+
     private var calendarGrid: some View {
         VStack(spacing: 12) {
             // Weekday headers
@@ -128,9 +126,7 @@ struct CalendarView: View {
             }
         }
         .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(16)
-        .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+        .cardStyle()
     }
     
     private func dayCell(for date: Date) -> some View {

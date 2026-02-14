@@ -118,10 +118,11 @@ struct BreastfeedingTimerView: View {
                 .padding(.horizontal, 16)
                 .padding(.vertical, 8)
                 .background(
-                    viewModel.isRunning ? 
+                    viewModel.isRunning ?
                     Color.blue.opacity(0.2) : Color.orange.opacity(0.2)
                 )
                 .cornerRadius(20)
+                .if(viewModel.isRunning) { $0.pulse() }
             }
             
             // Main timer display
@@ -432,7 +433,7 @@ struct BreastfeedingTimerView: View {
         }
         
         modelContext.insert(record)
-        
+        HapticManager.shared.success()
         onComplete()
     }
 }

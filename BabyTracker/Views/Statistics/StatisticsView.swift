@@ -107,9 +107,7 @@ struct StatisticsView: View {
             }
             .frame(height: 200)
             .padding()
-            .background(Color(.systemBackground))
-            .cornerRadius(16)
-            .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+            .cardStyle()
             .padding(.horizontal)
             
             // Summary stats
@@ -163,9 +161,7 @@ struct StatisticsView: View {
             }
             .frame(height: 200)
             .padding()
-            .background(Color(.systemBackground))
-            .cornerRadius(16)
-            .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+            .cardStyle()
             .padding(.horizontal)
             
             // Summary stats
@@ -247,9 +243,7 @@ struct StatisticsView: View {
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(Color(.systemBackground))
-        .cornerRadius(12)
-        .shadow(color: .black.opacity(0.06), radius: 4, y: 2)
+        .cardStyle()
     }
     
     // MARK: - Data Processing

@@ -124,6 +124,19 @@ extension View {
     }
 }
 
+// MARK: - Conditional Modifier
+
+extension View {
+    @ViewBuilder
+    func `if`<Transform: View>(_ condition: Bool, transform: (Self) -> Transform) -> some View {
+        if condition {
+            transform(self)
+        } else {
+            self
+        }
+    }
+}
+
 // MARK: - Card Style with Shadow Animation
 
 struct AnimatedCard: ViewModifier {
@@ -184,13 +197,13 @@ struct LoadingDotsView: View {
 
 struct CheckmarkAnimation: View {
     @State private var trimEnd: CGFloat = 0
-    
+
     var body: some View {
         ZStack {
             Circle()
                 .stroke(Color.green, lineWidth: 3)
                 .frame(width: 50, height: 50)
-            
+
             Path { path in
                 path.move(to: CGPoint(x: 15, y: 25))
                 path.addLine(to: CGPoint(x: 22, y: 32))
@@ -205,5 +218,52 @@ struct CheckmarkAnimation: View {
                 trimEnd = 1.0
             }
         }
+    }
+}
+
+// MARK: - Save Success Overlay
+
+struct SaveSuccessOverlayModifier: ViewModifier {
+    @Binding var isPresented: Bool
+    var onDismiss: () -> Void
+
+    func body(content: Content) -> some View {
+        content
+            .overlay {
+                if isPresented {
+                    ZStack {
+                        Color.black.opacity(0.3)
+                            .ignoresSafeArea()
+
+                        VStack(spacing: 16) {
+                            CheckmarkAnimation()
+                            Text("已保存")
+                                .font(.headline)
+                                .foregroundStyle(.green)
+                        }
+                        .padding(32)
+                        .background(.ultraThinMaterial)
+                        .cornerRadius(20)
+                    }
+                    .transition(.opacity)
+                    .onAppear {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                            withAnimation(.smooth) {
+                                isPresented = false
+                            }
+                            DispatchQueue.main.asyncAfter(deadline: .now() + 0.3) {
+                                onDismiss()
+                            }
+                        }
+                    }
+                }
+            }
+            .animation(.smooth, value: isPresented)
+    }
+}
+
+extension View {
+    func saveSuccessOverlay(isPresented: Binding<Bool>, onDismiss: @escaping () -> Void = {}) -> some View {
+        modifier(SaveSuccessOverlayModifier(isPresented: isPresented, onDismiss: onDismiss))
     }
 }

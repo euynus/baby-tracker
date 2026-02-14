@@ -39,18 +39,6 @@ struct HomeView: View {
                 .padding()
             }
             .navigationTitle("宝宝日记")
-            .toolbar {
-                ToolbarItem(placement: .navigationBarLeading) {
-                    Button(action: {}) {
-                        Image(systemName: "line.3.horizontal")
-                    }
-                }
-                ToolbarItem(placement: .navigationBarTrailing) {
-                    Button(action: {}) {
-                        Image(systemName: "gearshape")
-                    }
-                }
-            }
             .sheet(isPresented: $showingFeedingSheet) {
                 if let baby = selectedBaby {
                     FeedingRecordView(baby: baby)
@@ -106,7 +94,7 @@ struct HomeView: View {
                 gradient: [Color.blue.opacity(0.2), Color.blue.opacity(0.4)],
                 action: { showingFeedingSheet = true }
             )
-            
+
             QuickActionButton(
                 icon: "💤",
                 title: "睡眠",
@@ -114,7 +102,7 @@ struct HomeView: View {
                 gradient: [Color.purple.opacity(0.2), Color.purple.opacity(0.4)],
                 action: { showingSleepSheet = true }
             )
-            
+
             QuickActionButton(
                 icon: "💩",
                 title: "尿布",
@@ -122,7 +110,7 @@ struct HomeView: View {
                 gradient: [Color.yellow.opacity(0.2), Color.yellow.opacity(0.4)],
                 action: { showingDiaperSheet = true }
             )
-            
+
             QuickActionButton(
                 icon: "🌡️",
                 title: "体温",
@@ -131,6 +119,7 @@ struct HomeView: View {
                 action: { showingTemperatureSheet = true }
             )
         }
+        .slideIn(from: .bottom)
     }
     
     private func timelineSection(for baby: Baby) -> some View {
@@ -151,13 +140,24 @@ struct HomeView: View {
             let todayRecords = getTodayRecords(for: baby)
             
             if todayRecords.isEmpty {
-                Text("暂无记录")
-                    .foregroundStyle(.secondary)
-                    .frame(maxWidth: .infinity)
-                    .padding()
+                VStack(spacing: 12) {
+                    Image(systemName: "text.badge.plus")
+                        .font(.system(size: 48))
+                        .foregroundStyle(.secondary.opacity(0.5))
+                    Text("暂无记录")
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                    Text("点击上方按钮开始记录")
+                        .font(.subheadline)
+                        .foregroundStyle(.tertiary)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 40)
+                .fadeIn()
             } else {
-                ForEach(todayRecords) { record in
+                ForEach(Array(todayRecords.enumerated()), id: \.element.id) { index, record in
                     TimelineItemView(record: record)
+                        .fadeIn(delay: Double(index) * 0.05)
                 }
             }
         }

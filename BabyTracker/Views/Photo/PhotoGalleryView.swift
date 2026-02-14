@@ -11,36 +11,57 @@ import PhotosUI
 
 struct PhotoGalleryView: View {
     let baby: Baby
-    
+
     @Environment(\.modelContext) private var modelContext
     @Query(sort: \PhotoRecord.timestamp, order: .reverse) private var allPhotos: [PhotoRecord]
-    
+
     @State private var selectedItem: PhotosPickerItem?
     @State private var showingImagePicker = false
-    
+
     private var photos: [PhotoRecord] {
         allPhotos.filter { $0.babyId == baby.id }
     }
-    
+
     private let columns = [
         GridItem(.flexible()),
         GridItem(.flexible()),
         GridItem(.flexible())
     ]
-    
+
     var body: some View {
-        ScrollView {
-            LazyVGrid(columns: columns, spacing: 2) {
-                ForEach(photos) { photo in
-                    if let uiImage = UIImage(data: photo.imageData) {
-                        NavigationLink {
-                            PhotoDetailView(photo: photo)
-                        } label: {
-                            Image(uiImage: uiImage)
-                                .resizable()
-                                .scaledToFill()
-                                .frame(width: (UIScreen.main.bounds.width - 4) / 3, height: (UIScreen.main.bounds.width - 4) / 3)
-                                .clipped()
+        GeometryReader { geometry in
+            let size = (geometry.size.width - 4) / 3
+
+            if photos.isEmpty {
+                VStack(spacing: 16) {
+                    Image(systemName: "photo.on.rectangle.angled")
+                        .font(.system(size: 56))
+                        .foregroundStyle(.secondary.opacity(0.5))
+                    Text("还没有照片")
+                        .font(.headline)
+                        .foregroundStyle(.secondary)
+                    Text("点击右上角添加")
+                        .font(.subheadline)
+                        .foregroundStyle(.tertiary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
+                .fadeIn()
+            } else {
+                ScrollView {
+                    LazyVGrid(columns: columns, spacing: 2) {
+                        ForEach(photos) { photo in
+                            if let uiImage = UIImage(data: photo.imageData) {
+                                NavigationLink {
+                                    PhotoDetailView(photo: photo)
+                                } label: {
+                                    Image(uiImage: uiImage)
+                                        .resizable()
+                                        .scaledToFill()
+                                        .frame(width: size, height: size)
+                                        .clipped()
+                                }
+                                .fadeIn()
+                            }
                         }
                     }
                 }
@@ -63,7 +84,7 @@ struct PhotoGalleryView: View {
             }
         }
     }
-    
+
     private func addPhoto(data: Data) {
         let photo = PhotoRecord(babyId: baby.id, timestamp: Date(), imageData: data)
         modelContext.insert(photo)
@@ -73,17 +94,17 @@ struct PhotoGalleryView: View {
 struct PhotoDetailView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    
+
     let photo: PhotoRecord
-    
+
     @State private var caption: String
     @State private var showingDeleteAlert = false
-    
+
     init(photo: PhotoRecord) {
         self.photo = photo
         _caption = State(initialValue: photo.caption ?? "")
     }
-    
+
     var body: some View {
         ScrollView {
             VStack(spacing: 20) {
@@ -91,19 +112,19 @@ struct PhotoDetailView: View {
                     Image(uiImage: uiImage)
                         .resizable()
                         .scaledToFit()
-                        .cornerRadius(12)
+                        .cornerRadius(AppTheme.cornerRadiusMedium)
                 }
-                
+
                 VStack(alignment: .leading, spacing: 12) {
                     Text("说明")
                         .font(.headline)
-                    
+
                     TextEditor(text: $caption)
                         .frame(height: 100)
                         .padding(8)
                         .background(Color(.systemGray6))
-                        .cornerRadius(8)
-                    
+                        .cornerRadius(AppTheme.cornerRadiusSmall)
+
                     Button("保存说明") {
                         saveCaption()
                     }
@@ -111,7 +132,7 @@ struct PhotoDetailView: View {
                     .frame(maxWidth: .infinity)
                 }
                 .padding()
-                
+
                 VStack(alignment: .leading, spacing: 8) {
                     HStack {
                         Text("拍摄时间")
@@ -123,9 +144,9 @@ struct PhotoDetailView: View {
                 }
                 .padding()
                 .background(Color(.systemGray6))
-                .cornerRadius(12)
+                .cornerRadius(AppTheme.cornerRadiusMedium)
                 .padding(.horizontal)
-                
+
                 Button(role: .destructive, action: { showingDeleteAlert = true }) {
                     Label("删除照片", systemImage: "trash")
                         .frame(maxWidth: .infinity)
@@ -146,11 +167,11 @@ struct PhotoDetailView: View {
             Text("确定要删除这张照片吗？此操作无法撤销。")
         }
     }
-    
+
     private func saveCaption() {
         photo.caption = caption.isEmpty ? nil : caption
     }
-    
+
     private func deletePhoto() {
         modelContext.delete(photo)
         dismiss()

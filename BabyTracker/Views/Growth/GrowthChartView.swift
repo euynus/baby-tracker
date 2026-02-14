@@ -37,9 +37,7 @@ struct GrowthChartView: View {
                 chartView
                     .frame(height: 300)
                     .padding()
-                    .background(Color(.systemBackground))
-                    .cornerRadius(16)
-                    .shadow(color: .black.opacity(0.08), radius: 8, y: 4)
+                    .cardStyle()
                     .padding(.horizontal)
                 
                 // Legend
