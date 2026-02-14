@@ -10,10 +10,10 @@ import SwiftData
 
 @Model
 final class Baby {
-    var id: UUID
-    var name: String
-    var birthday: Date
-    var gender: Gender
+    var id: UUID = UUID()
+    var name: String = ""
+    var birthday: Date = Date()
+    var gender: Gender = Gender.male
     var photoData: Data?
     
     // Latest measurements

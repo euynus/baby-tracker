@@ -10,9 +10,9 @@ import SwiftData
 
 @Model
 final class SleepRecord {
-    var id: UUID
-    var babyId: UUID
-    var startTime: Date
+    var id: UUID = UUID()
+    var babyId: UUID = UUID()
+    var startTime: Date = Date()
     var endTime: Date?
     var notes: String?
     

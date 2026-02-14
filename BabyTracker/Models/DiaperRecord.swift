@@ -10,11 +10,11 @@ import SwiftData
 
 @Model
 final class DiaperRecord {
-    var id: UUID
-    var babyId: UUID
-    var timestamp: Date
-    var hasWet: Bool
-    var hasDirty: Bool
+    var id: UUID = UUID()
+    var babyId: UUID = UUID()
+    var timestamp: Date = Date()
+    var hasWet: Bool = false
+    var hasDirty: Bool = false
     var color: String?
     var consistency: String?
     var notes: String?

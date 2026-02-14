@@ -10,10 +10,10 @@ import SwiftData
 
 @Model
 final class FeedingRecord {
-    var id: UUID
-    var babyId: UUID
-    var timestamp: Date
-    var method: FeedingMethod
+    var id: UUID = UUID()
+    var babyId: UUID = UUID()
+    var timestamp: Date = Date()
+    var method: FeedingMethod = FeedingMethod.breastfeeding
     
     // For breastfeeding
     var leftDuration: Int? // in seconds

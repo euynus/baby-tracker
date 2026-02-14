@@ -10,9 +10,9 @@ import SwiftData
 
 @Model
 final class GrowthRecord {
-    var id: UUID
-    var babyId: UUID
-    var timestamp: Date
+    var id: UUID = UUID()
+    var babyId: UUID = UUID()
+    var timestamp: Date = Date()
     var weight: Double? // in grams
     var height: Double? // in cm
     var headCircumference: Double? // in cm

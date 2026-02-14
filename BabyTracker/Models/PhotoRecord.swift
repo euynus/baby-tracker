@@ -10,10 +10,10 @@ import SwiftData
 
 @Model
 final class PhotoRecord {
-    var id: UUID
-    var babyId: UUID
-    var timestamp: Date
-    var imageData: Data
+    var id: UUID = UUID()
+    var babyId: UUID = UUID()
+    var timestamp: Date = Date()
+    var imageData: Data = Data()
     var caption: String?
     
     // Associated record IDs (optional)

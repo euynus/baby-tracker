@@ -36,6 +36,23 @@ final class BabyModelTests: XCTestCase {
     }
 }
 
+final class BabyPersistenceTests: XCTestCase {
+    
+    func testInsertAndSaveBaby() throws {
+        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let container = try ModelContainer(for: Baby.self, configurations: config)
+        let context = ModelContext(container)
+        
+        let baby = Baby(name: "测试宝宝", birthday: Date(), gender: .female)
+        context.insert(baby)
+        try context.save()
+        
+        let babies = try context.fetch(FetchDescriptor<Baby>())
+        XCTAssertEqual(babies.count, 1)
+        XCTAssertEqual(babies.first?.name, "测试宝宝")
+    }
+}
+
 final class FeedingRecordTests: XCTestCase {
     
     func testFeedingRecordCreation() {

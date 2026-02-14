@@ -113,7 +113,12 @@ struct ProfileView: View {
         for index in offsets {
             modelContext.delete(babies[index])
         }
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            // Keep this non-fatal but visible in debug logs.
+            print("删除宝宝保存失败: \(error.localizedDescription)")
+        }
     }
 }
 
@@ -169,6 +174,8 @@ struct BabyDetailView: View {
     @State private var weight: String
     @State private var height: String
     @State private var headCircumference: String
+    @State private var showingSaveError = false
+    @State private var saveErrorMessage = ""
     
     init(baby: Baby) {
         self.baby = baby
@@ -227,6 +234,11 @@ struct BabyDetailView: View {
         }
         .navigationTitle("宝宝资料")
         .navigationBarTitleDisplayMode(.inline)
+        .alert("保存失败", isPresented: $showingSaveError) {
+            Button("确定", role: .cancel) { }
+        } message: {
+            Text(saveErrorMessage)
+        }
     }
     
     private func saveBaby() {
@@ -246,7 +258,13 @@ struct BabyDetailView: View {
             baby.latestHeadCircumference = headValue
         }
         
-        try? modelContext.save()
+        do {
+            try modelContext.save()
+        } catch {
+            saveErrorMessage = error.localizedDescription
+            showingSaveError = true
+            print("更新宝宝信息保存失败: \(error.localizedDescription)")
+        }
     }
 }
 
@@ -257,6 +275,8 @@ struct AddBabyView: View {
     @State private var name = ""
     @State private var birthday = Date()
     @State private var gender = Gender.male
+    @State private var showingSaveError = false
+    @State private var saveErrorMessage = ""
     
     var body: some View {
         NavigationStack {
@@ -290,6 +310,11 @@ struct AddBabyView: View {
                     .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
             }
+            .alert("保存失败", isPresented: $showingSaveError) {
+                Button("确定", role: .cancel) { }
+            } message: {
+                Text(saveErrorMessage)
+            }
         }
     }
     
@@ -299,8 +324,17 @@ struct AddBabyView: View {
         
         let baby = Baby(name: trimmedName, birthday: birthday, gender: gender)
         modelContext.insert(baby)
-        try? modelContext.save()
-        dismiss()
+        
+        do {
+            try modelContext.save()
+            dismiss()
+        } catch {
+            // Remove unsaved object so the context doesn't keep a failed insertion.
+            modelContext.delete(baby)
+            saveErrorMessage = error.localizedDescription
+            showingSaveError = true
+            print("新增宝宝保存失败: \(error.localizedDescription)")
+        }
     }
 }
 

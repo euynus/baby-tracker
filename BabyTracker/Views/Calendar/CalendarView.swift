@@ -48,6 +48,11 @@ struct CalendarView: View {
                     selectedBaby = babies.first
                 }
             }
+            .onChange(of: babies) { _, newBabies in
+                if selectedBaby == nil || !newBabies.contains(where: { $0.id == selectedBaby?.id }) {
+                    selectedBaby = newBabies.first
+                }
+            }
         }
     }
     

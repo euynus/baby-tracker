@@ -9,14 +9,15 @@ import Foundation
 import LocalAuthentication
 import SwiftUI
 
+@MainActor
 class AuthenticationManager: ObservableObject {
     @Published var isAuthenticated = false
     @Published var authenticationError: String?
-    
+
     @AppStorage("isAuthenticationEnabled") var isAuthenticationEnabled = false
     @AppStorage("usePasscode") var usePasscode = false
     @AppStorage("passcode") private var storedPasscode = ""
-    
+
     func authenticate() async {
         guard isAuthenticationEnabled else {
             isAuthenticated = true
@@ -33,25 +34,17 @@ class AuthenticationManager: ObservableObject {
                     localizedReason: "解锁宝宝日记"
                 )
                 
-                await MainActor.run {
-                    isAuthenticated = success
-                }
+                isAuthenticated = success
             } catch {
-                await MainActor.run {
-                    authenticationError = error.localizedDescription
-                    // Fallback to passcode if biometric fails
-                    if usePasscode {
-                        return
-                    }
+                authenticationError = error.localizedDescription
+                if !usePasscode {
                     isAuthenticated = false
                 }
             }
         } else {
             // Biometric not available, use passcode
-            await MainActor.run {
-                if !usePasscode {
-                    isAuthenticated = true // Skip if no auth method set
-                }
+            if !usePasscode {
+                isAuthenticated = true
             }
         }
     }
