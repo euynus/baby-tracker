@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct ReminderSettingsView: View {
-    @StateObject private var notificationManager = NotificationManager.shared
+    @ObservedObject private var notificationManager: NotificationManager
 
     @State private var feedingReminderEnabled = false
     @State private var feedingInterval: Double = 3 * 3600
@@ -17,6 +17,11 @@ struct ReminderSettingsView: View {
     @State private var diaperInterval: Double = 2 * 3600
 
     let baby: Baby
+
+    init(baby: Baby, notificationManager: NotificationManager = .shared) {
+        self.baby = baby
+        self.notificationManager = notificationManager
+    }
 
     private var feedingEnabledKey: String { "feedingReminderEnabled.\(baby.id.uuidString)" }
     private var feedingIntervalKey: String { "feedingInterval.\(baby.id.uuidString)" }

@@ -10,7 +10,11 @@ import SwiftData
 
 struct iCloudSyncView: View {
     @Environment(\.modelContext) private var modelContext
-    @StateObject private var cloudManager = CloudKitManager.shared
+    @ObservedObject private var cloudManager: CloudKitManager
+
+    init(cloudManager: CloudKitManager = .shared) {
+        self.cloudManager = cloudManager
+    }
 
     var body: some View {
         ScrollView(showsIndicators: false) {
