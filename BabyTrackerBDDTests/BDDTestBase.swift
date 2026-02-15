@@ -141,10 +141,29 @@ class BDDTestBase: XCTestCase {
     
     /// 获取最新的记录
     func 获取最新记录<T: PersistentModel>(_ type: T.Type) -> T? {
-        let descriptor = FetchDescriptor<T>(
-            sortBy: [SortDescriptor(\.timestamp, order: .reverse)]
-        )
-        let records = try! modelContext.fetch(descriptor)
+        let records = try! modelContext.fetch(FetchDescriptor<T>())
+
+        if type == FeedingRecord.self {
+            return (records as? [FeedingRecord])?
+                .sorted(by: { $0.timestamp > $1.timestamp })
+                .first as? T
+        }
+        if type == SleepRecord.self {
+            return (records as? [SleepRecord])?
+                .sorted(by: { $0.startTime > $1.startTime })
+                .first as? T
+        }
+        if type == DiaperRecord.self {
+            return (records as? [DiaperRecord])?
+                .sorted(by: { $0.timestamp > $1.timestamp })
+                .first as? T
+        }
+        if type == GrowthRecord.self {
+            return (records as? [GrowthRecord])?
+                .sorted(by: { $0.timestamp > $1.timestamp })
+                .first as? T
+        }
+
         return records.first
     }
     

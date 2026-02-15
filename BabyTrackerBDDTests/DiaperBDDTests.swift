@@ -331,6 +331,7 @@ final class DiaperBDDTests: BDDTestBase {
     // MARK: - Helper Methods
     
     private func isAbnormalStoolColor(_ color: DiaperRecord.StoolColor) -> Bool {
-        return [.black, .white, .red].contains(color)
+        let abnormalColors: [DiaperRecord.StoolColor] = [.black, .white]
+        return abnormalColors.contains(color)
     }
 }

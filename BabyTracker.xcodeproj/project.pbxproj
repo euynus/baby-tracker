@@ -44,7 +44,26 @@
 		BA0103 /* GrowthRecordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0105; };
 		BA0037 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BA0038; };
 		BA0039 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BA0040; };
+		BA1000 /* CorePersistenceRegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1001; };
+		BA1015 /* BabyTrackerTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1014; };
+		BA1100 /* BDDTestBase.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1110; };
+		BA1101 /* DiaperBDDTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1111; };
+		BA1102 /* FeedingBDDTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1112; };
+		BA1103 /* GrowthBDDTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1113; };
+		BA1104 /* SleepBDDTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1114; };
+		BA1105 /* StatisticsBDDTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1115; };
+		BA1013 /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = BA1012; };
 /* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		BA1010 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = BA0061 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = BA0057;
+			remoteInfo = BabyTracker;
+		};
+/* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
 		BA0002 /* BabyTrackerApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BabyTrackerApp.swift; sourceTree = "<group>"; };
@@ -85,6 +104,16 @@
 		BA0038 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BA0040 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		BA0041 /* BabyTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BabyTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		BA1001 /* CorePersistenceRegressionTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = CorePersistenceRegressionTests.swift; sourceTree = "<group>"; };
+		BA1002 /* BabyTrackerTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = BabyTrackerTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		BA1014 /* BabyTrackerTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BabyTrackerTests.swift; sourceTree = "<group>"; };
+		BA1110 /* BDDTestBase.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = BDDTestBase.swift; sourceTree = "<group>"; };
+		BA1111 /* DiaperBDDTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DiaperBDDTests.swift; sourceTree = "<group>"; };
+		BA1112 /* FeedingBDDTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedingBDDTests.swift; sourceTree = "<group>"; };
+		BA1113 /* GrowthBDDTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthBDDTests.swift; sourceTree = "<group>"; };
+		BA1114 /* SleepBDDTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SleepBDDTests.swift; sourceTree = "<group>"; };
+		BA1115 /* StatisticsBDDTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StatisticsBDDTests.swift; sourceTree = "<group>"; };
+		BA1012 /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = System/Library/Frameworks/XCTest.framework; sourceTree = SDKROOT; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -95,6 +124,14 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BA1004 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BA1013 /* XCTest.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
@@ -102,6 +139,8 @@
 			isa = PBXGroup;
 			children = (
 				BA0044 /* BabyTracker */,
+				BA1003 /* BabyTrackerTests */,
+				BA1120 /* BabyTrackerBDDTests */,
 				BA0045 /* Products */,
 			);
 			sourceTree = "<group>";
@@ -124,8 +163,31 @@
 			isa = PBXGroup;
 			children = (
 				BA0041 /* BabyTracker.app */,
+				BA1002 /* BabyTrackerTests.xctest */,
 			);
 			name = Products;
+			sourceTree = "<group>";
+		};
+		BA1003 /* BabyTrackerTests */ = {
+			isa = PBXGroup;
+			children = (
+				BA1001 /* CorePersistenceRegressionTests.swift */,
+				BA1014 /* BabyTrackerTests.swift */,
+			);
+			path = BabyTrackerTests;
+			sourceTree = "<group>";
+		};
+		BA1120 /* BabyTrackerBDDTests */ = {
+			isa = PBXGroup;
+			children = (
+				BA1110 /* BDDTestBase.swift */,
+				BA1111 /* DiaperBDDTests.swift */,
+				BA1112 /* FeedingBDDTests.swift */,
+				BA1113 /* GrowthBDDTests.swift */,
+				BA1114 /* SleepBDDTests.swift */,
+				BA1115 /* StatisticsBDDTests.swift */,
+			);
+			path = BabyTrackerBDDTests;
 			sourceTree = "<group>";
 		};
 		BA0046 /* App */ = {
@@ -306,6 +368,23 @@
 			productReference = BA0041 /* BabyTracker.app */;
 			productType = "com.apple.product-type.application";
 		};
+		BA1006 /* BabyTrackerTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = BA1007 /* Build configuration list for PBXNativeTarget "BabyTrackerTests" */;
+			buildPhases = (
+				BA1005 /* Sources */,
+				BA1004 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BA1011 /* PBXTargetDependency */,
+			);
+			name = BabyTrackerTests;
+			productName = BabyTrackerTests;
+			productReference = BA1002 /* BabyTrackerTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -318,6 +397,10 @@
 				TargetAttributes = {
 					BA0057 = {
 						CreatedOnToolsVersion = 15.0;
+					};
+					BA1006 = {
+						CreatedOnToolsVersion = 15.0;
+						TestTargetID = BA0057;
 					};
 				};
 			};
@@ -335,6 +418,7 @@
 			projectRoot = "";
 			targets = (
 				BA0057 /* BabyTracker */,
+				BA1006 /* BabyTrackerTests */,
 			);
 		};
 /* End PBXProject section */
@@ -394,7 +478,30 @@
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
+		BA1005 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				BA1000 /* CorePersistenceRegressionTests.swift in Sources */,
+				BA1015 /* BabyTrackerTests.swift in Sources */,
+				BA1100 /* BDDTestBase.swift in Sources */,
+				BA1101 /* DiaperBDDTests.swift in Sources */,
+				BA1102 /* FeedingBDDTests.swift in Sources */,
+				BA1103 /* GrowthBDDTests.swift in Sources */,
+				BA1104 /* SleepBDDTests.swift in Sources */,
+				BA1105 /* StatisticsBDDTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
 /* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		BA1011 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = BA0057 /* BabyTracker */;
+			targetProxy = BA1010 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
 
 /* Begin XCBuildConfiguration section */
 		BA0063 /* Debug */ = {
@@ -594,6 +701,54 @@
 			};
 			name = Release;
 		};
+		BA1008 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.babytracker.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BabyTracker.app/BabyTracker";
+			};
+			name = Debug;
+		};
+		BA1009 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				CODE_SIGN_STYLE = Automatic;
+				CURRENT_PROJECT_VERSION = 1;
+				GENERATE_INFOPLIST_FILE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				MARKETING_VERSION = 1.0;
+				PRODUCT_BUNDLE_IDENTIFIER = com.babytracker.app.tests;
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SUPPORTED_PLATFORMS = "iphoneos iphonesimulator";
+				SWIFT_EMIT_LOC_STRINGS = NO;
+				SWIFT_VERSION = 5.0;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/BabyTracker.app/BabyTracker";
+			};
+			name = Release;
+		};
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
@@ -611,6 +766,15 @@
 			buildConfigurations = (
 				BA0063 /* Debug */,
 				BA0064 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
+		};
+		BA1007 /* Build configuration list for PBXNativeTarget "BabyTrackerTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				BA1008 /* Debug */,
+				BA1009 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;

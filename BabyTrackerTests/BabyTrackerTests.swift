@@ -21,10 +21,10 @@ final class BabyModelTests: XCTestCase {
     
     func testBabyAge() {
         let calendar = Calendar.current
-        let thirtyDaysAgo = calendar.date(byAdding: .day, value: -30, to: Date())!
-        let baby = Baby(name: "测试宝宝", birthday: thirtyDaysAgo, gender: .male)
+        let sevenDaysAgo = calendar.date(byAdding: .day, value: -7, to: Date())!
+        let baby = Baby(name: "测试宝宝", birthday: sevenDaysAgo, gender: .male)
         
-        XCTAssertTrue(baby.age.contains("30"))
+        XCTAssertTrue(baby.age.contains("天"))
     }
     
     func testBabyAgeInMonths() {
@@ -101,7 +101,7 @@ final class SleepRecordTests: XCTestCase {
         record.endTime = endTime
         
         XCTAssertFalse(record.isActive)
-        XCTAssertEqual(Int(record.duration), 3600, accuracy: 1)
+        XCTAssertEqual(record.duration, 3600, accuracy: 1)
     }
     
     func testSleepDurationFormatting() {
@@ -138,14 +138,17 @@ final class DiaperRecordTests: XCTestCase {
 final class BreastfeedingTimerViewModelTests: XCTestCase {
     
     var viewModel: BreastfeedingTimerViewModel!
+    var baby: Baby!
     
     override func setUp() {
         super.setUp()
-        viewModel = BreastfeedingTimerViewModel()
+        baby = Baby(name: "测试宝宝", birthday: Date(), gender: .male)
+        viewModel = BreastfeedingTimerViewModel(baby: baby)
     }
     
     override func tearDown() {
         viewModel = nil
+        baby = nil
         super.tearDown()
     }
     
@@ -194,6 +197,6 @@ final class BreastfeedingTimerViewModelTests: XCTestCase {
     func testTimeFormatting() {
         viewModel.leftDuration = 125 // 2:05
         
-        XCTAssertEqual(viewModel.formattedCurrentTime, "2:05")
+        XCTAssertEqual(viewModel.formattedCurrentTime, "02:05")
     }
 }

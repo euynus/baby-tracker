@@ -86,7 +86,7 @@ final class StatisticsBDDTests: BDDTestBase {
         XCTAssertGreaterThanOrEqual(dirtyCount, 3, "脏尿布至少 3 次")
         
         // 体重: 5.8kg
-        XCTAssertEqual(growthRecords.first?.weight, 5.8, accuracy: 0.01, "体重应为 5.8kg")
+        XCTAssertEqual(growthRecords.first?.weight ?? 0, 5.8, accuracy: 0.01, "体重应为 5.8kg")
     }
     
     // MARK: - 场景: 查看喂奶统计图表
@@ -135,7 +135,7 @@ final class StatisticsBDDTests: BDDTestBase {
         // 母乳总时长趋势
         let totalBreastfeedingTime = records
             .filter { $0.type == .breastfeeding }
-            .reduce(0.0) { $0 + ($1.leftDuration ?? 0) + ($1.rightDuration ?? 0) }
+            .reduce(0) { $0 + ($1.leftDuration ?? 0) + ($1.rightDuration ?? 0) }
         XCTAssertGreaterThan(totalBreastfeedingTime, 0, "母乳总时长应大于 0")
     }
     

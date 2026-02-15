@@ -41,7 +41,7 @@ final class GrowthBDDTests: BDDTestBase {
             XCTAssertNotNil(saved.weight, "应该包含体重数据")
             
             // 数值: 5.8kg
-            XCTAssertEqual(saved.weight, 5.8, accuracy: 0.01, "体重应为 5.8kg")
+            XCTAssertEqual(saved.weight ?? 0, 5.8, accuracy: 0.01, "体重应为 5.8kg")
             
             // 时间戳: 当前时间
             XCTAssertDateEqual(saved.timestamp, Date(), 精度: .minute)
@@ -68,7 +68,7 @@ final class GrowthBDDTests: BDDTestBase {
         XCTAssertNotNil(saved?.height, "应该包含身高数据")
         
         // And: 数值应该为"62.5cm"
-        XCTAssertEqual(saved?.height, 62.5, accuracy: 0.01, "身高应为 62.5cm")
+        XCTAssertEqual(saved?.height ?? 0, 62.5, accuracy: 0.01, "身高应为 62.5cm")
     }
     
     // MARK: - 场景: 记录头围
@@ -91,7 +91,7 @@ final class GrowthBDDTests: BDDTestBase {
         XCTAssertNotNil(saved?.headCircumference, "应该包含头围数据")
         
         // And: 数值应该为"42.0cm"
-        XCTAssertEqual(saved?.headCircumference, 42.0, accuracy: 0.01, "头围应为 42.0cm")
+        XCTAssertEqual(saved?.headCircumference ?? 0, 42.0, accuracy: 0.01, "头围应为 42.0cm")
     }
     
     // MARK: - 场景: 记录体温
@@ -114,7 +114,7 @@ final class GrowthBDDTests: BDDTestBase {
         XCTAssertNotNil(saved?.temperature, "应该包含体温数据")
         
         // And: 数值应该为"36.8°C"
-        XCTAssertEqual(saved?.temperature, 36.8, accuracy: 0.01, "体温应为 36.8°C")
+        XCTAssertEqual(saved?.temperature ?? 0, 36.8, accuracy: 0.01, "体温应为 36.8°C")
     }
     
     // MARK: - 场景: 同时记录多项数据
@@ -224,7 +224,7 @@ final class GrowthBDDTests: BDDTestBase {
         
         // Then: 记录应该更新
         let saved = 获取最新记录(GrowthRecord.self)
-        XCTAssertEqual(saved?.weight, 5.9, accuracy: 0.01, "体重应更新为 5.9kg")
+        XCTAssertEqual(saved?.weight ?? 0, 5.9, accuracy: 0.01, "体重应更新为 5.9kg")
     }
     
     // MARK: - 场景: 删除错误记录

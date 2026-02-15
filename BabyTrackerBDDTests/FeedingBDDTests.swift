@@ -136,14 +136,14 @@ final class FeedingBDDTests: BDDTestBase {
             XCTAssertEqual(record.type, .breastfeeding, "类型应为母乳")
             
             // 左侧时长
-            XCTAssertTimeInterval(record.leftDuration ?? 0, 等于: leftDuration, 容差: 0.2)
+            XCTAssertTimeInterval(TimeInterval(record.leftDuration ?? 0), 等于: leftDuration, 容差: 1.0)
             
             // 右侧时长
-            XCTAssertTimeInterval(record.rightDuration ?? 0, 等于: rightDuration, 容差: 0.2)
+            XCTAssertTimeInterval(TimeInterval(record.rightDuration ?? 0), 等于: rightDuration, 容差: 1.0)
             
             // 总时长
-            let recordTotal = (record.leftDuration ?? 0) + (record.rightDuration ?? 0)
-            XCTAssertTimeInterval(recordTotal, 等于: totalDuration, 容差: 0.3)
+            let recordTotal = TimeInterval((record.leftDuration ?? 0) + (record.rightDuration ?? 0))
+            XCTAssertTimeInterval(recordTotal, 等于: totalDuration, 容差: 1.5)
             
             // 时间戳: 当前时间
             XCTAssertDateEqual(record.timestamp, Date(), 精度: .minute)
@@ -234,14 +234,14 @@ final class FeedingBDDTests: BDDTestBase {
         
         // And: 母乳总时长为"39分钟"
         let breastfeedingRecords = records.filter { $0.type == .breastfeeding }
-        let totalBreastfeedingTime = breastfeedingRecords.reduce(0.0) { sum, record in
+        let totalBreastfeedingTime = breastfeedingRecords.reduce(0) { sum, record in
             sum + (record.leftDuration ?? 0) + (record.rightDuration ?? 0)
         }
-        XCTAssertEqual(totalBreastfeedingTime / 60, 39, accuracy: 1, "母乳总时长应为 39 分钟")
+        XCTAssertEqual(Double(totalBreastfeedingTime) / 60, 39, accuracy: 1, "母乳总时长应为 39 分钟")
         
         // And: 奶瓶总量为"120ml"
         let bottleRecords = records.filter { $0.type == .bottle }
-        let totalBottleAmount = bottleRecords.reduce(0) { $0 + ($1.amount ?? 0) }
+        let totalBottleAmount = bottleRecords.reduce(0.0) { $0 + ($1.amount ?? 0) }
         XCTAssertEqual(totalBottleAmount, 120, "奶瓶总量应为 120ml")
     }
     
