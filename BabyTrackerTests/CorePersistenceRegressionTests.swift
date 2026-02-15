@@ -4,6 +4,9 @@ import SwiftData
 
 @MainActor
 final class CorePersistenceRegressionTests: XCTestCase {
+    private enum InjectedContainerError: Error {
+        case forcedFailure
+    }
 
     private func makeContainer() throws -> ModelContainer {
         try AppPersistence.makeInMemoryTestContainer()
@@ -151,6 +154,71 @@ final class CorePersistenceRegressionTests: XCTestCase {
         context.insert(baby)
         try context.saveIfNeeded()
 
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<Baby>()), 1)
+    }
+
+    func testResilientContainerUsesPrimaryStrategyWhenFactorySucceeds() throws {
+        var attempts = 0
+        let container = AppPersistence.makeResilientAppContainer(containerFactory: { _, _ in
+            attempts += 1
+            return try AppPersistence.makeInMemoryTestContainer()
+        })
+
+        XCTAssertEqual(attempts, 1)
+
+        let context = ModelContext(container)
+        context.insert(Baby(name: "主策略", birthday: Date(), gender: .male))
+        try context.saveIfNeeded()
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<Baby>()), 1)
+    }
+
+    func testResilientContainerFallsBackToLocalStrategyAfterPrimaryFailure() throws {
+        var attempts = 0
+        var failureCount = 0
+        let container = AppPersistence.makeResilientAppContainer(
+            containerFactory: { _, _ in
+                attempts += 1
+                if attempts == 1 {
+                    throw InjectedContainerError.forcedFailure
+                }
+                return try AppPersistence.makeInMemoryTestContainer()
+            },
+            onFailure: { _ in
+                failureCount += 1
+            }
+        )
+
+        XCTAssertEqual(attempts, 2)
+        XCTAssertEqual(failureCount, 1)
+
+        let context = ModelContext(container)
+        context.insert(Baby(name: "一级降级", birthday: Date(), gender: .female))
+        try context.saveIfNeeded()
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<Baby>()), 1)
+    }
+
+    func testResilientContainerFallsBackToInMemoryAfterTwoFailures() throws {
+        var attempts = 0
+        var failureCount = 0
+        let container = AppPersistence.makeResilientAppContainer(
+            containerFactory: { _, _ in
+                attempts += 1
+                if attempts <= 2 {
+                    throw InjectedContainerError.forcedFailure
+                }
+                return try AppPersistence.makeInMemoryTestContainer()
+            },
+            onFailure: { _ in
+                failureCount += 1
+            }
+        )
+
+        XCTAssertEqual(attempts, 3)
+        XCTAssertEqual(failureCount, 2)
+
+        let context = ModelContext(container)
+        context.insert(Baby(name: "二级降级", birthday: Date(), gender: .other))
+        try context.saveIfNeeded()
         XCTAssertEqual(try context.fetchCount(FetchDescriptor<Baby>()), 1)
     }
 }

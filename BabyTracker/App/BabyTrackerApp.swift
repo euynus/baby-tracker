@@ -15,11 +15,9 @@ struct BabyTrackerApp: App {
     private let sharedModelContainer: ModelContainer
 
     init() {
-        do {
-            sharedModelContainer = try AppPersistence.makeAppContainer()
-        } catch {
-            fatalError("ModelContainer 初始化失败: \(error)")
-        }
+        sharedModelContainer = AppPersistence.makeResilientAppContainer(onFailure: { error in
+            print("ModelContainer 初始化失败，尝试降级策略: \(error.localizedDescription)")
+        })
     }
     
     private var preferredScheme: ColorScheme? {
