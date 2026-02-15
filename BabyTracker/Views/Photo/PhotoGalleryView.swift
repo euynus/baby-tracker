@@ -13,14 +13,20 @@ struct PhotoGalleryView: View {
     let baby: Baby
 
     @Environment(\.modelContext) private var modelContext
-    @Query(sort: \PhotoRecord.timestamp, order: .reverse) private var allPhotos: [PhotoRecord]
+    @Query private var photos: [PhotoRecord]
 
     @State private var selectedItem: PhotosPickerItem?
     @State private var showingSaveError = false
     @State private var saveErrorMessage = ""
 
-    private var photos: [PhotoRecord] {
-        allPhotos.filter { $0.babyId == baby.id }
+    init(baby: Baby) {
+        self.baby = baby
+        let babyId = baby.id
+        _photos = Query(
+            filter: #Predicate<PhotoRecord> { $0.babyId == babyId },
+            sort: \PhotoRecord.timestamp,
+            order: .reverse
+        )
     }
 
     private let columns = [

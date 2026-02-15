@@ -8,12 +8,17 @@
 import SwiftUI
 import SwiftData
 
+@MainActor
 struct iCloudSyncView: View {
     @Environment(\.modelContext) private var modelContext
     @ObservedObject private var cloudManager: CloudKitManager
 
-    init(cloudManager: CloudKitManager = .shared) {
+    init(cloudManager: CloudKitManager) {
         self.cloudManager = cloudManager
+    }
+
+    init() {
+        self.cloudManager = CloudKitManager.shared
     }
 
     var body: some View {
