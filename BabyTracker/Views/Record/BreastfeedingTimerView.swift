@@ -130,7 +130,7 @@ struct BreastfeedingTimerView: View {
                     .font(.subheadline.weight(.semibold))
                     .padding(.horizontal, 12)
                     .padding(.vertical, 6)
-                    .background(viewModel.isRunning ? Color.green.opacity(0.18) : Color.orange.opacity(0.2))
+                    .background(viewModel.isRunning ? AppTheme.accent.opacity(0.2) : AppTheme.warning.opacity(0.22))
                     .clipShape(Capsule())
                 Spacer()
             }
@@ -207,7 +207,7 @@ struct BreastfeedingTimerView: View {
 
             Text(isActive ? "进行中" : duration > 0 ? "已记录" : "未开始")
                 .font(.caption2)
-                .foregroundStyle(isActive ? .green : .secondary)
+                .foregroundStyle(isActive ? AppTheme.accent : .secondary)
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 10)
@@ -239,8 +239,8 @@ struct BreastfeedingTimerView: View {
                 .padding(.vertical, 13)
                 .background(
                     viewModel.isRunning
-                        ? Color.orange.opacity(0.86)
-                        : Color.green.opacity(0.86)
+                        ? AppTheme.warning.opacity(0.92)
+                        : AppTheme.accent.opacity(0.92)
                 )
                 .foregroundStyle(.white)
                 .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
@@ -259,7 +259,7 @@ struct BreastfeedingTimerView: View {
                 .padding(.vertical, 14)
                 .background(
                     LinearGradient(
-                        colors: [AppTheme.brand, Color.red.opacity(0.9)],
+                        colors: [AppTheme.brand, AppTheme.danger],
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )
@@ -290,7 +290,7 @@ struct BreastfeedingTimerView: View {
             VStack(spacing: 10) {
                 Image(systemName: "checkmark.circle.fill")
                     .font(.system(size: 50))
-                    .foregroundStyle(.green)
+                    .foregroundStyle(AppTheme.accent)
                 Text("喂养完成")
                     .font(.title3.weight(.bold))
                 Text("请补充可选信息后保存")

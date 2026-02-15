@@ -96,14 +96,14 @@ struct iCloudSyncView: View {
             }
 
         case .success:
-            row(symbol: "checkmark.circle.fill", title: "当前", trailing: "成功", trailingColor: .green)
+            row(symbol: "checkmark.circle.fill", title: "当前", trailing: "成功", trailingColor: AppTheme.accent)
 
         case .error(let message):
             VStack(alignment: .leading, spacing: 6) {
-                row(symbol: "exclamationmark.triangle.fill", title: "当前", trailing: "失败", trailingColor: .red)
+                row(symbol: "exclamationmark.triangle.fill", title: "当前", trailing: "失败", trailingColor: AppTheme.danger)
                 Text(message)
                     .font(.caption)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(AppTheme.danger)
             }
         }
     }
@@ -119,7 +119,7 @@ struct iCloudSyncView: View {
                     .padding(.vertical, 13)
                     .background(
                         LinearGradient(
-                            colors: canSync ? [AppTheme.secondary, AppTheme.brand] : [Color.gray.opacity(0.35), Color.gray.opacity(0.45)],
+                            colors: canSync ? [AppTheme.secondary, AppTheme.brand] : AppTheme.disabledGradient,
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )

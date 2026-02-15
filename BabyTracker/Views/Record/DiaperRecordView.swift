@@ -143,7 +143,7 @@ struct DiaperRecordView: View {
                 .padding(.vertical, 14)
                 .background(
                     LinearGradient(
-                        colors: (hasWet || hasDirty) ? AppTheme.diaperGradient : [Color.gray.opacity(0.35), Color.gray.opacity(0.45)],
+                        colors: (hasWet || hasDirty) ? AppTheme.diaperGradient : AppTheme.disabledGradient,
                         startPoint: .topLeading,
                         endPoint: .bottomTrailing
                     )

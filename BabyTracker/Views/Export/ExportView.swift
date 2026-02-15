@@ -172,7 +172,7 @@ struct ExportView: View {
                 LinearGradient(
                     colors: selectedBaby != nil && !isExporting
                         ? [AppTheme.secondary, AppTheme.brand]
-                        : [Color.gray.opacity(0.35), Color.gray.opacity(0.45)],
+                        : AppTheme.disabledGradient,
                     startPoint: .topLeading,
                     endPoint: .bottomTrailing
                 )

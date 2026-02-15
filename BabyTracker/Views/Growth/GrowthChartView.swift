@@ -11,7 +11,8 @@ import Charts
 
 struct GrowthChartView: View {
     let baby: Baby
-    
+
+    @Environment(\.colorScheme) private var colorScheme
     @Query private var growthRecords: [GrowthRecord]
     @State private var chartType: ChartType = .weight
     
@@ -32,24 +33,27 @@ struct GrowthChartView: View {
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
+                .animation(.smooth, value: chartType)
                 
-                // Chart
-                chartView
-                    .frame(height: 300)
-                    .padding()
-                    .cardStyle()
-                    .padding(.horizontal)
-                
-                // Legend
-                legendView
-                    .padding()
-                    .cardStyle()
-                    .padding(.horizontal)
-                
-                // Latest measurement
-                if let latest = latestMeasurement {
-                    latestCard(measurement: latest)
+                if recordsForBaby.isEmpty {
+                    emptyStateCard
                         .padding(.horizontal)
+                } else {
+                    chartView
+                        .frame(height: 300)
+                        .padding()
+                        .cardStyle()
+                        .padding(.horizontal)
+
+                    legendView
+                        .padding()
+                        .cardStyle()
+                        .padding(.horizontal)
+
+                    if let latest = latestMeasurement {
+                        latestCard(measurement: latest)
+                            .padding(.horizontal)
+                    }
                 }
             }
             .padding(.vertical)
@@ -61,16 +65,13 @@ struct GrowthChartView: View {
     
     @ViewBuilder
     private var chartView: some View {
-        let records = growthRecords.filter { $0.babyId == baby.id }
-            .sorted { $0.timestamp < $1.timestamp }
-        
         switch chartType {
         case .weight:
-            weightChart(records: records)
+            weightChart(records: chronologicalRecords)
         case .height:
-            heightChart(records: records)
+            heightChart(records: chronologicalRecords)
         case .headCircumference:
-            headChart(records: records)
+            headChart(records: chronologicalRecords)
         }
     }
     
@@ -85,7 +86,7 @@ struct GrowthChartView: View {
                     x: .value("月龄", whoData[index].month),
                     y: .value("体重", whoData[index].p50)
                 )
-                .foregroundStyle(Color.gray.opacity(0.3))
+                .foregroundStyle(referenceLineColor)
                 .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 3]))
             }
             
@@ -97,7 +98,7 @@ struct GrowthChartView: View {
                         x: .value("月龄", ageMonths),
                         y: .value("体重", weight / 1000)
                     )
-                    .foregroundStyle(Color.blue)
+                    .foregroundStyle(chartColor)
                     .symbol(.circle)
                     .symbolSize(100)
                     
@@ -105,13 +106,19 @@ struct GrowthChartView: View {
                         x: .value("月龄", ageMonths),
                         y: .value("体重", weight / 1000)
                     )
-                    .foregroundStyle(Color.blue)
+                    .foregroundStyle(chartColor)
                     .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round))
+                    .interpolationMethod(.catmullRom)
                 }
             }
         }
         .chartXAxisLabel("月龄")
         .chartYAxisLabel("体重 (kg)")
+        .chartPlotStyle { plotArea in
+            plotArea
+                .background(AppTheme.surfaceFill(for: colorScheme).opacity(0.45))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        }
     }
     
     private func heightChart(records: [GrowthRecord]) -> some View {
@@ -125,7 +132,7 @@ struct GrowthChartView: View {
                     x: .value("月龄", whoData[index].month),
                     y: .value("身高", whoData[index].p50)
                 )
-                .foregroundStyle(Color.gray.opacity(0.3))
+                .foregroundStyle(referenceLineColor)
                 .lineStyle(StrokeStyle(lineWidth: 1, dash: [5, 3]))
             }
             
@@ -137,7 +144,7 @@ struct GrowthChartView: View {
                         x: .value("月龄", ageMonths),
                         y: .value("身高", height)
                     )
-                    .foregroundStyle(Color.green)
+                    .foregroundStyle(chartColor)
                     .symbol(.circle)
                     .symbolSize(100)
                     
@@ -145,13 +152,19 @@ struct GrowthChartView: View {
                         x: .value("月龄", ageMonths),
                         y: .value("身高", height)
                     )
-                    .foregroundStyle(Color.green)
+                    .foregroundStyle(chartColor)
                     .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round))
+                    .interpolationMethod(.catmullRom)
                 }
             }
         }
         .chartXAxisLabel("月龄")
         .chartYAxisLabel("身高 (cm)")
+        .chartPlotStyle { plotArea in
+            plotArea
+                .background(AppTheme.surfaceFill(for: colorScheme).opacity(0.45))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        }
     }
     
     private func headChart(records: [GrowthRecord]) -> some View {
@@ -163,7 +176,7 @@ struct GrowthChartView: View {
                         x: .value("月龄", ageMonths),
                         y: .value("头围", headCircumference)
                     )
-                    .foregroundStyle(Color.purple)
+                    .foregroundStyle(chartColor)
                     .symbol(.circle)
                     .symbolSize(100)
                     
@@ -171,13 +184,19 @@ struct GrowthChartView: View {
                         x: .value("月龄", ageMonths),
                         y: .value("头围", headCircumference)
                     )
-                    .foregroundStyle(Color.purple)
+                    .foregroundStyle(chartColor)
                     .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round))
+                    .interpolationMethod(.catmullRom)
                 }
             }
         }
         .chartXAxisLabel("月龄")
         .chartYAxisLabel("头围 (cm)")
+        .chartPlotStyle { plotArea in
+            plotArea
+                .background(AppTheme.surfaceFill(for: colorScheme).opacity(0.45))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        }
     }
     
     private var legendView: some View {
@@ -198,7 +217,7 @@ struct GrowthChartView: View {
                 
                 HStack(spacing: 8) {
                     Rectangle()
-                        .fill(Color.gray.opacity(0.3))
+                        .fill(referenceLineColor)
                         .frame(width: 20, height: 2)
                     Text("WHO 标准（50%）")
                         .font(.caption)
@@ -209,17 +228,45 @@ struct GrowthChartView: View {
     
     private var chartColor: Color {
         switch chartType {
-        case .weight: return .blue
-        case .height: return .green
-        case .headCircumference: return .purple
+        case .weight: return AppTheme.brand
+        case .height: return AppTheme.accent
+        case .headCircumference: return AppTheme.secondary
         }
     }
-    
+
+    private var referenceLineColor: Color {
+        AppTheme.ink.opacity(colorScheme == .dark ? 0.45 : 0.28)
+    }
+
+    private var recordsForBaby: [GrowthRecord] {
+        growthRecords.filter { $0.babyId == baby.id }
+    }
+
+    private var chronologicalRecords: [GrowthRecord] {
+        recordsForBaby.sorted { $0.timestamp < $1.timestamp }
+    }
+
     private var latestMeasurement: GrowthRecord? {
-        growthRecords
-            .filter { $0.babyId == baby.id }
+        recordsForBaby
             .sorted { $0.timestamp > $1.timestamp }
             .first
+    }
+
+    private var emptyStateCard: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "chart.line.uptrend.xyaxis")
+                .font(.system(size: 40, weight: .semibold))
+                .foregroundStyle(AppTheme.secondary.opacity(0.7))
+            Text("还没有生长记录")
+                .font(.headline)
+            Text("先在“生长记录”中添加体重、身高或头围数据")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 28)
+        .cardStyle()
     }
     
     private func latestCard(measurement: GrowthRecord) -> some View {

@@ -268,8 +268,8 @@ struct PhotoDetailView: View {
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 13)
         }
-        .background(Color.red.opacity(0.16))
-        .foregroundStyle(.red)
+        .background(AppTheme.danger.opacity(0.16))
+        .foregroundStyle(AppTheme.danger)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
     }
 

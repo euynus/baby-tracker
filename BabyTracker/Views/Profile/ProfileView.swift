@@ -445,7 +445,7 @@ struct AddBabyView: View {
                     .padding(.vertical, 14)
                     .background(
                         LinearGradient(
-                            colors: canSave ? AppTheme.heroGradient : [Color.gray.opacity(0.35), Color.gray.opacity(0.45)],
+                            colors: canSave ? AppTheme.heroGradient : AppTheme.disabledGradient,
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )

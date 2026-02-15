@@ -91,7 +91,7 @@ struct SecuritySettingsView: View {
                         .font(.subheadline)
                     Spacer()
                     Image(systemName: "checkmark.circle.fill")
-                        .foregroundStyle(.green)
+                        .foregroundStyle(AppTheme.accent)
                 }
             }
 
@@ -105,7 +105,7 @@ struct SecuritySettingsView: View {
                     Spacer()
                     Text(authManager.usePasscode ? "已设置" : "未设置")
                         .font(.caption.weight(.semibold))
-                        .foregroundStyle(authManager.usePasscode ? .green : .secondary)
+                        .foregroundStyle(authManager.usePasscode ? AppTheme.accent : .secondary)
                 }
                 .font(.subheadline)
                 .padding(12)
@@ -126,8 +126,8 @@ struct SecuritySettingsView: View {
         }
         .frame(maxWidth: .infinity)
         .padding(.vertical, 13)
-        .background(Color.red.opacity(0.16))
-        .foregroundStyle(.red)
+        .background(AppTheme.danger.opacity(0.16))
+        .foregroundStyle(AppTheme.danger)
         .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
     }
 
@@ -236,7 +236,7 @@ struct PasscodeSetupView: View {
             if showError {
                 Text(errorMessage)
                     .font(.caption)
-                    .foregroundStyle(.red)
+                    .foregroundStyle(AppTheme.danger)
             }
         }
         .padding(14)
@@ -261,7 +261,7 @@ struct PasscodeSetupView: View {
         .padding(.vertical, 14)
         .background(
             LinearGradient(
-                colors: buttonEnabled ? [AppTheme.secondary, AppTheme.brand] : [Color.gray.opacity(0.35), Color.gray.opacity(0.45)],
+                colors: buttonEnabled ? [AppTheme.secondary, AppTheme.brand] : AppTheme.disabledGradient,
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )

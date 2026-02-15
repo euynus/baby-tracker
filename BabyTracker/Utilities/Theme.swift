@@ -14,6 +14,8 @@ struct AppTheme {
     static let secondary = Color(red: 0.16, green: 0.60, blue: 0.66)
     static let accent = Color(red: 0.42, green: 0.74, blue: 0.62)
     static let ink = Color(red: 0.17, green: 0.23, blue: 0.33)
+    static let warning = Color(red: 0.90, green: 0.58, blue: 0.22)
+    static let danger = Color(red: 0.86, green: 0.32, blue: 0.28)
 
     static let feeding = Color("FeedingColor", bundle: .main)
     static let sleep = Color("SleepColor", bundle: .main)
@@ -27,6 +29,7 @@ struct AppTheme {
     static let growthGradient = [Color(red: 0.21, green: 0.74, blue: 0.70), Color(red: 0.18, green: 0.53, blue: 0.67)]
 
     static let heroGradient = [Color(red: 0.99, green: 0.64, blue: 0.43), Color(red: 0.97, green: 0.45, blue: 0.37)]
+    static let disabledGradient = [Color(red: 0.66, green: 0.69, blue: 0.73), Color(red: 0.56, green: 0.59, blue: 0.63)]
 
     static func pageGradient(for scheme: ColorScheme) -> LinearGradient {
         let light = [Color(red: 1.0, green: 0.98, blue: 0.94), Color(red: 0.94, green: 0.97, blue: 0.98)]

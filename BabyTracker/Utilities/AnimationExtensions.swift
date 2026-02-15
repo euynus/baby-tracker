@@ -176,7 +176,7 @@ struct LoadingDotsView: View {
         HStack(spacing: 8) {
             ForEach(0..<3) { index in
                 Circle()
-                    .fill(Color.blue)
+                    .fill(AppTheme.secondary)
                     .frame(width: 8, height: 8)
                     .scaleEffect(animating ? 1.0 : 0.5)
                     .animation(
@@ -201,7 +201,7 @@ struct CheckmarkAnimation: View {
     var body: some View {
         ZStack {
             Circle()
-                .stroke(Color.green, lineWidth: 3)
+                .stroke(AppTheme.accent, lineWidth: 3)
                 .frame(width: 50, height: 50)
 
             Path { path in
@@ -210,7 +210,7 @@ struct CheckmarkAnimation: View {
                 path.addLine(to: CGPoint(x: 35, y: 18))
             }
             .trim(from: 0, to: trimEnd)
-            .stroke(Color.green, style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
+            .stroke(AppTheme.accent, style: StrokeStyle(lineWidth: 3, lineCap: .round, lineJoin: .round))
             .frame(width: 50, height: 50)
         }
         .onAppear {
@@ -239,7 +239,7 @@ struct SaveSuccessOverlayModifier: ViewModifier {
                             CheckmarkAnimation()
                             Text("已保存")
                                 .font(.headline)
-                                .foregroundStyle(.green)
+                                .foregroundStyle(AppTheme.accent)
                         }
                         .padding(32)
                         .background(.ultraThinMaterial)

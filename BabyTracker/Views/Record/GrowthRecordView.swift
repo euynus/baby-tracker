@@ -103,8 +103,8 @@ struct GrowthRecordView: View {
         .frame(maxWidth: .infinity)
         .padding(.vertical, 14)
         .background(
-            LinearGradient(
-                colors: hasValidInput ? AppTheme.growthGradient : [Color.gray.opacity(0.35), Color.gray.opacity(0.45)],
+                LinearGradient(
+                colors: hasValidInput ? AppTheme.growthGradient : AppTheme.disabledGradient,
                 startPoint: .topLeading,
                 endPoint: .bottomTrailing
             )
