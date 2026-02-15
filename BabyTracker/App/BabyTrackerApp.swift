@@ -7,16 +7,22 @@
 
 import SwiftUI
 import SwiftData
+import OSLog
 
 @main
 struct BabyTrackerApp: App {
     @StateObject private var authManager = AuthenticationManager()
     @AppStorage("appearance") private var appearance: String = "跟随系统"
     private let sharedModelContainer: ModelContainer
+    private let logger = Logger(
+        subsystem: Bundle.main.bundleIdentifier ?? "com.babytracker.app",
+        category: "AppLifecycle"
+    )
 
     init() {
+        let logger = self.logger
         sharedModelContainer = AppPersistence.makeResilientAppContainer(onFailure: { error in
-            print("ModelContainer 初始化失败，尝试降级策略: \(error.localizedDescription)")
+            logger.error("ModelContainer 初始化失败，尝试降级策略: \(error.localizedDescription, privacy: .public)")
         })
     }
     

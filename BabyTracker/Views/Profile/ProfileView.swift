@@ -7,6 +7,12 @@
 
 import SwiftUI
 import SwiftData
+import OSLog
+
+private let profileLogger = Logger(
+    subsystem: Bundle.main.bundleIdentifier ?? "com.babytracker.app",
+    category: "Profile"
+)
 
 struct ProfileView: View {
     @Environment(\.modelContext) private var modelContext
@@ -123,8 +129,7 @@ struct ProfileView: View {
         do {
             try modelContext.saveIfNeeded()
         } catch {
-            // Keep this non-fatal but visible in debug logs.
-            print("删除宝宝保存失败: \(error.localizedDescription)")
+            profileLogger.error("删除宝宝保存失败: \(error.localizedDescription, privacy: .public)")
         }
     }
 
@@ -152,7 +157,7 @@ struct ProfileView: View {
             growth.forEach { modelContext.delete($0) }
             photos.forEach { modelContext.delete($0) }
         } catch {
-            print("删除宝宝关联记录失败: \(error.localizedDescription)")
+            profileLogger.error("删除宝宝关联记录失败: \(error.localizedDescription, privacy: .public)")
         }
     }
 }
@@ -298,7 +303,7 @@ struct BabyDetailView: View {
         } catch {
             saveErrorMessage = error.localizedDescription
             showingSaveError = true
-            print("更新宝宝信息保存失败: \(error.localizedDescription)")
+            profileLogger.error("更新宝宝信息保存失败: \(error.localizedDescription, privacy: .public)")
         }
     }
 }
@@ -364,7 +369,7 @@ struct AddBabyView: View {
         } catch {
             saveErrorMessage = error.localizedDescription
             showingSaveError = true
-            print("新增宝宝保存失败: \(error.localizedDescription)")
+            profileLogger.error("新增宝宝保存失败: \(error.localizedDescription, privacy: .public)")
         }
     }
 }
