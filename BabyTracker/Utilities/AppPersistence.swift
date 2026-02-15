@@ -10,7 +10,7 @@ import SwiftData
 
 enum AppPersistence {
     private static let xctestKey = "XCTestConfigurationFilePath"
-    typealias ContainerFactory = (Schema, [ModelConfiguration]) throws -> ModelContainer
+    typealias ContainerFactory = (Schema, ModelConfiguration) throws -> ModelContainer
 
     static var isRunningTests: Bool {
         let environmentIndicatesTests = ProcessInfo.processInfo.environment[xctestKey] != nil
@@ -34,7 +34,7 @@ enum AppPersistence {
             useGroupContainer: !runningTests,
             cloudKitEnabled: !runningTests
         )
-        return try makeContainer(with: [configuration])
+        return try makeContainer(with: configuration)
     }
 
     static func makeInMemoryTestContainer() throws -> ModelContainer {
@@ -43,7 +43,7 @@ enum AppPersistence {
             useGroupContainer: false,
             cloudKitEnabled: false
         )
-        return try makeContainer(with: [configuration])
+        return try makeContainer(with: configuration)
     }
 
     static func makeResilientAppContainer(
@@ -57,7 +57,7 @@ enum AppPersistence {
             cloudKitEnabled: !runningTests
         )
         do {
-            return try makeContainer(with: [primary], using: containerFactory)
+            return try makeContainer(with: primary, using: containerFactory)
         } catch {
             onFailure?(error)
         }
@@ -68,7 +68,7 @@ enum AppPersistence {
             cloudKitEnabled: false
         )
         do {
-            return try makeContainer(with: [localFallback], using: containerFactory)
+            return try makeContainer(with: localFallback, using: containerFactory)
         } catch {
             onFailure?(error)
         }
@@ -79,22 +79,22 @@ enum AppPersistence {
             cloudKitEnabled: false
         )
         do {
-            return try makeContainer(with: [inMemoryFallback], using: containerFactory)
+            return try makeContainer(with: inMemoryFallback, using: containerFactory)
         } catch {
             onFailure?(error)
             fatalError("ModelContainer 初始化失败，所有降级策略均不可用: \(error)")
         }
     }
 
-    private static let defaultContainerFactory: ContainerFactory = { schema, configurations in
-        try ModelContainer(for: schema, configurations: configurations)
+    private static let defaultContainerFactory: ContainerFactory = { schema, configuration in
+        try ModelContainer(for: schema, configurations: configuration)
     }
 
     private static func makeContainer(
-        with configurations: [ModelConfiguration],
+        with configuration: ModelConfiguration,
         using factory: ContainerFactory = defaultContainerFactory
     ) throws -> ModelContainer {
-        try factory(schema, configurations)
+        try factory(schema, configuration)
     }
 
     private static func makeConfiguration(

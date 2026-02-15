@@ -14,13 +14,13 @@ struct BabyTrackerApp: App {
     @StateObject private var authManager = AuthenticationManager()
     @AppStorage("appearance") private var appearance: String = "跟随系统"
     private let sharedModelContainer: ModelContainer
-    private let logger = Logger(
+    private static let startupLogger = Logger(
         subsystem: Bundle.main.bundleIdentifier ?? "com.babytracker.app",
         category: "AppLifecycle"
     )
 
     init() {
-        let logger = self.logger
+        let logger = Self.startupLogger
         sharedModelContainer = AppPersistence.makeResilientAppContainer(onFailure: { error in
             logger.error("ModelContainer 初始化失败，尝试降级策略: \(error.localizedDescription, privacy: .public)")
         })

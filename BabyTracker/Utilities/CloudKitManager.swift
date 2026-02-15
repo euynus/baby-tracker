@@ -31,9 +31,9 @@ class CloudKitManager: ObservableObject {
     }
     
     func checkiCloudStatus() {
-        container.accountStatus { [weak self] status, error in
+        container.accountStatus { status, error in
             Task { @MainActor in
-                self?.iCloudAvailable = (status == .available)
+                self.iCloudAvailable = (status == .available)
 
                 if let error = error {
                     print("iCloud 状态检查失败: \(error)")
