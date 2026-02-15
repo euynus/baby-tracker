@@ -39,7 +39,11 @@ final class BabyModelTests: XCTestCase {
 final class BabyPersistenceTests: XCTestCase {
     
     func testInsertAndSaveBaby() throws {
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let config = ModelConfiguration(
+            isStoredInMemoryOnly: true,
+            groupContainer: .none,
+            cloudKitDatabase: .none
+        )
         let container = try ModelContainer(for: Baby.self, configurations: config)
         let context = ModelContext(container)
         

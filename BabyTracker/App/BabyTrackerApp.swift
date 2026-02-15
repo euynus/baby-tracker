@@ -12,6 +12,30 @@ import SwiftData
 struct BabyTrackerApp: App {
     @StateObject private var authManager = AuthenticationManager()
     @AppStorage("appearance") private var appearance: String = "跟随系统"
+    private let sharedModelContainer: ModelContainer
+
+    init() {
+        let isRunningUnitTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
+        let configuration = ModelConfiguration(
+            isStoredInMemoryOnly: isRunningUnitTests,
+            groupContainer: isRunningUnitTests ? .none : .automatic,
+            cloudKitDatabase: isRunningUnitTests ? .none : .automatic
+        )
+
+        do {
+            sharedModelContainer = try ModelContainer(
+                for: Baby.self,
+                FeedingRecord.self,
+                SleepRecord.self,
+                DiaperRecord.self,
+                GrowthRecord.self,
+                PhotoRecord.self,
+                configurations: configuration
+            )
+        } catch {
+            fatalError("ModelContainer 初始化失败: \(error)")
+        }
+    }
     
     private var preferredScheme: ColorScheme? {
         switch appearance {
@@ -33,6 +57,6 @@ struct BabyTrackerApp: App {
                     .preferredColorScheme(preferredScheme)
             }
         }
-        .modelContainer(for: [Baby.self, FeedingRecord.self, SleepRecord.self, DiaperRecord.self, GrowthRecord.self, PhotoRecord.self])
+        .modelContainer(sharedModelContainer)
     }
 }

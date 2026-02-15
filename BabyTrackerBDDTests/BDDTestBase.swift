@@ -32,7 +32,11 @@ class BDDTestBase: XCTestCase {
     
     private func setupTestEnvironment() {
         // 创建内存数据库
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let config = ModelConfiguration(
+            isStoredInMemoryOnly: true,
+            groupContainer: .none,
+            cloudKitDatabase: .none
+        )
         let container = try! ModelContainer(
             for: Baby.self, FeedingRecord.self, SleepRecord.self,
             DiaperRecord.self, GrowthRecord.self,

@@ -6,7 +6,11 @@ import SwiftData
 final class CorePersistenceRegressionTests: XCTestCase {
 
     private func makeContainer() throws -> ModelContainer {
-        let config = ModelConfiguration(isStoredInMemoryOnly: true)
+        let config = ModelConfiguration(
+            isStoredInMemoryOnly: true,
+            groupContainer: .none,
+            cloudKitDatabase: .none
+        )
         return try ModelContainer(
             for: Baby.self,
             FeedingRecord.self,
