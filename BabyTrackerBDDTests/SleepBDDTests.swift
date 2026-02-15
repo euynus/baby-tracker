@@ -21,7 +21,7 @@ final class SleepBDDTests: BDDTestBase {
         
         // When: 我点击"开始睡眠"按钮
         let startTime = Date()
-        var record = SleepRecord(
+        let record = SleepRecord(
             baby: testBaby,
             startTime: startTime
         )
