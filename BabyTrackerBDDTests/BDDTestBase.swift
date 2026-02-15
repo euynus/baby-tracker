@@ -32,17 +32,13 @@ class BDDTestBase: XCTestCase {
     
     private func setupTestEnvironment() {
         // 创建内存数据库
-        let config = ModelConfiguration(
-            isStoredInMemoryOnly: true,
-            groupContainer: .none,
-            cloudKitDatabase: .none
-        )
-        let container = try! ModelContainer(
-            for: Baby.self, FeedingRecord.self, SleepRecord.self,
-            DiaperRecord.self, GrowthRecord.self,
-            configurations: config
-        )
-        modelContext = ModelContext(container)
+        do {
+            let container = try AppPersistence.makeInMemoryTestContainer()
+            modelContext = ModelContext(container)
+        } catch {
+            XCTFail("测试容器初始化失败: \(error.localizedDescription)")
+            return
+        }
         
         // 创建测试宝宝
         testBaby = Baby(
@@ -51,7 +47,11 @@ class BDDTestBase: XCTestCase {
             gender: .male
         )
         modelContext.insert(testBaby)
-        try! modelContext.save()
+        do {
+            try modelContext.saveIfNeeded()
+        } catch {
+            XCTFail("测试宝宝初始化失败: \(error.localizedDescription)")
+        }
     }
     
     private func cleanupTestEnvironment() {

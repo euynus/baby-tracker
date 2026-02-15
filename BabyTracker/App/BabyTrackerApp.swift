@@ -15,23 +15,8 @@ struct BabyTrackerApp: App {
     private let sharedModelContainer: ModelContainer
 
     init() {
-        let isRunningUnitTests = ProcessInfo.processInfo.environment["XCTestConfigurationFilePath"] != nil
-        let configuration = ModelConfiguration(
-            isStoredInMemoryOnly: isRunningUnitTests,
-            groupContainer: isRunningUnitTests ? .none : .automatic,
-            cloudKitDatabase: isRunningUnitTests ? .none : .automatic
-        )
-
         do {
-            sharedModelContainer = try ModelContainer(
-                for: Baby.self,
-                FeedingRecord.self,
-                SleepRecord.self,
-                DiaperRecord.self,
-                GrowthRecord.self,
-                PhotoRecord.self,
-                configurations: configuration
-            )
+            sharedModelContainer = try AppPersistence.makeAppContainer()
         } catch {
             fatalError("ModelContainer 初始化失败: \(error)")
         }
