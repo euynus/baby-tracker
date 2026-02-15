@@ -196,13 +196,11 @@ struct DiaperRecordView: View {
             record.notes = notes
         }
 
-        modelContext.insert(record)
         do {
-            try modelContext.save()
+            try modelContext.insertAndSave(record)
             HapticManager.shared.success()
             showingSaveSuccess = true
         } catch {
-            modelContext.delete(record)
             saveErrorMessage = error.localizedDescription
             showingSaveError = true
         }

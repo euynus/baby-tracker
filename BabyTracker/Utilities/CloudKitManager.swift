@@ -56,7 +56,7 @@ class CloudKitManager: ObservableObject {
             // SwiftData + CloudKit sync is managed by the persistent store.
             // Manually saving pending local changes is enough to trigger upload.
             if modelContext.hasChanges {
-                try modelContext.save()
+                try modelContext.saveIfNeeded()
             }
             syncStatus = .success
             lastSyncTime = Date()

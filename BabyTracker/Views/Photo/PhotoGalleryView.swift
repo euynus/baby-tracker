@@ -103,11 +103,9 @@ struct PhotoGalleryView: View {
 
     private func addPhoto(data: Data) {
         let photo = PhotoRecord(babyId: baby.id, timestamp: Date(), imageData: data)
-        modelContext.insert(photo)
         do {
-            try modelContext.save()
+            try modelContext.insertAndSave(photo)
         } catch {
-            modelContext.delete(photo)
             saveErrorMessage = error.localizedDescription
             showingSaveError = true
         }
@@ -203,7 +201,7 @@ struct PhotoDetailView: View {
     private func saveCaption() {
         photo.caption = caption.isEmpty ? nil : caption
         do {
-            try modelContext.save()
+            try modelContext.saveIfNeeded()
         } catch {
             saveErrorMessage = error.localizedDescription
             showingSaveError = true
@@ -213,7 +211,7 @@ struct PhotoDetailView: View {
     private func deletePhoto() {
         modelContext.delete(photo)
         do {
-            try modelContext.save()
+            try modelContext.saveIfNeeded()
             dismiss()
         } catch {
             saveErrorMessage = error.localizedDescription

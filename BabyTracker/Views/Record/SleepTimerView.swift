@@ -201,12 +201,10 @@ struct SleepTimerView: View {
     
     private func startSleep() {
         let sleep = SleepRecord(babyId: baby.id, startTime: Date())
-        modelContext.insert(sleep)
         do {
-            try modelContext.save()
+            try modelContext.insertAndSave(sleep)
             HapticManager.shared.medium()
         } catch {
-            modelContext.delete(sleep)
             saveErrorMessage = error.localizedDescription
             showingSaveError = true
         }
@@ -218,7 +216,7 @@ struct SleepTimerView: View {
             sleep.notes = notes
         }
         do {
-            try modelContext.save()
+            try modelContext.saveIfNeeded()
             HapticManager.shared.medium()
             dismiss()
         } catch {

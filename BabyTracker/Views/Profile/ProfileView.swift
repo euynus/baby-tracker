@@ -116,7 +116,7 @@ struct ProfileView: View {
             modelContext.delete(baby)
         }
         do {
-            try modelContext.save()
+            try modelContext.saveIfNeeded()
         } catch {
             // Keep this non-fatal but visible in debug logs.
             print("删除宝宝保存失败: \(error.localizedDescription)")
@@ -289,7 +289,7 @@ struct BabyDetailView: View {
         }
         
         do {
-            try modelContext.save()
+            try modelContext.saveIfNeeded()
         } catch {
             saveErrorMessage = error.localizedDescription
             showingSaveError = true
@@ -353,14 +353,10 @@ struct AddBabyView: View {
         guard !trimmedName.isEmpty else { return }
         
         let baby = Baby(name: trimmedName, birthday: birthday, gender: gender)
-        modelContext.insert(baby)
-        
         do {
-            try modelContext.save()
+            try modelContext.insertAndSave(baby)
             dismiss()
         } catch {
-            // Remove unsaved object so the context doesn't keep a failed insertion.
-            modelContext.delete(baby)
             saveErrorMessage = error.localizedDescription
             showingSaveError = true
             print("新增宝宝保存失败: \(error.localizedDescription)")

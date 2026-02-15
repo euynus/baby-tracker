@@ -101,4 +101,25 @@ final class CorePersistenceRegressionTests: XCTestCase {
         XCTAssertEqual(persisted?.latestHeight, 63.1)
         XCTAssertEqual(persisted?.latestHeadCircumference, 40.2)
     }
+
+    func testSaveIfNeededSkipsWhenNoChanges() throws {
+        let container = try makeContainer()
+        let context = ModelContext(container)
+
+        let didSave = try context.saveIfNeeded()
+
+        XCTAssertFalse(didSave)
+    }
+
+    func testInsertAndSavePersistsAndReturnsFetchableRecord() throws {
+        let container = try makeContainer()
+        let context = ModelContext(container)
+
+        let baby = Baby(name: "插入保存测试", birthday: Date(), gender: .female)
+        try context.insertAndSave(baby)
+
+        let babies = try context.fetch(FetchDescriptor<Baby>())
+        XCTAssertEqual(babies.count, 1)
+        XCTAssertEqual(babies.first?.name, "插入保存测试")
+    }
 }
