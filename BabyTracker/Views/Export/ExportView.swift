@@ -9,7 +9,6 @@ import SwiftUI
 import SwiftData
 
 struct ExportView: View {
-    @Environment(\.modelContext) private var modelContext
     @Query private var babies: [Baby]
     @Query private var feedingRecords: [FeedingRecord]
     @Query private var sleepRecords: [SleepRecord]

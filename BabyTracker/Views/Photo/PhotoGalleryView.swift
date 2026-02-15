@@ -16,7 +16,8 @@ struct PhotoGalleryView: View {
     @Query(sort: \PhotoRecord.timestamp, order: .reverse) private var allPhotos: [PhotoRecord]
 
     @State private var selectedItem: PhotosPickerItem?
-    @State private var showingImagePicker = false
+    @State private var showingSaveError = false
+    @State private var saveErrorMessage = ""
 
     private var photos: [PhotoRecord] {
         allPhotos.filter { $0.babyId == baby.id }
@@ -77,17 +78,39 @@ struct PhotoGalleryView: View {
             }
         }
         .onChange(of: selectedItem) { _, newItem in
-            Task {
-                if let data = try? await newItem?.loadTransferable(type: Data.self) {
-                    addPhoto(data: data)
+            guard let newItem else { return }
+            Task { @MainActor in
+                do {
+                    if let data = try await newItem.loadTransferable(type: Data.self) {
+                        addPhoto(data: data)
+                    } else {
+                        saveErrorMessage = "无法读取所选照片，请重试。"
+                        showingSaveError = true
+                    }
+                } catch {
+                    saveErrorMessage = "读取照片失败：\(error.localizedDescription)"
+                    showingSaveError = true
                 }
+                selectedItem = nil
             }
+        }
+        .alert("保存失败", isPresented: $showingSaveError) {
+            Button("确定", role: .cancel) { }
+        } message: {
+            Text(saveErrorMessage)
         }
     }
 
     private func addPhoto(data: Data) {
         let photo = PhotoRecord(babyId: baby.id, timestamp: Date(), imageData: data)
         modelContext.insert(photo)
+        do {
+            try modelContext.save()
+        } catch {
+            modelContext.delete(photo)
+            saveErrorMessage = error.localizedDescription
+            showingSaveError = true
+        }
     }
 }
 
@@ -99,6 +122,8 @@ struct PhotoDetailView: View {
 
     @State private var caption: String
     @State private var showingDeleteAlert = false
+    @State private var showingSaveError = false
+    @State private var saveErrorMessage = ""
 
     init(photo: PhotoRecord) {
         self.photo = photo
@@ -158,23 +183,42 @@ struct PhotoDetailView: View {
         }
         .navigationTitle("照片详情")
         .navigationBarTitleDisplayMode(.inline)
-        .alert("删除照片", isPresented: $showingDeleteAlert) {
-            Button("取消", role: .cancel) {}
+        .confirmationDialog(
+            "确定要删除这张照片吗？此操作无法撤销。",
+            isPresented: $showingDeleteAlert,
+            titleVisibility: .visible
+        ) {
             Button("删除", role: .destructive) {
                 deletePhoto()
             }
+            Button("取消", role: .cancel) { }
+        }
+        .alert("保存失败", isPresented: $showingSaveError) {
+            Button("确定", role: .cancel) { }
         } message: {
-            Text("确定要删除这张照片吗？此操作无法撤销。")
+            Text(saveErrorMessage)
         }
     }
 
     private func saveCaption() {
         photo.caption = caption.isEmpty ? nil : caption
+        do {
+            try modelContext.save()
+        } catch {
+            saveErrorMessage = error.localizedDescription
+            showingSaveError = true
+        }
     }
 
     private func deletePhoto() {
         modelContext.delete(photo)
-        dismiss()
+        do {
+            try modelContext.save()
+            dismiss()
+        } catch {
+            saveErrorMessage = error.localizedDescription
+            showingSaveError = true
+        }
     }
 }
 

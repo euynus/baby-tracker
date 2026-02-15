@@ -10,7 +10,6 @@ import SwiftData
 import Charts
 
 struct StatisticsView: View {
-    @Environment(\.modelContext) private var modelContext
     @Query private var babies: [Baby]
     @Query(sort: \FeedingRecord.timestamp, order: .reverse) private var feedingRecords: [FeedingRecord]
     @Query(sort: \SleepRecord.startTime, order: .reverse) private var sleepRecords: [SleepRecord]

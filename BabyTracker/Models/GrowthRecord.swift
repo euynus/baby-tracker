@@ -24,4 +24,20 @@ final class GrowthRecord {
         self.babyId = babyId
         self.timestamp = timestamp
     }
+
+    // Backward-compatible convenience initializers used by views/tests.
+    convenience init(
+        baby: Baby,
+        weight: Double? = nil,
+        height: Double? = nil,
+        headCircumference: Double? = nil,
+        temperature: Double? = nil,
+        timestamp: Date = Date()
+    ) {
+        self.init(babyId: baby.id, timestamp: timestamp)
+        self.weight = weight
+        self.height = height
+        self.headCircumference = headCircumference
+        self.temperature = temperature
+    }
 }

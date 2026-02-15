@@ -13,6 +13,12 @@ class NotificationManager: ObservableObject {
     static let shared = NotificationManager()
     
     @Published var isAuthorized = false
+
+    private init() {
+        Task {
+            await refreshAuthorizationStatus()
+        }
+    }
     
     func requestAuthorization() async {
         do {
@@ -27,33 +33,56 @@ class NotificationManager: ObservableObject {
         }
     }
     
-    func scheduleFeedingReminder(interval: TimeInterval, babyName: String) {
+    func refreshAuthorizationStatus() async {
+        let settings = await UNUserNotificationCenter.current().notificationSettings()
+        await MainActor.run {
+            isAuthorized = settings.authorizationStatus == .authorized || settings.authorizationStatus == .provisional
+        }
+    }
+
+    func scheduleFeedingReminder(interval: TimeInterval, babyId: UUID, babyName: String) {
         let content = UNMutableNotificationContent()
         content.title = "喂奶提醒"
         content.body = "该给\(babyName)喂奶了 🍼"
         content.sound = .default
         
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: interval, repeats: true)
-        let request = UNNotificationRequest(identifier: "feeding-\(babyName)", content: content, trigger: trigger)
+        let request = UNNotificationRequest(
+            identifier: "feeding-\(babyId.uuidString)",
+            content: content,
+            trigger: trigger
+        )
         
-        UNUserNotificationCenter.current().add(request)
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error {
+                print("添加喂奶提醒失败: \(error.localizedDescription)")
+            }
+        }
     }
     
-    func scheduleDiaperReminder(interval: TimeInterval, babyName: String) {
+    func scheduleDiaperReminder(interval: TimeInterval, babyId: UUID, babyName: String) {
         let content = UNMutableNotificationContent()
         content.title = "换尿布提醒"
         content.body = "该给\(babyName)换尿布了 💩"
         content.sound = .default
         
         let trigger = UNTimeIntervalNotificationTrigger(timeInterval: interval, repeats: true)
-        let request = UNNotificationRequest(identifier: "diaper-\(babyName)", content: content, trigger: trigger)
+        let request = UNNotificationRequest(
+            identifier: "diaper-\(babyId.uuidString)",
+            content: content,
+            trigger: trigger
+        )
         
-        UNUserNotificationCenter.current().add(request)
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error {
+                print("添加换尿布提醒失败: \(error.localizedDescription)")
+            }
+        }
     }
     
-    func cancelReminder(type: String, babyName: String) {
+    func cancelReminder(type: String, babyId: UUID) {
         UNUserNotificationCenter.current().removePendingNotificationRequests(
-            withIdentifiers: ["\(type)-\(babyName)"]
+            withIdentifiers: ["\(type)-\(babyId.uuidString)"]
         )
     }
     

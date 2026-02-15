@@ -126,9 +126,15 @@ struct FeedingRecordView: View {
         }
         
         modelContext.insert(record)
-        try? modelContext.save()
-        HapticManager.shared.success()
-        showingSaveSuccess = true
+        do {
+            try modelContext.save()
+            HapticManager.shared.success()
+            showingSaveSuccess = true
+        } catch {
+            modelContext.delete(record)
+            alertMessage = "保存失败：\(error.localizedDescription)"
+            showingAlert = true
+        }
     }
 }
 

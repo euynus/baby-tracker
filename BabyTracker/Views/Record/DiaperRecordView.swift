@@ -20,6 +20,8 @@ struct DiaperRecordView: View {
     @State private var consistency: String = ""
     @State private var notes: String = ""
     @State private var showingSaveSuccess = false
+    @State private var showingSaveError = false
+    @State private var saveErrorMessage = ""
 
     private let colors = ["黄色", "绿色", "棕色", "黑色", "其他"]
     private let consistencies = ["糊状", "稀水", "成形", "干硬"]
@@ -137,6 +139,11 @@ struct DiaperRecordView: View {
                     }
                 }
             }
+            .alert("保存失败", isPresented: $showingSaveError) {
+                Button("确定", role: .cancel) { }
+            } message: {
+                Text(saveErrorMessage)
+            }
             .saveSuccessOverlay(isPresented: $showingSaveSuccess) {
                 dismiss()
             }
@@ -190,9 +197,15 @@ struct DiaperRecordView: View {
         }
 
         modelContext.insert(record)
-        try? modelContext.save()
-        HapticManager.shared.success()
-        showingSaveSuccess = true
+        do {
+            try modelContext.save()
+            HapticManager.shared.success()
+            showingSaveSuccess = true
+        } catch {
+            modelContext.delete(record)
+            saveErrorMessage = error.localizedDescription
+            showingSaveError = true
+        }
     }
 }
 

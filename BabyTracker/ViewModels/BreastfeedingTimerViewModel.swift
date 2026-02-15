@@ -21,6 +21,8 @@ class BreastfeedingTimerViewModel: ObservableObject {
     @Published var rightDuration: TimeInterval = 0
     
     var startTime: Date?
+    var leftStartTime: Date?
+    var rightStartTime: Date?
     private var currentStartTime: Date?
     private var pausedDuration: TimeInterval = 0
     
@@ -59,6 +61,14 @@ class BreastfeedingTimerViewModel: ObservableObject {
         formatter.dateFormat = "HH:mm"
         return formatter.string(from: end)
     }
+
+    // Backward-compatible computed properties for older tests.
+    var isLeftRunning: Bool { isRunning && currentSide == .left }
+    var isRightRunning: Bool { isRunning && currentSide == .right }
+    var leftElapsed: TimeInterval { leftDuration }
+    var rightElapsed: TimeInterval { rightDuration }
+    var leftElapsedTime: String { formatTime(leftDuration) }
+    var rightElapsedTime: String { formatTime(rightDuration) }
     
     // MARK: - Initialization
     
@@ -76,6 +86,12 @@ class BreastfeedingTimerViewModel: ObservableObject {
         isRunning = true
         startTime = Date()
         currentStartTime = Date()
+
+        if side == .left {
+            leftStartTime = startTime
+        } else {
+            rightStartTime = startTime
+        }
         
         startTimer()
     }
@@ -106,9 +122,37 @@ class BreastfeedingTimerViewModel: ObservableObject {
         // Reset for new side
         pausedDuration = currentSide == .left ? leftDuration : rightDuration
         currentStartTime = Date()
+        if currentSide == .left {
+            leftStartTime = currentStartTime
+        } else {
+            rightStartTime = currentStartTime
+        }
         
         // Resume
         resume()
+    }
+
+    // Backward-compatible actions for older tests.
+    func startLeft() {
+        start(side: .left)
+    }
+
+    func pauseLeft() {
+        guard currentSide == .left else { return }
+        pause()
+    }
+
+    func resumeLeft() {
+        if currentSide != .left {
+            currentSide = .left
+            pausedDuration = leftDuration
+        }
+        resume()
+    }
+
+    func stopRight() {
+        guard currentSide == .right else { return }
+        stop()
     }
     
     func saveRecord(context: ModelContext) {
@@ -121,7 +165,12 @@ class BreastfeedingTimerViewModel: ObservableObject {
         record.rightDuration = Int(rightDuration)
         
         context.insert(record)
-        try? context.save()
+        do {
+            try context.save()
+        } catch {
+            context.delete(record)
+            print("保存喂养记录失败: \(error.localizedDescription)")
+        }
         
         reset()
     }
@@ -132,6 +181,8 @@ class BreastfeedingTimerViewModel: ObservableObject {
         rightDuration = 0
         pausedDuration = 0
         startTime = nil
+        leftStartTime = nil
+        rightStartTime = nil
         currentStartTime = nil
         hasStarted = false
         currentSide = .left

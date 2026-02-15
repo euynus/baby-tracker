@@ -16,6 +16,8 @@ struct SleepTimerView: View {
     
     @Query private var sleepRecords: [SleepRecord]
     @State private var notes: String = ""
+    @State private var showingSaveError = false
+    @State private var saveErrorMessage = ""
     
     private var activeSleep: SleepRecord? {
         sleepRecords.first(where: { $0.babyId == baby.id && $0.isActive })
@@ -44,6 +46,11 @@ struct SleepTimerView: View {
                         dismiss()
                     }
                 }
+            }
+            .alert("保存失败", isPresented: $showingSaveError) {
+                Button("确定", role: .cancel) { }
+            } message: {
+                Text(saveErrorMessage)
             }
             .onAppear {
                 startTimer()
@@ -195,7 +202,14 @@ struct SleepTimerView: View {
     private func startSleep() {
         let sleep = SleepRecord(babyId: baby.id, startTime: Date())
         modelContext.insert(sleep)
-        HapticManager.shared.medium()
+        do {
+            try modelContext.save()
+            HapticManager.shared.medium()
+        } catch {
+            modelContext.delete(sleep)
+            saveErrorMessage = error.localizedDescription
+            showingSaveError = true
+        }
     }
 
     private func endSleep(_ sleep: SleepRecord) {
@@ -203,8 +217,14 @@ struct SleepTimerView: View {
         if !notes.isEmpty {
             sleep.notes = notes
         }
-        HapticManager.shared.medium()
-        dismiss()
+        do {
+            try modelContext.save()
+            HapticManager.shared.medium()
+            dismiss()
+        } catch {
+            saveErrorMessage = error.localizedDescription
+            showingSaveError = true
+        }
     }
     
     // MARK: - Timer

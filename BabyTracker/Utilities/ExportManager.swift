@@ -30,9 +30,9 @@ class ExportManager {
         for record in feedingRecords.filter({ $0.babyId == baby.id }).sorted(by: { $0.timestamp > $1.timestamp }) {
             let timestamp = formatDate(record.timestamp)
             let method = methodString(record.method)
-            let leftMin = record.leftDuration != nil ? String(record.leftDuration! / 60) : ""
-            let rightMin = record.rightDuration != nil ? String(record.rightDuration! / 60) : ""
-            let amount = record.amount != nil ? String(format: "%.0f", record.amount!) : ""
+            let leftMin = record.leftDuration.map { String($0 / 60) } ?? ""
+            let rightMin = record.rightDuration.map { String($0 / 60) } ?? ""
+            let amount = record.amount.map { String(format: "%.0f", $0) } ?? ""
             let notes = record.notes ?? ""
             
             csvContent += "\(timestamp),\(method),\(leftMin),\(rightMin),\(amount),\(notes)\n"
@@ -42,8 +42,9 @@ class ExportManager {
         csvContent += "开始时间,结束时间,时长(小时),备注\n"
         
         for record in sleepRecords.filter({ $0.babyId == baby.id && $0.endTime != nil }).sorted(by: { $0.startTime > $1.startTime }) {
+            guard let endTime = record.endTime else { continue }
             let start = formatDate(record.startTime)
-            let end = record.endTime != nil ? formatDate(record.endTime!) : ""
+            let end = formatDate(endTime)
             let duration = String(format: "%.1f", record.duration / 3600)
             let notes = record.notes ?? ""
             
@@ -68,10 +69,10 @@ class ExportManager {
         
         for record in growthRecords.filter({ $0.babyId == baby.id }).sorted(by: { $0.timestamp > $1.timestamp }) {
             let timestamp = formatDate(record.timestamp)
-            let weight = record.weight != nil ? String(format: "%.2f", record.weight! / 1000) : ""
-            let height = record.height != nil ? String(format: "%.1f", record.height!) : ""
-            let head = record.headCircumference != nil ? String(format: "%.1f", record.headCircumference!) : ""
-            let temp = record.temperature != nil ? String(format: "%.1f", record.temperature!) : ""
+            let weight = record.weight.map { String(format: "%.2f", $0 / 1000) } ?? ""
+            let height = record.height.map { String(format: "%.1f", $0) } ?? ""
+            let head = record.headCircumference.map { String(format: "%.1f", $0) } ?? ""
+            let temp = record.temperature.map { String(format: "%.1f", $0) } ?? ""
             let notes = record.notes ?? ""
             
             csvContent += "\(timestamp),\(weight),\(height),\(head),\(temp),\(notes)\n"
@@ -111,7 +112,6 @@ class ExportManager {
                 
                 var yPosition: CGFloat = 50
                 let margin: CGFloat = 40
-                let pageWidth = pageSize.width - 2 * margin
                 
                 // Title
                 let titleAttributes: [NSAttributedString.Key: Any] = [

@@ -9,7 +9,6 @@ import SwiftUI
 import SwiftData
 
 struct HomeView: View {
-    @Environment(\.modelContext) private var modelContext
     @Query private var babies: [Baby]
     @Query(sort: \FeedingRecord.timestamp, order: .reverse) private var feedingRecords: [FeedingRecord]
     @Query(sort: \SleepRecord.startTime, order: .reverse) private var sleepRecords: [SleepRecord]
@@ -32,8 +31,8 @@ struct HomeView: View {
                     quickActionsGrid
                     
                     // Today's timeline
-                    if let baby = selectedBaby {
-                        timelineSection(for: baby)
+                    if selectedBaby != nil {
+                        timelineSection()
                     }
                 }
                 .padding()
@@ -52,6 +51,11 @@ struct HomeView: View {
             .sheet(isPresented: $showingDiaperSheet) {
                 if let baby = selectedBaby {
                     DiaperRecordView(baby: baby)
+                }
+            }
+            .sheet(isPresented: $showingTemperatureSheet) {
+                if let baby = selectedBaby {
+                    GrowthRecordView(baby: baby)
                 }
             }
         }
@@ -127,7 +131,7 @@ struct HomeView: View {
         .slideIn(from: .bottom)
     }
     
-    private func timelineSection(for baby: Baby) -> some View {
+    private func timelineSection() -> some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("今日记录")
@@ -142,7 +146,7 @@ struct HomeView: View {
             Divider()
             
             // Combine and sort all records for today
-            let todayRecords = getTodayRecords(for: baby)
+            let todayRecords = getTodayRecords()
             
             if todayRecords.isEmpty {
                 VStack(spacing: 12) {
@@ -169,32 +173,43 @@ struct HomeView: View {
     }
     
     private var lastFeedingTime: String {
-        guard let baby = selectedBaby,
-              let last = feedingRecords.first(where: { $0.babyId == baby.id }) else {
+        guard let last = selectedBabyFeedingRecords.first else {
             return "-"
         }
         return timeAgo(from: last.timestamp)
     }
     
     private var lastSleepTime: String {
-        guard let baby = selectedBaby,
-              let last = sleepRecords.first(where: { $0.babyId == baby.id && !$0.isActive }) else {
+        guard let last = selectedBabySleepRecords.first(where: { !$0.isActive }) else {
             return "-"
         }
         return timeAgo(from: last.startTime)
     }
     
     private var activeSleep: SleepRecord? {
-        guard let baby = selectedBaby else { return nil }
-        return sleepRecords.first(where: { $0.babyId == baby.id && $0.isActive })
+        selectedBabySleepRecords.first(where: { $0.isActive })
     }
     
     private var lastDiaperTime: String {
-        guard let baby = selectedBaby,
-              let last = diaperRecords.first(where: { $0.babyId == baby.id }) else {
+        guard let last = selectedBabyDiaperRecords.first else {
             return "-"
         }
         return timeAgo(from: last.timestamp)
+    }
+
+    private var selectedBabyFeedingRecords: [FeedingRecord] {
+        guard let selectedBaby else { return [] }
+        return feedingRecords.filter { $0.babyId == selectedBaby.id }
+    }
+
+    private var selectedBabySleepRecords: [SleepRecord] {
+        guard let selectedBaby else { return [] }
+        return sleepRecords.filter { $0.babyId == selectedBaby.id }
+    }
+
+    private var selectedBabyDiaperRecords: [DiaperRecord] {
+        guard let selectedBaby else { return [] }
+        return diaperRecords.filter { $0.babyId == selectedBaby.id }
     }
     
     private func timeAgo(from date: Date) -> String {
@@ -211,25 +226,25 @@ struct HomeView: View {
         }
     }
     
-    private func getTodayRecords(for baby: Baby) -> [TimelineRecord] {
+    private func getTodayRecords() -> [TimelineRecord] {
         let calendar = Calendar.current
         let today = calendar.startOfDay(for: Date())
         
         var records: [TimelineRecord] = []
         
         // Add feeding records
-        feedingRecords
-            .filter { $0.babyId == baby.id && calendar.isDate($0.timestamp, inSameDayAs: today) }
+        selectedBabyFeedingRecords
+            .filter { calendar.isDate($0.timestamp, inSameDayAs: today) }
             .forEach { records.append(.feeding($0)) }
         
         // Add sleep records
-        sleepRecords
-            .filter { $0.babyId == baby.id && calendar.isDate($0.startTime, inSameDayAs: today) }
+        selectedBabySleepRecords
+            .filter { calendar.isDate($0.startTime, inSameDayAs: today) }
             .forEach { records.append(.sleep($0)) }
         
         // Add diaper records
-        diaperRecords
-            .filter { $0.babyId == baby.id && calendar.isDate($0.timestamp, inSameDayAs: today) }
+        selectedBabyDiaperRecords
+            .filter { calendar.isDate($0.timestamp, inSameDayAs: today) }
             .forEach { records.append(.diaper($0)) }
         
         return records.sorted { $0.timestamp > $1.timestamp }

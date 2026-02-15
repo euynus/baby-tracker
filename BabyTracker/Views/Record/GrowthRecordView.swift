@@ -110,6 +110,8 @@ struct GrowthRecordView: View {
     }
 
     private func saveRecord() {
+        showingAlert = false
+
         if recordDate > Date() {
             alertMessage = "记录时间不能晚于当前时间"
             showingAlert = true
@@ -125,33 +127,34 @@ struct GrowthRecordView: View {
         let tempValue = parse(temperature, validate: { (34.0...42.0).contains($0) }, message: "体温应在 34~42°C 之间")
         if showingAlert { return }
 
+        guard weightValue != nil || heightValue != nil || headValue != nil || tempValue != nil else {
+            alertMessage = "请至少输入一项有效测量数据"
+            showingAlert = true
+            return
+        }
+
+        let record = GrowthRecord(babyId: baby.id, timestamp: recordDate)
         if let weightValue {
-            let record = GrowthRecord(baby: baby, weight: weightValue, timestamp: recordDate)
-            if !notes.isEmpty { record.notes = notes }
-            modelContext.insert(record)
+            // Persist weight in grams; UI input is kg.
+            record.weight = weightValue * 1000
         }
-
-        if let heightValue {
-            let record = GrowthRecord(baby: baby, height: heightValue, timestamp: recordDate)
-            if !notes.isEmpty { record.notes = notes }
-            modelContext.insert(record)
+        record.height = heightValue
+        record.headCircumference = headValue
+        record.temperature = tempValue
+        if !notes.isEmpty {
+            record.notes = notes
         }
+        modelContext.insert(record)
 
-        if let headValue {
-            let record = GrowthRecord(baby: baby, headCircumference: headValue, timestamp: recordDate)
-            if !notes.isEmpty { record.notes = notes }
-            modelContext.insert(record)
+        do {
+            try modelContext.save()
+            HapticManager.shared.success()
+            showingSaveSuccess = true
+        } catch {
+            modelContext.delete(record)
+            alertMessage = "保存失败：\(error.localizedDescription)"
+            showingAlert = true
         }
-
-        if let tempValue {
-            let record = GrowthRecord(baby: baby, temperature: tempValue, timestamp: recordDate)
-            if !notes.isEmpty { record.notes = notes }
-            modelContext.insert(record)
-        }
-
-        try? modelContext.save()
-        HapticManager.shared.success()
-        showingSaveSuccess = true
     }
 
     private func validate(_ value: Double, with rule: (Double) -> Bool, message: String) -> Bool {

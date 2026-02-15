@@ -41,6 +41,26 @@ final class FeedingRecord {
         let seconds = total % 60
         return String(format: "%d:%02d", minutes, seconds)
     }
+
+    // Backward-compatible alias used by older tests/views.
+    var type: FeedingMethod {
+        get { method }
+        set { method = newValue }
+    }
+
+    convenience init(
+        baby: Baby,
+        type: FeedingMethod,
+        amount: Double? = nil,
+        leftDuration: Int? = nil,
+        rightDuration: Int? = nil,
+        timestamp: Date = Date()
+    ) {
+        self.init(babyId: baby.id, timestamp: timestamp, method: type)
+        self.amount = amount
+        self.leftDuration = leftDuration
+        self.rightDuration = rightDuration
+    }
 }
 
 enum FeedingMethod: String, Codable {

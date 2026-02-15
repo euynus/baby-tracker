@@ -9,7 +9,6 @@ import SwiftUI
 import SwiftData
 
 struct CalendarView: View {
-    @Environment(\.modelContext) private var modelContext
     @Query private var babies: [Baby]
     @Query private var feedingRecords: [FeedingRecord]
     @Query private var sleepRecords: [SleepRecord]
@@ -106,7 +105,9 @@ struct CalendarView: View {
     }
 
     private var calendarGrid: some View {
-        VStack(spacing: 12) {
+        let recordDates = recordDatesForSelectedBaby
+
+        return VStack(spacing: 12) {
             // Weekday headers
             LazyVGrid(columns: columns, spacing: 8) {
                 ForEach(["日", "一", "二", "三", "四", "五", "六"], id: \.self) { day in
@@ -122,7 +123,10 @@ struct CalendarView: View {
             LazyVGrid(columns: columns, spacing: 8) {
                 ForEach(daysInMonth, id: \.self) { date in
                     if let date = date {
-                        dayCell(for: date)
+                        dayCell(
+                            for: date,
+                            hasRecords: recordDates.contains(calendar.startOfDay(for: date))
+                        )
                     } else {
                         Color.clear
                             .aspectRatio(1, contentMode: .fit)
@@ -134,10 +138,9 @@ struct CalendarView: View {
         .cardStyle()
     }
     
-    private func dayCell(for date: Date) -> some View {
+    private func dayCell(for date: Date, hasRecords: Bool) -> some View {
         let isToday = calendar.isDateInToday(date)
         let isSelected = calendar.isDate(selectedDate, inSameDayAs: date)
-        let hasRecords = dateHasRecords(date)
         let isCurrentMonth = calendar.isDate(date, equalTo: currentMonth, toGranularity: .month)
         
         return Button(action: { selectedDate = date }) {
@@ -168,16 +171,20 @@ struct CalendarView: View {
     }
     
     private func dateDetails(for baby: Baby) -> some View {
-        let feedingCount = feedingRecords.filter {
-            $0.babyId == baby.id && calendar.isDate($0.timestamp, inSameDayAs: selectedDate)
+        let babyFeedingRecords = feedingRecords.filter { $0.babyId == baby.id }
+        let babySleepRecords = sleepRecords.filter { $0.babyId == baby.id }
+        let babyDiaperRecords = diaperRecords.filter { $0.babyId == baby.id }
+
+        let feedingCount = babyFeedingRecords.filter {
+            calendar.isDate($0.timestamp, inSameDayAs: selectedDate)
         }.count
         
-        let sleeps = sleepRecords.filter {
-            $0.babyId == baby.id && calendar.isDate($0.startTime, inSameDayAs: selectedDate) && $0.endTime != nil
+        let sleeps = babySleepRecords.filter {
+            calendar.isDate($0.startTime, inSameDayAs: selectedDate) && $0.endTime != nil
         }
         
-        let diaperCount = diaperRecords.filter {
-            $0.babyId == baby.id && calendar.isDate($0.timestamp, inSameDayAs: selectedDate)
+        let diaperCount = babyDiaperRecords.filter {
+            calendar.isDate($0.timestamp, inSameDayAs: selectedDate)
         }.count
         
         let totalSleepHours = sleeps.reduce(0.0) { $0 + $1.duration } / 3600
@@ -254,22 +261,24 @@ struct CalendarView: View {
         }
     }
     
-    private func dateHasRecords(_ date: Date) -> Bool {
-        guard let baby = selectedBaby else { return false }
-        
-        let hasFeeding = feedingRecords.contains {
-            $0.babyId == baby.id && calendar.isDate($0.timestamp, inSameDayAs: date)
-        }
-        
-        let hasSleep = sleepRecords.contains {
-            $0.babyId == baby.id && calendar.isDate($0.startTime, inSameDayAs: date)
-        }
-        
-        let hasDiaper = diaperRecords.contains {
-            $0.babyId == baby.id && calendar.isDate($0.timestamp, inSameDayAs: date)
-        }
-        
-        return hasFeeding || hasSleep || hasDiaper
+    private var recordDatesForSelectedBaby: Set<Date> {
+        guard let baby = selectedBaby else { return [] }
+
+        var dates = Set<Date>()
+
+        feedingRecords
+            .filter { $0.babyId == baby.id }
+            .forEach { dates.insert(calendar.startOfDay(for: $0.timestamp)) }
+
+        sleepRecords
+            .filter { $0.babyId == baby.id }
+            .forEach { dates.insert(calendar.startOfDay(for: $0.startTime)) }
+
+        diaperRecords
+            .filter { $0.babyId == baby.id }
+            .forEach { dates.insert(calendar.startOfDay(for: $0.timestamp)) }
+
+        return dates
     }
 }
 

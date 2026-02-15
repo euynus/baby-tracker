@@ -90,22 +90,24 @@ struct GrowthChartView: View {
             }
             
             // Baby's actual data
-            ForEach(records.filter { $0.weight != nil }, id: \.id) { record in
-                let ageMonths = getAgeInMonths(from: baby.birthday, to: record.timestamp)
-                PointMark(
-                    x: .value("月龄", ageMonths),
-                    y: .value("体重", record.weight! / 1000)
-                )
-                .foregroundStyle(Color.blue)
-                .symbol(.circle)
-                .symbolSize(100)
-                
-                LineMark(
-                    x: .value("月龄", ageMonths),
-                    y: .value("体重", record.weight! / 1000)
-                )
-                .foregroundStyle(Color.blue)
-                .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round))
+            ForEach(records, id: \.id) { record in
+                if let weight = record.weight {
+                    let ageMonths = getAgeInMonths(from: baby.birthday, to: record.timestamp)
+                    PointMark(
+                        x: .value("月龄", ageMonths),
+                        y: .value("体重", weight / 1000)
+                    )
+                    .foregroundStyle(Color.blue)
+                    .symbol(.circle)
+                    .symbolSize(100)
+                    
+                    LineMark(
+                        x: .value("月龄", ageMonths),
+                        y: .value("体重", weight / 1000)
+                    )
+                    .foregroundStyle(Color.blue)
+                    .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round))
+                }
             }
         }
         .chartXAxisLabel("月龄")
@@ -128,22 +130,24 @@ struct GrowthChartView: View {
             }
             
             // Baby's data
-            ForEach(records.filter { $0.height != nil }, id: \.id) { record in
-                let ageMonths = getAgeInMonths(from: baby.birthday, to: record.timestamp)
-                PointMark(
-                    x: .value("月龄", ageMonths),
-                    y: .value("身高", record.height!)
-                )
-                .foregroundStyle(Color.green)
-                .symbol(.circle)
-                .symbolSize(100)
-                
-                LineMark(
-                    x: .value("月龄", ageMonths),
-                    y: .value("身高", record.height!)
-                )
-                .foregroundStyle(Color.green)
-                .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round))
+            ForEach(records, id: \.id) { record in
+                if let height = record.height {
+                    let ageMonths = getAgeInMonths(from: baby.birthday, to: record.timestamp)
+                    PointMark(
+                        x: .value("月龄", ageMonths),
+                        y: .value("身高", height)
+                    )
+                    .foregroundStyle(Color.green)
+                    .symbol(.circle)
+                    .symbolSize(100)
+                    
+                    LineMark(
+                        x: .value("月龄", ageMonths),
+                        y: .value("身高", height)
+                    )
+                    .foregroundStyle(Color.green)
+                    .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round))
+                }
             }
         }
         .chartXAxisLabel("月龄")
@@ -152,22 +156,24 @@ struct GrowthChartView: View {
     
     private func headChart(records: [GrowthRecord]) -> some View {
         return Chart {
-            ForEach(records.filter { $0.headCircumference != nil }, id: \.id) { record in
-                let ageMonths = getAgeInMonths(from: baby.birthday, to: record.timestamp)
-                PointMark(
-                    x: .value("月龄", ageMonths),
-                    y: .value("头围", record.headCircumference!)
-                )
-                .foregroundStyle(Color.purple)
-                .symbol(.circle)
-                .symbolSize(100)
-                
-                LineMark(
-                    x: .value("月龄", ageMonths),
-                    y: .value("头围", record.headCircumference!)
-                )
-                .foregroundStyle(Color.purple)
-                .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round))
+            ForEach(records, id: \.id) { record in
+                if let headCircumference = record.headCircumference {
+                    let ageMonths = getAgeInMonths(from: baby.birthday, to: record.timestamp)
+                    PointMark(
+                        x: .value("月龄", ageMonths),
+                        y: .value("头围", headCircumference)
+                    )
+                    .foregroundStyle(Color.purple)
+                    .symbol(.circle)
+                    .symbolSize(100)
+                    
+                    LineMark(
+                        x: .value("月龄", ageMonths),
+                        y: .value("头围", headCircumference)
+                    )
+                    .foregroundStyle(Color.purple)
+                    .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round))
+                }
             }
         }
         .chartXAxisLabel("月龄")

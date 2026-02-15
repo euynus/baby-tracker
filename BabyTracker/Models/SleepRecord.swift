@@ -39,4 +39,9 @@ final class SleepRecord {
     var isActive: Bool {
         endTime == nil
     }
+
+    convenience init(baby: Baby, startTime: Date, endTime: Date? = nil) {
+        self.init(babyId: baby.id, startTime: startTime)
+        self.endTime = endTime
+    }
 }

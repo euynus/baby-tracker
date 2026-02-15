@@ -20,6 +20,11 @@ struct SecuritySettingsView: View {
         Form {
             Section {
                 Toggle("启用安全锁", isOn: $authManager.isAuthenticationEnabled)
+                    .onChange(of: authManager.isAuthenticationEnabled) { _, enabled in
+                        if !enabled {
+                            authManager.removeAuthentication()
+                        }
+                    }
             } header: {
                 Text("安全选项")
             } footer: {
@@ -53,7 +58,7 @@ struct SecuritySettingsView: View {
                 if authManager.usePasscode {
                     Section {
                         Button("移除密码", role: .destructive) {
-                            authManager.usePasscode = false
+                            authManager.removePasscode()
                         }
                     }
                 }

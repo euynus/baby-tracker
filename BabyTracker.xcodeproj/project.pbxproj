@@ -40,6 +40,8 @@
 		BA0091 /* ExportView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0092; };
 		BA0093 /* GrowthChartView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0094; };
 		BA0095 /* PhotoGalleryView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0096; };
+		BA0102 /* KeychainManager.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0104; };
+		BA0103 /* GrowthRecordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0105; };
 		BA0037 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BA0038; };
 		BA0039 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BA0040; };
 /* End PBXBuildFile section */
@@ -78,6 +80,8 @@
 		BA0092 /* ExportView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ExportView.swift; sourceTree = "<group>"; };
 		BA0094 /* GrowthChartView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthChartView.swift; sourceTree = "<group>"; };
 		BA0096 /* PhotoGalleryView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PhotoGalleryView.swift; sourceTree = "<group>"; };
+		BA0104 /* KeychainManager.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = KeychainManager.swift; sourceTree = "<group>"; };
+		BA0105 /* GrowthRecordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthRecordView.swift; sourceTree = "<group>"; };
 		BA0038 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BA0040 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		BA0041 /* BabyTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BabyTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -181,6 +185,7 @@
 				BA0078 /* AuthenticationManager.swift */,
 				BA0080 /* ExportManager.swift */,
 				BA0082 /* NotificationManager.swift */,
+				BA0104 /* KeychainManager.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -210,6 +215,7 @@
 				BA0024 /* BreastfeedingTimerView.swift */,
 				BA0028 /* SleepTimerView.swift */,
 				BA0030 /* DiaperRecordView.swift */,
+				BA0105 /* GrowthRecordView.swift */,
 			);
 			path = Record;
 			sourceTree = "<group>";
@@ -383,6 +389,8 @@
 				BA0091 /* ExportView.swift in Sources */,
 				BA0093 /* GrowthChartView.swift in Sources */,
 				BA0095 /* PhotoGalleryView.swift in Sources */,
+				BA0102 /* KeychainManager.swift in Sources */,
+				BA0103 /* GrowthRecordView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

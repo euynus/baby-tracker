@@ -111,13 +111,43 @@ struct ProfileView: View {
     
     private func deleteBabies(at offsets: IndexSet) {
         for index in offsets {
-            modelContext.delete(babies[index])
+            let baby = babies[index]
+            deleteRelatedRecords(for: baby.id)
+            modelContext.delete(baby)
         }
         do {
             try modelContext.save()
         } catch {
             // Keep this non-fatal but visible in debug logs.
             print("删除宝宝保存失败: \(error.localizedDescription)")
+        }
+    }
+
+    private func deleteRelatedRecords(for babyId: UUID) {
+        do {
+            let feeding = try modelContext.fetch(
+                FetchDescriptor<FeedingRecord>(predicate: #Predicate { $0.babyId == babyId })
+            )
+            let sleep = try modelContext.fetch(
+                FetchDescriptor<SleepRecord>(predicate: #Predicate { $0.babyId == babyId })
+            )
+            let diaper = try modelContext.fetch(
+                FetchDescriptor<DiaperRecord>(predicate: #Predicate { $0.babyId == babyId })
+            )
+            let growth = try modelContext.fetch(
+                FetchDescriptor<GrowthRecord>(predicate: #Predicate { $0.babyId == babyId })
+            )
+            let photos = try modelContext.fetch(
+                FetchDescriptor<PhotoRecord>(predicate: #Predicate { $0.babyId == babyId })
+            )
+
+            feeding.forEach { modelContext.delete($0) }
+            sleep.forEach { modelContext.delete($0) }
+            diaper.forEach { modelContext.delete($0) }
+            growth.forEach { modelContext.delete($0) }
+            photos.forEach { modelContext.delete($0) }
+        } catch {
+            print("删除宝宝关联记录失败: \(error.localizedDescription)")
         }
     }
 }
@@ -182,9 +212,9 @@ struct BabyDetailView: View {
         _name = State(initialValue: baby.name)
         _birthday = State(initialValue: baby.birthday)
         _gender = State(initialValue: baby.gender)
-        _weight = State(initialValue: baby.latestWeight != nil ? String(format: "%.0f", baby.latestWeight!) : "")
-        _height = State(initialValue: baby.latestHeight != nil ? String(format: "%.1f", baby.latestHeight!) : "")
-        _headCircumference = State(initialValue: baby.latestHeadCircumference != nil ? String(format: "%.1f", baby.latestHeadCircumference!) : "")
+        _weight = State(initialValue: baby.latestWeight.map { String(format: "%.0f", $0) } ?? "")
+        _height = State(initialValue: baby.latestHeight.map { String(format: "%.1f", $0) } ?? "")
+        _headCircumference = State(initialValue: baby.latestHeadCircumference.map { String(format: "%.1f", $0) } ?? "")
     }
     
     var body: some View {

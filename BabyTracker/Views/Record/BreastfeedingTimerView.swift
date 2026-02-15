@@ -25,6 +25,8 @@ struct BreastfeedingTimerView: View {
     @State private var estimatedAmount: String = ""
     @State private var notes: String = ""
     @State private var showingCompletion = false
+    @State private var showingSaveError = false
+    @State private var saveErrorMessage = ""
     
     var body: some View {
         NavigationStack {
@@ -49,6 +51,11 @@ struct BreastfeedingTimerView: View {
                         dismiss()
                     }
                 }
+            }
+            .alert("保存失败", isPresented: $showingSaveError) {
+                Button("确定", role: .cancel) { }
+            } message: {
+                Text(saveErrorMessage)
             }
         }
     }
@@ -433,8 +440,15 @@ struct BreastfeedingTimerView: View {
         }
         
         modelContext.insert(record)
-        HapticManager.shared.success()
-        onComplete()
+        do {
+            try modelContext.save()
+            HapticManager.shared.success()
+            onComplete()
+        } catch {
+            modelContext.delete(record)
+            saveErrorMessage = error.localizedDescription
+            showingSaveError = true
+        }
     }
 }
 
