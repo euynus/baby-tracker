@@ -10,7 +10,12 @@ import SwiftData
 
 struct ProfileView: View {
     @Environment(\.modelContext) private var modelContext
-    @Query private var babies: [Baby]
+    @Query(
+        sort: [
+            SortDescriptor(\Baby.birthday, order: .reverse),
+            SortDescriptor(\Baby.name, order: .forward)
+        ]
+    ) private var babies: [Baby]
     
     @State private var showingAddBaby = false
     
