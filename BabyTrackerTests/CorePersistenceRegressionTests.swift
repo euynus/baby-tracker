@@ -102,6 +102,19 @@ final class CorePersistenceRegressionTests: XCTestCase {
         XCTAssertFalse(didSave)
     }
 
+    func testSaveIfNeededReturnsTrueWhenChangesExist() throws {
+        let container = try makeContainer()
+        let context = ModelContext(container)
+
+        let baby = Baby(name: "有变更时保存", birthday: Date(), gender: .male)
+        context.insert(baby)
+
+        let didSave = try context.saveIfNeeded()
+
+        XCTAssertTrue(didSave)
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<Baby>()), 1)
+    }
+
     func testInsertAndSavePersistsAndReturnsFetchableRecord() throws {
         let container = try makeContainer()
         let context = ModelContext(container)
@@ -112,5 +125,32 @@ final class CorePersistenceRegressionTests: XCTestCase {
         let babies = try context.fetch(FetchDescriptor<Baby>())
         XCTAssertEqual(babies.count, 1)
         XCTAssertEqual(babies.first?.name, "插入保存测试")
+    }
+
+    func testDeleteAndSaveRemovesPersistedBaby() throws {
+        let container = try makeContainer()
+        let context = ModelContext(container)
+
+        let baby = Baby(name: "删除回归测试", birthday: Date(), gender: .female)
+        context.insert(baby)
+        try context.save()
+
+        context.delete(baby)
+        let didSave = try context.saveIfNeeded()
+
+        XCTAssertTrue(didSave)
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<Baby>()), 0)
+    }
+
+    func testMakeAppContainerWorksDuringTests() throws {
+        XCTAssertTrue(AppPersistence.isRunningTests)
+        let container = try AppPersistence.makeAppContainer()
+        let context = ModelContext(container)
+
+        let baby = Baby(name: "App 容器测试", birthday: Date(), gender: .male)
+        context.insert(baby)
+        try context.saveIfNeeded()
+
+        XCTAssertEqual(try context.fetchCount(FetchDescriptor<Baby>()), 1)
     }
 }
