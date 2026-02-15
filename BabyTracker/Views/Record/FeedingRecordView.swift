@@ -11,9 +11,9 @@ import SwiftData
 struct FeedingRecordView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    
+
     let baby: Baby
-    
+
     @State private var feedingMethod: FeedingMethod = .breastfeeding
     @State private var showBreastfeedingTimer = false
     @State private var amount: String = ""
@@ -21,65 +21,31 @@ struct FeedingRecordView: View {
     @State private var showingAlert = false
     @State private var alertMessage = ""
     @State private var showingSaveSuccess = false
-    
+
     var body: some View {
         NavigationStack {
-            Form {
-                Section("喂养方式") {
-                    Picker("方式", selection: $feedingMethod) {
-                        Text("母乳").tag(FeedingMethod.breastfeeding)
-                        Text("奶粉").tag(FeedingMethod.bottle)
-                        Text("混合").tag(FeedingMethod.mixed)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 16) {
+                    methodCard
+
+                    if feedingMethod == .breastfeeding {
+                        breastfeedingCard
+                    } else {
+                        amountCard
                     }
-                    .pickerStyle(.segmented)
-                }
-                
-                if feedingMethod == .breastfeeding {
-                    Section {
-                        Button(action: { showBreastfeedingTimer = true }) {
-                            HStack {
-                                Image(systemName: "timer")
-                                Text("开始母乳计时")
-                                Spacer()
-                                Image(systemName: "chevron.right")
-                                    .font(.caption)
-                                    .foregroundStyle(.secondary)
-                            }
-                        }
-                    } header: {
-                        Text("母乳喂养")
-                    } footer: {
-                        Text("点击开始计时，可以记录左右侧时长")
-                    }
-                } else {
-                    Section("奶量") {
-                        HStack {
-                            TextField("奶量", text: $amount)
-                                .keyboardType(.decimalPad)
-                            Text("ml")
-                                .foregroundStyle(.secondary)
-                        }
+
+                    notesCard
+
+                    if feedingMethod != .breastfeeding {
+                        saveButton
                     }
                 }
-                
-                Section("备注") {
-                    TextEditor(text: $notes)
-                        .frame(height: 80)
-                }
-                
-                if feedingMethod != .breastfeeding {
-                    Section {
-                        Button("保存记录") {
-                            saveQuickRecord()
-                        }
-                        .frame(maxWidth: .infinity)
-                        .foregroundStyle(.blue)
-                        .scaleButton()
-                    }
-                }
+                .padding(.horizontal, AppTheme.paddingMedium)
+                .padding(.vertical, 12)
             }
             .navigationTitle("喂养记录")
             .navigationBarTitleDisplayMode(.inline)
+            .appPageBackground()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("取消") {
@@ -102,10 +68,109 @@ struct FeedingRecordView: View {
             }
         }
     }
-    
+
+    private var methodCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("喂养方式")
+                .font(.headline)
+            Picker("方式", selection: $feedingMethod) {
+                Text("母乳").tag(FeedingMethod.breastfeeding)
+                Text("奶粉").tag(FeedingMethod.bottle)
+                Text("混合").tag(FeedingMethod.mixed)
+            }
+            .pickerStyle(.segmented)
+        }
+        .padding(14)
+        .cardStyle()
+    }
+
+    private var breastfeedingCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            HStack {
+                Image(systemName: "timer")
+                    .foregroundStyle(AppTheme.brand)
+                Text("母乳计时")
+                    .font(.headline)
+            }
+
+            Button(action: { showBreastfeedingTimer = true }) {
+                HStack {
+                    Text("开始母乳计时")
+                        .font(.headline)
+                    Spacer()
+                    Image(systemName: "arrow.right.circle.fill")
+                }
+                .foregroundStyle(.white)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .background(
+                    LinearGradient(colors: AppTheme.feedingGradient, startPoint: .topLeading, endPoint: .bottomTrailing)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
+            }
+            .buttonStyle(.plain)
+            .scaleButton()
+
+            Text("点击开始计时，可记录左右侧时长。")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(14)
+        .cardStyle()
+    }
+
+    private var amountCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("奶量")
+                .font(.headline)
+            HStack {
+                TextField("请输入奶量", text: $amount)
+                    .keyboardType(.decimalPad)
+                Text("ml")
+                    .foregroundStyle(.secondary)
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(AppTheme.brand.opacity(0.08))
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        }
+        .padding(14)
+        .cardStyle()
+    }
+
+    private var notesCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("备注")
+                .font(.headline)
+            TextEditor(text: $notes)
+                .frame(height: 90)
+                .padding(4)
+                .background(AppTheme.brand.opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        }
+        .padding(14)
+        .cardStyle()
+    }
+
+    private var saveButton: some View {
+        Button("保存记录") {
+            saveQuickRecord()
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 14)
+        .background(
+            LinearGradient(colors: AppTheme.feedingGradient, startPoint: .topLeading, endPoint: .bottomTrailing)
+        )
+        .foregroundStyle(.white)
+        .font(.headline)
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
+        .scaleButton()
+    }
+
     private func saveQuickRecord() {
         let record = FeedingRecord(babyId: baby.id, timestamp: Date(), method: feedingMethod)
-        
+
         let trimmedAmount = amount.trimmingCharacters(in: .whitespacesAndNewlines)
         if !trimmedAmount.isEmpty {
             guard let amountValue = Double(trimmedAmount) else {
@@ -120,11 +185,11 @@ struct FeedingRecordView: View {
             }
             record.amount = amountValue
         }
-        
+
         if !notes.isEmpty {
             record.notes = notes
         }
-        
+
         do {
             try modelContext.insertAndSave(record)
             HapticManager.shared.success()

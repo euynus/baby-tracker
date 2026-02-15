@@ -28,110 +28,24 @@ struct DiaperRecordView: View {
 
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Type selection with icon cards
-                    VStack(alignment: .leading, spacing: 12) {
-                        Text("类型")
-                            .font(.headline)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 16) {
+                    typeCardSection
 
-                        HStack(spacing: 12) {
-                            typeCard(
-                                icon: "💧",
-                                title: "小便",
-                                isSelected: hasWet,
-                                color: .cyan
-                            ) {
-                                hasWet.toggle()
-                                HapticManager.shared.light()
-                            }
-
-                            typeCard(
-                                icon: "💩",
-                                title: "大便",
-                                isSelected: hasDirty,
-                                color: .orange
-                            ) {
-                                hasDirty.toggle()
-                                HapticManager.shared.light()
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
-
-                    // Dirty details section
                     if hasDirty {
-                        VStack(alignment: .leading, spacing: 12) {
-                            Text("大便详情")
-                                .font(.headline)
-                                .padding(.horizontal)
-
-                            VStack(spacing: 12) {
-                                Picker("颜色", selection: $color) {
-                                    Text("请选择").tag("")
-                                    ForEach(colors, id: \.self) { color in
-                                        Text(color).tag(color)
-                                    }
-                                }
-
-                                Divider()
-
-                                Picker("性状", selection: $consistency) {
-                                    Text("请选择").tag("")
-                                    ForEach(consistencies, id: \.self) { consistency in
-                                        Text(consistency).tag(consistency)
-                                    }
-                                }
-                            }
-                            .padding()
-                            .background(Color(.systemGray6))
-                            .cornerRadius(AppTheme.cornerRadiusMedium)
-                            .padding(.horizontal)
-                        }
-                        .transition(.opacity.combined(with: .move(edge: .top)))
+                        dirtyDetailSection
                     }
 
-                    // Notes
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("备注")
-                            .font(.headline)
-                            .padding(.horizontal)
-
-                        TextEditor(text: $notes)
-                            .frame(height: 80)
-                            .padding(8)
-                            .background(Color(.systemGray6))
-                            .cornerRadius(AppTheme.cornerRadiusSmall)
-                            .padding(.horizontal)
-                    }
-
-                    // Save button
-                    Button(action: saveRecord) {
-                        Text("保存记录")
-                            .frame(maxWidth: .infinity)
-                            .padding()
-                            .background(
-                                LinearGradient(
-                                    colors: (hasWet || hasDirty)
-                                        ? [Color.orange.opacity(0.8), Color.orange]
-                                        : [Color.gray.opacity(0.3), Color.gray.opacity(0.4)],
-                                    startPoint: .topLeading,
-                                    endPoint: .bottomTrailing
-                                )
-                            )
-                            .foregroundStyle(.white)
-                            .fontWeight(.semibold)
-                            .cornerRadius(AppTheme.cornerRadiusLarge)
-                    }
-                    .disabled(!hasWet && !hasDirty)
-                    .scaleButton()
-                    .padding(.horizontal)
+                    notesSection
+                    saveButton
                 }
-                .padding(.vertical)
+                .padding(.horizontal, AppTheme.paddingMedium)
+                .padding(.vertical, 12)
             }
             .animation(.smooth, value: hasDirty)
             .navigationTitle("尿布记录")
             .navigationBarTitleDisplayMode(.inline)
+            .appPageBackground()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("取消") {
@@ -150,27 +64,120 @@ struct DiaperRecordView: View {
         }
     }
 
-    private func typeCard(icon: String, title: String, isSelected: Bool, color: Color, action: @escaping () -> Void) -> some View {
+    private var typeCardSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("类型")
+                .font(.headline)
+
+            HStack(spacing: 12) {
+                typeCard(
+                    symbol: "drop.fill",
+                    title: "小便",
+                    isSelected: hasWet,
+                    color: .cyan
+                ) {
+                    hasWet.toggle()
+                    HapticManager.shared.light()
+                }
+
+                typeCard(
+                    symbol: "sparkles.rectangle.stack.fill",
+                    title: "大便",
+                    isSelected: hasDirty,
+                    color: .orange
+                ) {
+                    hasDirty.toggle()
+                    HapticManager.shared.light()
+                }
+            }
+        }
+        .padding(14)
+        .cardStyle()
+    }
+
+    private var dirtyDetailSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("大便详情")
+                .font(.headline)
+
+            Picker("颜色", selection: $color) {
+                Text("请选择").tag("")
+                ForEach(colors, id: \.self) { color in
+                    Text(color).tag(color)
+                }
+            }
+
+            Divider()
+
+            Picker("性状", selection: $consistency) {
+                Text("请选择").tag("")
+                ForEach(consistencies, id: \.self) { consistency in
+                    Text(consistency).tag(consistency)
+                }
+            }
+        }
+        .padding(14)
+        .cardStyle()
+    }
+
+    private var notesSection: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("备注")
+                .font(.headline)
+
+            TextEditor(text: $notes)
+                .frame(height: 90)
+                .padding(4)
+                .background(AppTheme.diaperGradient[0].opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        }
+        .padding(14)
+        .cardStyle()
+    }
+
+    private var saveButton: some View {
+        Button(action: saveRecord) {
+            Text("保存记录")
+                .font(.headline)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(
+                    LinearGradient(
+                        colors: (hasWet || hasDirty) ? AppTheme.diaperGradient : [Color.gray.opacity(0.35), Color.gray.opacity(0.45)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .foregroundStyle(.white)
+                .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
+        }
+        .disabled(!hasWet && !hasDirty)
+        .buttonStyle(.plain)
+        .scaleButton()
+    }
+
+    private func typeCard(symbol: String, title: String, isSelected: Bool, color: Color, action: @escaping () -> Void) -> some View {
         Button(action: action) {
-            VStack(spacing: 12) {
-                Text(icon)
-                    .font(.system(size: 40))
+            VStack(spacing: 10) {
+                Image(systemName: symbol)
+                    .font(.system(size: 20, weight: .bold))
+                    .foregroundStyle(isSelected ? .white : color)
+                    .frame(width: 40, height: 40)
+                    .background(isSelected ? color : color.opacity(0.18))
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+
                 Text(title)
                     .font(.headline)
                     .foregroundStyle(isSelected ? color : .secondary)
             }
             .frame(maxWidth: .infinity)
-            .padding(.vertical, 24)
-            .background(
-                isSelected
-                    ? color.opacity(0.15)
-                    : Color(.systemGray6)
-            )
-            .cornerRadius(AppTheme.cornerRadiusLarge)
+            .padding(.vertical, 16)
+            .background(isSelected ? color.opacity(0.14) : Color.clear)
             .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.cornerRadiusLarge)
-                    .stroke(isSelected ? color : Color.clear, lineWidth: 2)
+                RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous)
+                    .stroke(isSelected ? color : color.opacity(0.2), lineWidth: 1.5)
             )
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
         }
         .buttonStyle(.plain)
     }

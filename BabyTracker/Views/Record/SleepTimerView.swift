@@ -11,35 +11,37 @@ import SwiftData
 struct SleepTimerView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    
+
     let baby: Baby
-    
+
     @Query private var sleepRecords: [SleepRecord]
     @State private var notes: String = ""
     @State private var showingSaveError = false
     @State private var saveErrorMessage = ""
-    
+
     private var activeSleep: SleepRecord? {
         sleepRecords.first(where: { $0.babyId == baby.id && $0.isActive })
     }
-    
+
     @State private var currentTime = Date()
     @State private var timer: Timer?
-    
+
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 18) {
                     if let sleep = activeSleep {
                         activeTimerView(sleep: sleep)
                     } else {
                         startView
                     }
                 }
-                .padding()
+                .padding(.horizontal, AppTheme.paddingMedium)
+                .padding(.vertical, 12)
             }
             .navigationTitle("睡眠记录")
             .navigationBarTitleDisplayMode(.inline)
+            .appPageBackground()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("关闭") {
@@ -60,145 +62,113 @@ struct SleepTimerView: View {
             }
         }
     }
-    
+
     // MARK: - Start View
-    
+
     private var startView: some View {
-        VStack(spacing: 32) {
-            Spacer()
-            
-            Image(systemName: "moon.zzz.fill")
-                .font(.system(size: 64))
-                .foregroundStyle(.purple)
-            
-            Text("记录睡眠")
-                .font(.title2)
-                .fontWeight(.semibold)
-            
-            Button(action: startSleep) {
-                Text("开始睡眠")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(
-                        LinearGradient(
-                            colors: [Color.purple.opacity(0.8), Color.purple],
-                            startPoint: .topLeading,
-                            endPoint: .bottomTrailing
-                        )
-                    )
+        VStack(spacing: 18) {
+            VStack(alignment: .leading, spacing: 8) {
+                Text("睡眠追踪")
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.88))
+                Text("准备开始")
+                    .font(.system(size: 30, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
-                    .fontWeight(.semibold)
-                    .cornerRadius(16)
+                Text("点击开始后将持续计时，醒来再结束。")
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.9))
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(18)
+            .gradientCard(AppTheme.sleepGradient)
+
+            Button(action: startSleep) {
+                HStack {
+                    Image(systemName: "moon.stars.fill")
+                    Text("开始睡眠")
+                        .fontWeight(.semibold)
+                    Spacer()
+                    Image(systemName: "arrow.right.circle.fill")
+                }
+                .foregroundStyle(.white)
+                .padding(.horizontal, 16)
+                .padding(.vertical, 14)
+                .background(
+                    LinearGradient(colors: AppTheme.sleepGradient, startPoint: .topLeading, endPoint: .bottomTrailing)
+                )
+                .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
+            }
+            .buttonStyle(.plain)
             .scaleButton()
-            
-            Spacer()
         }
     }
-    
+
     // MARK: - Active Timer View
-    
+
     private func activeTimerView(sleep: SleepRecord) -> some View {
-        VStack(spacing: 24) {
-            // Status badge
+        VStack(spacing: 16) {
             HStack {
                 Spacer()
                 HStack(spacing: 8) {
                     Image(systemName: "moon.zzz.fill")
                     Text("睡眠中")
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
+                        .font(.subheadline.weight(.semibold))
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(Color.purple.opacity(0.2))
-                .cornerRadius(20)
+                .padding(.horizontal, 14)
+                .padding(.vertical, 7)
+                .background(AppTheme.sleepGradient[0].opacity(0.22))
+                .clipShape(Capsule())
                 .pulse()
             }
-            
-            // Timer display
-            VStack(spacing: 16) {
-                Image(systemName: "moon.zzz.fill")
-                    .font(.system(size: 48))
-                    .foregroundStyle(.purple)
-                
+
+            VStack(spacing: 12) {
                 Text("已睡时长")
                     .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                
+                    .foregroundStyle(.white.opacity(0.9))
+
                 Text(formatDuration(sleep.duration))
-                    .font(.system(size: 56, weight: .bold, design: .rounded))
-                    .foregroundStyle(.purple)
+                    .font(.system(size: 52, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
                     .monospacedDigit()
-                
-                Text("睡得香甜...")
-                    .font(.caption)
-                    .foregroundStyle(.secondary)
+
+                Text("开始于 \(formatTime(sleep.startTime))")
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.9))
             }
             .frame(maxWidth: .infinity)
-            .padding(32)
-            .background(
-                LinearGradient(
-                    colors: [Color.purple.opacity(0.1), Color.purple.opacity(0.15)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
-            .cornerRadius(20)
-            
-            // Info card
-            VStack(spacing: 12) {
-                HStack {
-                    Text("开始时间")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(formatTime(sleep.startTime))
-                        .fontWeight(.semibold)
-                }
-                
-                Divider()
-                
-                HStack {
-                    Text("已睡")
-                        .foregroundStyle(.secondary)
-                    Spacer()
-                    Text(formatDuration(sleep.duration))
-                        .fontWeight(.semibold)
-                        .foregroundStyle(.purple)
-                }
-            }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
-            
-            // Notes
-            VStack(alignment: .leading, spacing: 12) {
+            .padding(.vertical, 26)
+            .gradientCard(AppTheme.sleepGradient)
+
+            VStack(alignment: .leading, spacing: 8) {
                 Text("备注")
                     .font(.headline)
-                
                 TextEditor(text: $notes)
-                    .frame(height: 80)
+                    .frame(height: 90)
                     .padding(4)
-                    .background(Color(.systemGray6))
-                    .cornerRadius(8)
+                    .background(AppTheme.sleepGradient[0].opacity(0.08))
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
-            
-            // End button
+            .padding(14)
+            .cardStyle()
+
             Button(action: { endSleep(sleep) }) {
-                Text("✓ 结束睡眠")
+                Text("结束睡眠")
+                    .font(.headline)
                     .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.purple)
+                    .padding(.vertical, 14)
+                    .background(
+                        LinearGradient(colors: AppTheme.sleepGradient, startPoint: .topLeading, endPoint: .bottomTrailing)
+                    )
                     .foregroundStyle(.white)
-                    .fontWeight(.semibold)
-                    .cornerRadius(12)
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
             }
+            .buttonStyle(.plain)
             .scaleButton()
         }
     }
-    
+
     // MARK: - Actions
-    
+
     private func startSleep() {
         let sleep = SleepRecord(babyId: baby.id, startTime: Date())
         do {
@@ -224,22 +194,22 @@ struct SleepTimerView: View {
             showingSaveError = true
         }
     }
-    
+
     // MARK: - Timer
-    
+
     private func startTimer() {
         timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
             currentTime = Date()
         }
     }
-    
+
     private func stopTimer() {
         timer?.invalidate()
         timer = nil
     }
-    
+
     // MARK: - Formatters
-    
+
     private func formatDuration(_ duration: TimeInterval) -> String {
         let total = Int(duration)
         let hours = total / 3600
@@ -247,7 +217,7 @@ struct SleepTimerView: View {
         let seconds = total % 60
         return String(format: "%d:%02d:%02d", hours, minutes, seconds)
     }
-    
+
     private func formatTime(_ date: Date) -> String {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"

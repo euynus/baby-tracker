@@ -24,56 +24,33 @@ struct PhotoGalleryView: View {
     }
 
     private let columns = [
-        GridItem(.flexible()),
-        GridItem(.flexible()),
-        GridItem(.flexible())
+        GridItem(.flexible(), spacing: 8),
+        GridItem(.flexible(), spacing: 8),
+        GridItem(.flexible(), spacing: 8)
     ]
 
     var body: some View {
-        GeometryReader { geometry in
-            let size = (geometry.size.width - 4) / 3
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 16) {
+                heroCard
 
-            if photos.isEmpty {
-                VStack(spacing: 16) {
-                    Image(systemName: "photo.on.rectangle.angled")
-                        .font(.system(size: 56))
-                        .foregroundStyle(.secondary.opacity(0.5))
-                    Text("还没有照片")
-                        .font(.headline)
-                        .foregroundStyle(.secondary)
-                    Text("点击右上角添加")
-                        .font(.subheadline)
-                        .foregroundStyle(.tertiary)
-                }
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .fadeIn()
-            } else {
-                ScrollView {
-                    LazyVGrid(columns: columns, spacing: 2) {
-                        ForEach(photos) { photo in
-                            if let uiImage = UIImage(data: photo.imageData) {
-                                NavigationLink {
-                                    PhotoDetailView(photo: photo)
-                                } label: {
-                                    Image(uiImage: uiImage)
-                                        .resizable()
-                                        .scaledToFill()
-                                        .frame(width: size, height: size)
-                                        .clipped()
-                                }
-                                .fadeIn()
-                            }
-                        }
-                    }
+                if photos.isEmpty {
+                    emptyStateCard
+                } else {
+                    photoGrid
                 }
             }
+            .padding(.horizontal, AppTheme.paddingMedium)
+            .padding(.vertical, 12)
         }
         .navigationTitle("照片")
         .navigationBarTitleDisplayMode(.inline)
+        .appPageBackground()
         .toolbar {
             ToolbarItem(placement: .primaryAction) {
                 PhotosPicker(selection: $selectedItem, matching: .images) {
-                    Image(systemName: "plus")
+                    Label("添加", systemImage: "plus")
+                        .labelStyle(.iconOnly)
                 }
             }
         }
@@ -99,6 +76,73 @@ struct PhotoGalleryView: View {
         } message: {
             Text(saveErrorMessage)
         }
+    }
+
+    private var heroCard: some View {
+        HStack(spacing: 12) {
+            Image(systemName: "photo.stack")
+                .font(.system(size: 24, weight: .semibold))
+                .foregroundStyle(.white)
+                .frame(width: 46, height: 46)
+                .background(Color.white.opacity(0.22))
+                .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("\(baby.name) 的成长相册")
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                Text("共 \(photos.count) 张照片")
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.9))
+            }
+
+            Spacer()
+        }
+        .padding(16)
+        .gradientCard([AppTheme.secondary, AppTheme.accent])
+    }
+
+    private var emptyStateCard: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "photo.on.rectangle.angled")
+                .font(.system(size: 50))
+                .foregroundStyle(.secondary.opacity(0.55))
+            Text("还没有照片")
+                .font(.headline)
+            Text("点击右上角添加第一张成长照片")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 36)
+        .cardStyle()
+    }
+
+    private var photoGrid: some View {
+        LazyVGrid(columns: columns, spacing: 8) {
+            ForEach(photos) { photo in
+                if let uiImage = UIImage(data: photo.imageData) {
+                    NavigationLink {
+                        PhotoDetailView(photo: photo)
+                    } label: {
+                        Image(uiImage: uiImage)
+                            .resizable()
+                            .scaledToFill()
+                            .frame(height: 110)
+                            .frame(maxWidth: .infinity)
+                            .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
+                            .overlay(
+                                RoundedRectangle(cornerRadius: 12, style: .continuous)
+                                    .stroke(Color.white.opacity(0.5), lineWidth: 1)
+                            )
+                    }
+                    .buttonStyle(.plain)
+                    .fadeIn()
+                }
+            }
+        }
+        .padding(12)
+        .cardStyle()
     }
 
     private func addPhoto(data: Data) {
@@ -129,58 +173,19 @@ struct PhotoDetailView: View {
     }
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 20) {
-                if let uiImage = UIImage(data: photo.imageData) {
-                    Image(uiImage: uiImage)
-                        .resizable()
-                        .scaledToFit()
-                        .cornerRadius(AppTheme.cornerRadiusMedium)
-                }
-
-                VStack(alignment: .leading, spacing: 12) {
-                    Text("说明")
-                        .font(.headline)
-
-                    TextEditor(text: $caption)
-                        .frame(height: 100)
-                        .padding(8)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(AppTheme.cornerRadiusSmall)
-
-                    Button("保存说明") {
-                        saveCaption()
-                    }
-                    .buttonStyle(.borderedProminent)
-                    .frame(maxWidth: .infinity)
-                }
-                .padding()
-
-                VStack(alignment: .leading, spacing: 8) {
-                    HStack {
-                        Text("拍摄时间")
-                            .foregroundStyle(.secondary)
-                        Spacer()
-                        Text(photo.timestamp, style: .date)
-                        Text(photo.timestamp, style: .time)
-                    }
-                }
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(AppTheme.cornerRadiusMedium)
-                .padding(.horizontal)
-
-                Button(role: .destructive, action: { showingDeleteAlert = true }) {
-                    Label("删除照片", systemImage: "trash")
-                        .frame(maxWidth: .infinity)
-                }
-                .buttonStyle(.bordered)
-                .padding(.horizontal)
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 16) {
+                imageCard
+                captionCard
+                metaCard
+                deleteButton
             }
-            .padding(.vertical)
+            .padding(.horizontal, AppTheme.paddingMedium)
+            .padding(.vertical, 12)
         }
         .navigationTitle("照片详情")
         .navigationBarTitleDisplayMode(.inline)
+        .appPageBackground()
         .confirmationDialog(
             "确定要删除这张照片吗？此操作无法撤销。",
             isPresented: $showingDeleteAlert,
@@ -195,6 +200,90 @@ struct PhotoDetailView: View {
             Button("确定", role: .cancel) { }
         } message: {
             Text(saveErrorMessage)
+        }
+    }
+
+    private var imageCard: some View {
+        Group {
+            if let uiImage = UIImage(data: photo.imageData) {
+                Image(uiImage: uiImage)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxWidth: .infinity)
+            }
+        }
+        .padding(12)
+        .cardStyle()
+    }
+
+    private var captionCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("说明")
+                .font(.headline)
+
+            TextEditor(text: $caption)
+                .frame(height: 100)
+                .padding(6)
+                .background(AppTheme.secondary.opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+
+            Button("保存说明") {
+                saveCaption()
+            }
+            .frame(maxWidth: .infinity)
+            .padding(.vertical, 12)
+            .background(
+                LinearGradient(
+                    colors: [AppTheme.secondary, AppTheme.brand],
+                    startPoint: .topLeading,
+                    endPoint: .bottomTrailing
+                )
+            )
+            .foregroundStyle(.white)
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
+            .scaleButton()
+        }
+        .padding(14)
+        .cardStyle()
+    }
+
+    private var metaCard: some View {
+        VStack(spacing: 10) {
+            row(symbol: "calendar", title: "拍摄日期", value: photo.timestamp.formatted(date: .abbreviated, time: .omitted))
+            row(symbol: "clock", title: "拍摄时间", value: photo.timestamp.formatted(date: .omitted, time: .shortened))
+        }
+        .padding(14)
+        .cardStyle()
+    }
+
+    private var deleteButton: some View {
+        Button(role: .destructive, action: { showingDeleteAlert = true }) {
+            Label("删除照片", systemImage: "trash")
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 13)
+        }
+        .background(Color.red.opacity(0.16))
+        .foregroundStyle(.red)
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
+    }
+
+    private func row(symbol: String, title: String, value: String) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: symbol)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(AppTheme.secondary)
+                .frame(width: 28, height: 28)
+                .background(AppTheme.secondary.opacity(0.14))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+
+            Text(title)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+            Spacer()
+
+            Text(value)
+                .font(.subheadline.weight(.semibold))
         }
     }
 

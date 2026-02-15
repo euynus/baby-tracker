@@ -24,16 +24,10 @@ struct CalendarView: View {
     var body: some View {
         NavigationStack {
             VStack(spacing: 20) {
-                // Baby selector
                 babySelector
-                
-                // Month selector
                 monthSelector
-                
-                // Calendar grid
                 calendarGrid
-                
-                // Selected date details
+
                 if let baby = selectedBaby {
                     dateDetails(for: baby)
                 }
@@ -42,6 +36,7 @@ struct CalendarView: View {
             }
             .padding()
             .navigationTitle("日历")
+            .appPageBackground()
             .onAppear {
                 if selectedBaby == nil {
                     selectedBaby = babies.first
@@ -64,17 +59,24 @@ struct CalendarView: View {
             }
         } label: {
             HStack {
-                Text("👶")
-                    .font(.title2)
+                Image(systemName: "figure.and.child.holdinghands")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(AppTheme.brand)
+                    .padding(8)
+                    .background(AppTheme.brand.opacity(0.14))
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+
                 Text(selectedBaby?.name ?? "选择宝宝")
                     .font(.headline)
+
+                Spacer()
+
                 Image(systemName: "chevron.down")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
+            .padding(12)
+            .cardStyle()
         }
     }
     
@@ -82,8 +84,8 @@ struct CalendarView: View {
         HStack {
             Button(action: { changeMonth(by: -1) }) {
                 Image(systemName: "chevron.left")
-                    .font(.title3)
-                    .foregroundStyle(.blue)
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(AppTheme.brand)
             }
             
             Spacer()
@@ -96,8 +98,8 @@ struct CalendarView: View {
             
             Button(action: { changeMonth(by: 1) }) {
                 Image(systemName: "chevron.right")
-                    .font(.title3)
-                    .foregroundStyle(.blue)
+                    .font(.title3.weight(.semibold))
+                    .foregroundStyle(AppTheme.brand)
             }
         }
         .padding()
@@ -152,7 +154,7 @@ struct CalendarView: View {
                 
                 if hasRecords {
                     Circle()
-                        .fill(Color.blue)
+                        .fill(AppTheme.brand)
                         .frame(width: 4, height: 4)
                 }
             }
@@ -160,11 +162,11 @@ struct CalendarView: View {
             .aspectRatio(1, contentMode: .fit)
             .background(
                 RoundedRectangle(cornerRadius: 8)
-                    .fill(isSelected ? Color.blue.opacity(0.2) : Color.clear)
+                    .fill(isSelected ? AppTheme.brand.opacity(0.18) : Color.clear)
             )
             .overlay(
                 RoundedRectangle(cornerRadius: 8)
-                    .stroke(isToday ? Color.blue : Color.clear, lineWidth: 2)
+                    .stroke(isToday ? AppTheme.brand : Color.clear, lineWidth: 2)
             )
         }
         .buttonStyle(.plain)
@@ -194,19 +196,25 @@ struct CalendarView: View {
                 .font(.headline)
             
             VStack(spacing: 8) {
-                summaryRow(icon: "🍼", label: "喂奶", value: "\(feedingCount)次")
-                summaryRow(icon: "💩", label: "换尿布", value: "\(diaperCount)次")
-                summaryRow(icon: "💤", label: "睡眠", value: String(format: "%.1f小时", totalSleepHours))
+                summaryRow(symbol: "drop.fill", label: "喂奶", value: "\(feedingCount)次", color: .blue)
+                summaryRow(symbol: "sparkles.rectangle.stack.fill", label: "换尿布", value: "\(diaperCount)次", color: .orange)
+                summaryRow(symbol: "moon.stars.fill", label: "睡眠", value: String(format: "%.1f小时", totalSleepHours), color: .purple)
             }
             .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
+            .cardStyle()
         }
+        .padding(12)
+        .cardStyle()
     }
     
-    private func summaryRow(icon: String, label: String, value: String) -> some View {
+    private func summaryRow(symbol: String, label: String, value: String, color: Color) -> some View {
         HStack {
-            Text(icon)
+            Image(systemName: symbol)
+                .font(.system(size: 14, weight: .bold))
+                .foregroundStyle(color)
+                .frame(width: 26, height: 26)
+                .background(color.opacity(0.15))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             Text(label)
                 .foregroundStyle(.secondary)
             Spacer()

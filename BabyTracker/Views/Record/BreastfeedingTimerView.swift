@@ -11,27 +11,28 @@ import SwiftData
 struct BreastfeedingTimerView: View {
     @Environment(\.modelContext) private var modelContext
     @Environment(\.dismiss) private var dismiss
-    
+
     let baby: Baby
     let onComplete: () -> Void
-    
+
     @StateObject private var viewModel: BreastfeedingTimerViewModel
-    
+
     init(baby: Baby, onComplete: @escaping () -> Void) {
         self.baby = baby
         self.onComplete = onComplete
         _viewModel = StateObject(wrappedValue: BreastfeedingTimerViewModel(baby: baby))
     }
+
     @State private var estimatedAmount: String = ""
     @State private var notes: String = ""
     @State private var showingCompletion = false
     @State private var showingSaveError = false
     @State private var saveErrorMessage = ""
-    
+
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 24) {
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 16) {
                     if !viewModel.hasStarted {
                         startSelectionView
                     } else if showingCompletion {
@@ -40,10 +41,12 @@ struct BreastfeedingTimerView: View {
                         timerView
                     }
                 }
-                .padding()
+                .padding(.horizontal, AppTheme.paddingMedium)
+                .padding(.vertical, 12)
             }
             .navigationTitle("母乳喂养")
             .navigationBarTitleDisplayMode(.inline)
+            .appPageBackground()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("取消") {
@@ -59,386 +62,354 @@ struct BreastfeedingTimerView: View {
             }
         }
     }
-    
-    // MARK: - Start Selection View
-    
+
     private var startSelectionView: some View {
-        VStack(spacing: 32) {
-            Spacer()
-            
-            Image(systemName: "timer")
-                .font(.system(size: 64))
-                .foregroundStyle(.blue)
-            
-            Text("选择侧别开始计时")
-                .font(.title2)
-                .fontWeight(.semibold)
-            
-            HStack(spacing: 20) {
-                sideButton(side: .left, icon: "⬅️", title: "左侧开始")
-                sideButton(side: .right, icon: "➡️", title: "右侧开始")
-            }
-            
-            Spacer()
-        }
-    }
-    
-    private func sideButton(side: BreastSide, icon: String, title: String) -> some View {
-        Button(action: { viewModel.start(side: side) }) {
-            VStack(spacing: 12) {
-                Text(icon)
-                    .font(.system(size: 40))
-                Text(title)
-                    .font(.headline)
-            }
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 32)
-            .background(
-                LinearGradient(
-                    colors: [Color.blue.opacity(0.1), Color.blue.opacity(0.2)],
-                    startPoint: .top,
-                    endPoint: .bottom
-                )
-            )
-            .cornerRadius(20)
-            .overlay(
-                RoundedRectangle(cornerRadius: 20)
-                    .stroke(Color.blue.opacity(0.3), lineWidth: 2)
-            )
-        }
-        .buttonStyle(.plain)
-    }
-    
-    // MARK: - Timer View
-    
-    private var timerView: some View {
-        VStack(spacing: 24) {
-            // Status badge
-            HStack {
-                Spacer()
-                HStack(spacing: 8) {
-                    Image(systemName: viewModel.isRunning ? "timer" : "pause.circle")
-                    Text(viewModel.isRunning ? "计时中" : "已暂停")
+        VStack(spacing: 16) {
+            HStack(spacing: 12) {
+                Image(systemName: "drop.fill")
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundStyle(.white)
+                    .frame(width: 46, height: 46)
+                    .background(Color.white.opacity(0.22))
+                    .clipShape(RoundedRectangle(cornerRadius: 14, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("开始母乳喂养计时")
+                        .font(.headline)
+                        .foregroundStyle(.white)
+                    Text("先选择起始侧别")
                         .font(.subheadline)
-                        .fontWeight(.semibold)
+                        .foregroundStyle(.white.opacity(0.9))
                 }
-                .padding(.horizontal, 16)
-                .padding(.vertical, 8)
-                .background(
-                    viewModel.isRunning ?
-                    Color.blue.opacity(0.2) : Color.orange.opacity(0.2)
-                )
-                .cornerRadius(20)
-                .if(viewModel.isRunning) { $0.pulse() }
+                Spacer()
             }
-            
-            // Main timer display
-            VStack(spacing: 16) {
-                HStack(spacing: 12) {
-                    Text(currentSideIcon)
-                        .font(.system(size: 48))
-                    Image(systemName: "cup.and.saucer.fill")
-                        .font(.system(size: 40))
-                        .foregroundStyle(.blue)
-                }
-                
-                Text("当前侧别：\(currentSideText)")
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-                
-                Text(viewModel.formattedCurrentTime)
-                    .font(.system(size: 56, weight: .bold, design: .rounded))
-                    .foregroundStyle(.blue)
-                    .monospacedDigit()
-                
-                Text(timingDescription)
+            .padding(16)
+            .gradientCard(AppTheme.feedingGradient)
+
+            HStack(spacing: 12) {
+                sideButton(side: .left)
+                sideButton(side: .right)
+            }
+        }
+    }
+
+    private func sideButton(side: BreastSide) -> some View {
+        let isLeft = side == .left
+        return Button(action: { viewModel.start(side: side) }) {
+            VStack(spacing: 10) {
+                Image(systemName: isLeft ? "arrow.left.circle.fill" : "arrow.right.circle.fill")
+                    .font(.system(size: 34))
+                    .foregroundStyle(AppTheme.secondary)
+                Text(isLeft ? "左侧开始" : "右侧开始")
+                    .font(.headline)
+                Text("点击开始")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity)
-            .padding(32)
-            .background(
-                LinearGradient(
-                    colors: [Color.blue.opacity(0.1), Color.cyan.opacity(0.15)],
-                    startPoint: .topLeading,
-                    endPoint: .bottomTrailing
-                )
-            )
-            .cornerRadius(20)
-            
-            // Side timers
-            HStack(spacing: 12) {
+            .padding(.vertical, 20)
+            .cardStyle()
+        }
+        .buttonStyle(.plain)
+        .scaleButton()
+    }
+
+    private var timerView: some View {
+        VStack(spacing: 16) {
+            statusCard
+            sideSummaryCard
+            controlButtons
+            finishButton
+        }
+    }
+
+    private var statusCard: some View {
+        VStack(spacing: 14) {
+            HStack {
+                Label(viewModel.isRunning ? "计时中" : "已暂停", systemImage: viewModel.isRunning ? "timer" : "pause.circle")
+                    .font(.subheadline.weight(.semibold))
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 6)
+                    .background(viewModel.isRunning ? Color.green.opacity(0.18) : Color.orange.opacity(0.2))
+                    .clipShape(Capsule())
+                Spacer()
+            }
+
+            VStack(spacing: 6) {
+                Text("当前侧别：\(currentSideText)")
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.9))
+                Text(viewModel.formattedCurrentTime)
+                    .font(.system(size: 54, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
+                    .monospacedDigit()
+                Text(timingDescription)
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.86))
+            }
+
+            HStack {
+                Text("总时长")
+                    .foregroundStyle(.white.opacity(0.88))
+                Spacer()
+                Text(viewModel.formattedTotalTime)
+                    .font(.headline)
+                    .foregroundStyle(.white)
+                    .monospacedDigit()
+            }
+        }
+        .padding(16)
+        .gradientCard([AppTheme.secondary, AppTheme.brand])
+    }
+
+    private var sideSummaryCard: some View {
+        VStack(spacing: 12) {
+            HStack {
                 sideTimerCard(
-                    icon: "⬅️",
+                    symbol: "arrow.left.circle",
                     title: "左侧",
                     duration: viewModel.leftDuration,
                     isActive: viewModel.currentSide == .left && viewModel.isRunning
                 )
-                
                 sideTimerCard(
-                    icon: "➡️",
+                    symbol: "arrow.right.circle",
                     title: "右侧",
                     duration: viewModel.rightDuration,
                     isActive: viewModel.currentSide == .right && viewModel.isRunning
                 )
             }
-            
-            // Summary card
-            VStack(spacing: 12) {
-                summaryRow(label: "总时长", value: viewModel.formattedTotalTime, highlight: true)
-                Divider()
-                summaryRow(label: "开始时间", value: viewModel.formattedStartTime)
-            }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
-            
-            // Control buttons
-            HStack(spacing: 12) {
-                Button(action: { viewModel.switchSide() }) {
-                    Label(
-                        viewModel.currentSide == .left ? "切换到右侧" : "切换到左侧",
-                        systemImage: "arrow.left.arrow.right"
-                    )
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.cyan)
-                    .foregroundStyle(.white)
-                    .fontWeight(.semibold)
-                    .cornerRadius(12)
-                }
-                
-                Button(action: { viewModel.togglePause() }) {
-                    Label(
-                        viewModel.isRunning ? "暂停" : "继续",
-                        systemImage: viewModel.isRunning ? "pause.fill" : "play.fill"
-                    )
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(viewModel.isRunning ? Color.orange : Color.green)
-                    .foregroundStyle(.white)
-                    .fontWeight(.semibold)
-                    .cornerRadius(12)
-                }
-            }
-            
-            // Finish button
-            Button(action: { 
-                viewModel.stop()
-                showingCompletion = true
-            }) {
-                Text("✓ 结束喂养")
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.red)
-                    .foregroundStyle(.white)
-                    .fontWeight(.semibold)
-                    .cornerRadius(12)
+
+            Divider()
+
+            HStack {
+                row(symbol: "clock", title: "开始时间", value: viewModel.formattedStartTime)
+                Spacer()
+                row(symbol: "flag.checkered", title: "预计结束", value: viewModel.formattedEndTime)
             }
         }
+        .padding(14)
+        .cardStyle()
     }
-    
-    private func sideTimerCard(icon: String, title: String, duration: TimeInterval, isActive: Bool) -> some View {
-        VStack(spacing: 8) {
-            Text(icon)
-                .font(.title)
+
+    private func sideTimerCard(symbol: String, title: String, duration: TimeInterval, isActive: Bool) -> some View {
+        VStack(spacing: 6) {
+            Image(systemName: symbol)
+                .font(.system(size: 22, weight: .semibold))
+                .foregroundStyle(AppTheme.secondary)
+
             Text(title)
                 .font(.caption)
                 .foregroundStyle(.secondary)
+
             Text(formatDuration(duration))
-                .font(.title2)
-                .fontWeight(.bold)
-                .foregroundStyle(.blue)
+                .font(.title3.weight(.bold))
                 .monospacedDigit()
-            if isActive {
-                Text("⏱️ 进行中")
-                    .font(.caption2)
-                    .foregroundStyle(.cyan)
-            } else if duration > 0 {
-                Text("✓ 已完成")
-                    .font(.caption2)
-                    .foregroundStyle(.green)
-            }
+
+            Text(isActive ? "进行中" : duration > 0 ? "已记录" : "未开始")
+                .font(.caption2)
+                .foregroundStyle(isActive ? .green : .secondary)
         }
         .frame(maxWidth: .infinity)
-        .padding()
-        .background(isActive ? Color.blue.opacity(0.1) : Color(.systemBackground))
-        .cornerRadius(12)
-        .overlay(
-            RoundedRectangle(cornerRadius: 12)
-                .stroke(isActive ? Color.cyan : Color.clear, lineWidth: 2)
-        )
+        .padding(.vertical, 10)
+        .background(isActive ? AppTheme.secondary.opacity(0.15) : Color.clear)
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
-    
-    private func summaryRow(label: String, value: String, highlight: Bool = false) -> some View {
-        HStack {
-            Text(label)
-                .foregroundStyle(.secondary)
-            Spacer()
-            Text(value)
-                .fontWeight(highlight ? .bold : .semibold)
-                .foregroundStyle(highlight ? .blue : .primary)
-                .font(highlight ? .title3 : .body)
+
+    private var controlButtons: some View {
+        HStack(spacing: 12) {
+            Button(action: { viewModel.switchSide() }) {
+                Label(
+                    viewModel.currentSide == .left ? "切到右侧" : "切到左侧",
+                    systemImage: "arrow.left.arrow.right"
+                )
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 13)
+                .background(AppTheme.secondary.opacity(0.18))
+                .foregroundStyle(AppTheme.ink)
+                .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
+            }
+            .scaleButton()
+
+            Button(action: { viewModel.togglePause() }) {
+                Label(
+                    viewModel.isRunning ? "暂停" : "继续",
+                    systemImage: viewModel.isRunning ? "pause.fill" : "play.fill"
+                )
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 13)
+                .background(
+                    viewModel.isRunning
+                        ? Color.orange.opacity(0.86)
+                        : Color.green.opacity(0.86)
+                )
+                .foregroundStyle(.white)
+                .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
+            }
+            .scaleButton()
         }
     }
-    
-    // MARK: - Completion View
-    
+
+    private var finishButton: some View {
+        Button(action: {
+            viewModel.stop()
+            showingCompletion = true
+        }) {
+            Label("结束并填写记录", systemImage: "checkmark")
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 14)
+                .background(
+                    LinearGradient(
+                        colors: [AppTheme.brand, Color.red.opacity(0.9)],
+                        startPoint: .topLeading,
+                        endPoint: .bottomTrailing
+                    )
+                )
+                .foregroundStyle(.white)
+                .font(.headline)
+                .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
+        }
+        .scaleButton()
+    }
+
+    private func row(symbol: String, title: String, value: String) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: symbol)
+                .font(.system(size: 12, weight: .semibold))
+                .foregroundStyle(AppTheme.secondary)
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.caption.weight(.semibold))
+                .monospacedDigit()
+        }
+    }
+
     private var completionView: some View {
-        VStack(spacing: 24) {
-            // Success indicator
-            VStack(spacing: 16) {
+        VStack(spacing: 16) {
+            VStack(spacing: 10) {
                 Image(systemName: "checkmark.circle.fill")
-                    .font(.system(size: 64))
+                    .font(.system(size: 50))
                     .foregroundStyle(.green)
                 Text("喂养完成")
-                    .font(.title2)
-                    .fontWeight(.bold)
+                    .font(.title3.weight(.bold))
+                Text("请补充可选信息后保存")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
             }
             .frame(maxWidth: .infinity)
-            .padding()
-            .background(Color.green.opacity(0.1))
-            .cornerRadius(12)
-            
-            // Time summary
-            VStack(alignment: .leading, spacing: 12) {
+            .padding(16)
+            .cardStyle()
+
+            VStack(alignment: .leading, spacing: 10) {
                 Text("时间记录")
                     .font(.headline)
-                
-                VStack(spacing: 8) {
-                    summaryRow(label: "开始时间", value: viewModel.formattedStartTime)
-                    summaryRow(label: "结束时间", value: viewModel.formattedEndTime)
-                    Divider()
-                    summaryRow(label: "总时长", value: viewModel.formattedTotalTime, highlight: true)
-                }
-                .padding()
-                .background(Color(.systemGray6))
-                .cornerRadius(12)
+                completionRow(symbol: "clock", title: "开始", value: viewModel.formattedStartTime)
+                completionRow(symbol: "clock.arrow.trianglehead.counterclockwise.rotate.90", title: "结束", value: viewModel.formattedEndTime)
+                completionRow(symbol: "hourglass", title: "总时长", value: viewModel.formattedTotalTime)
             }
-            
-            // Side breakdown
-            VStack(alignment: .leading, spacing: 12) {
-                Text("各侧时长")
+            .padding(14)
+            .cardStyle()
+
+            VStack(alignment: .leading, spacing: 10) {
+                Text("奶量估算（可选）")
                     .font(.headline)
-                
-                HStack(spacing: 12) {
-                    VStack(spacing: 8) {
-                        Text("⬅️")
-                            .font(.largeTitle)
-                        Text("左侧")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text(formatDuration(viewModel.leftDuration))
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.blue)
-                            .monospacedDigit()
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
-                    
-                    VStack(spacing: 8) {
-                        Text("➡️")
-                            .font(.largeTitle)
-                        Text("右侧")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Text(formatDuration(viewModel.rightDuration))
-                            .font(.title)
-                            .fontWeight(.bold)
-                            .foregroundStyle(.blue)
-                            .monospacedDigit()
-                    }
-                    .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
-                }
-            }
-            
-            // Optional fields
-            VStack(alignment: .leading, spacing: 12) {
-                Text("奶量（可选估算）")
-                    .font(.headline)
-                
                 HStack {
-                    TextField("估算奶量", text: $estimatedAmount)
+                    TextField("例如 120", text: $estimatedAmount)
                         .keyboardType(.decimalPad)
                         .textFieldStyle(.roundedBorder)
                     Text("ml")
                         .foregroundStyle(.secondary)
                 }
             }
-            
-            VStack(alignment: .leading, spacing: 12) {
+            .padding(14)
+            .cardStyle()
+
+            VStack(alignment: .leading, spacing: 10) {
                 Text("备注")
                     .font(.headline)
-                
                 TextEditor(text: $notes)
-                    .frame(height: 80)
-                    .padding(4)
-                    .background(Color(.systemGray6))
-                    .cornerRadius(8)
+                    .frame(height: 88)
+                    .padding(6)
+                    .background(AppTheme.feedingGradient[0].opacity(0.12))
+                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
             }
-            
-            // Save button
+            .padding(14)
+            .cardStyle()
+
             Button(action: saveRecord) {
                 Text("保存记录")
                     .frame(maxWidth: .infinity)
-                    .padding()
-                    .background(Color.blue)
+                    .padding(.vertical, 14)
+                    .background(
+                        LinearGradient(
+                            colors: AppTheme.feedingGradient,
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
                     .foregroundStyle(.white)
-                    .fontWeight(.semibold)
-                    .cornerRadius(12)
+                    .font(.headline)
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
             }
+            .scaleButton()
         }
     }
-    
-    // MARK: - Helpers
-    
-    private var currentSideIcon: String {
-        viewModel.currentSide == .left ? "⬅️" : "➡️"
+
+    private func completionRow(symbol: String, title: String, value: String) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: symbol)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(AppTheme.secondary)
+                .frame(width: 28, height: 28)
+                .background(AppTheme.secondary.opacity(0.14))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+
+            Text(title)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+
+            Spacer()
+
+            Text(value)
+                .font(.subheadline.weight(.semibold))
+                .monospacedDigit()
+        }
     }
-    
+
     private var currentSideText: String {
         viewModel.currentSide == .left ? "左侧" : "右侧"
     }
-    
+
     private var timingDescription: String {
-        if viewModel.isRunning {
-            return "\(currentSideText)进行中"
-        } else {
-            return "已暂停，可以继续或切换侧别"
-        }
+        viewModel.isRunning ? "\(currentSideText)进行中" : "已暂停，可继续或切换侧别"
     }
-    
+
     private func formatDuration(_ duration: TimeInterval) -> String {
         let total = Int(duration)
         let minutes = total / 60
         let seconds = total % 60
         return String(format: "%d:%02d", minutes, seconds)
     }
-    
+
     private func saveRecord() {
         let record = FeedingRecord(
             babyId: baby.id,
             timestamp: viewModel.startTime ?? Date(),
             method: .breastfeeding
         )
-        
+
         record.leftDuration = Int(viewModel.leftDuration)
         record.rightDuration = Int(viewModel.rightDuration)
-        
+
         if let amount = Double(estimatedAmount), amount > 0 {
             record.amount = amount
         }
-        
+
         if !notes.isEmpty {
             record.notes = notes
         }
-        
+
         do {
             try modelContext.insertAndSave(record)
             HapticManager.shared.success()

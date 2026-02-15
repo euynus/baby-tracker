@@ -9,26 +9,45 @@ import SwiftUI
 
 struct AppTheme {
     // MARK: - Colors
-    
+
+    static let brand = Color(red: 0.95, green: 0.40, blue: 0.31)
+    static let secondary = Color(red: 0.16, green: 0.60, blue: 0.66)
+    static let accent = Color(red: 0.42, green: 0.74, blue: 0.62)
+    static let ink = Color(red: 0.17, green: 0.23, blue: 0.33)
+
     static let feeding = Color("FeedingColor", bundle: .main)
     static let sleep = Color("SleepColor", bundle: .main)
     static let diaper = Color("DiaperColor", bundle: .main)
     static let growth = Color("GrowthColor", bundle: .main)
-    
+
     // Gradients
-    static let feedingGradient = [Color.blue.opacity(0.6), Color.cyan.opacity(0.4)]
-    static let sleepGradient = [Color.purple.opacity(0.6), Color.pink.opacity(0.4)]
-    static let diaperGradient = [Color.yellow.opacity(0.6), Color.orange.opacity(0.4)]
-    static let growthGradient = [Color.red.opacity(0.6), Color.pink.opacity(0.4)]
-    
-    // Dark mode adaptive gradients
-    static func adaptiveGradient(_ lightColors: [Color], darkColors: [Color]? = nil) -> [Color] {
-        // In a real implementation, check the current color scheme
-        return lightColors
+    static let feedingGradient = [Color(red: 0.98, green: 0.73, blue: 0.32), Color(red: 0.97, green: 0.48, blue: 0.34)]
+    static let sleepGradient = [Color(red: 0.28, green: 0.60, blue: 0.86), Color(red: 0.21, green: 0.43, blue: 0.80)]
+    static let diaperGradient = [Color(red: 0.59, green: 0.78, blue: 0.40), Color(red: 0.39, green: 0.65, blue: 0.33)]
+    static let growthGradient = [Color(red: 0.21, green: 0.74, blue: 0.70), Color(red: 0.18, green: 0.53, blue: 0.67)]
+
+    static let heroGradient = [Color(red: 0.99, green: 0.64, blue: 0.43), Color(red: 0.97, green: 0.45, blue: 0.37)]
+
+    static func pageGradient(for scheme: ColorScheme) -> LinearGradient {
+        let light = [Color(red: 1.0, green: 0.98, blue: 0.94), Color(red: 0.94, green: 0.97, blue: 0.98)]
+        let dark = [Color(red: 0.14, green: 0.16, blue: 0.21), Color(red: 0.09, green: 0.11, blue: 0.15)]
+        return LinearGradient(colors: scheme == .dark ? dark : light, startPoint: .topLeading, endPoint: .bottomTrailing)
     }
-    
+
+    static func surfaceFill(for scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color.white.opacity(0.06) : Color.white.opacity(0.72)
+    }
+
+    static func surfaceBorder(for scheme: ColorScheme) -> Color {
+        scheme == .dark ? Color.white.opacity(0.16) : Color.white.opacity(0.52)
+    }
+
+    static func shadowColor(for scheme: ColorScheme) -> Color {
+        scheme == .dark ? .black.opacity(0.36) : .black.opacity(0.08)
+    }
+
     // MARK: - Typography
-    
+
     static let largeTitle = Font.system(size: 34, weight: .bold, design: .rounded)
     static let title = Font.system(size: 28, weight: .semibold, design: .rounded)
     static let headline = Font.system(size: 17, weight: .semibold, design: .rounded)
@@ -40,13 +59,13 @@ struct AppTheme {
     static let paddingSmall: CGFloat = 8
     static let paddingMedium: CGFloat = 16
     static let paddingLarge: CGFloat = 24
-    
+
     static let cornerRadiusSmall: CGFloat = 8
-    static let cornerRadiusMedium: CGFloat = 12
-    static let cornerRadiusLarge: CGFloat = 16
-    
+    static let cornerRadiusMedium: CGFloat = 16
+    static let cornerRadiusLarge: CGFloat = 24
+
     // MARK: - Shadows
-    
+
     static let shadowLight = Shadow(color: .black.opacity(0.08), radius: 8, y: 4)
     static let shadowMedium = Shadow(color: .black.opacity(0.12), radius: 12, y: 6)
     static let shadowHeavy = Shadow(color: .black.opacity(0.16), radius: 16, y: 8)
@@ -55,19 +74,64 @@ struct AppTheme {
 struct Shadow {
     let color: Color
     let radius: CGFloat
+    let x: CGFloat = 0
     let y: CGFloat
 }
 
 // MARK: - View Extensions
 
+private struct AppPageBackgroundModifier: ViewModifier {
+    @Environment(\.colorScheme) private var colorScheme
+
+    func body(content: Content) -> some View {
+        content
+            .background {
+                ZStack {
+                    AppTheme.pageGradient(for: colorScheme)
+
+                    Circle()
+                        .fill(AppTheme.brand.opacity(colorScheme == .dark ? 0.16 : 0.24))
+                        .frame(width: 280, height: 280)
+                        .blur(radius: 24)
+                        .offset(x: 130, y: -220)
+
+                    Circle()
+                        .fill(AppTheme.secondary.opacity(colorScheme == .dark ? 0.14 : 0.20))
+                        .frame(width: 240, height: 240)
+                        .blur(radius: 22)
+                        .offset(x: -140, y: 260)
+                }
+                .ignoresSafeArea()
+            }
+    }
+}
+
+private struct SoftCardModifier: ViewModifier {
+    @Environment(\.colorScheme) private var colorScheme
+
+    func body(content: Content) -> some View {
+        content
+            .background(AppTheme.surfaceFill(for: colorScheme))
+            .overlay(
+                RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous)
+                    .stroke(AppTheme.surfaceBorder(for: colorScheme), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
+            .shadow(
+                color: AppTheme.shadowColor(for: colorScheme),
+                radius: AppTheme.shadowLight.radius,
+                x: 0,
+                y: AppTheme.shadowLight.y
+            )
+    }
+}
+
 extension View {
     func cardStyle() -> some View {
         self
-            .background(Color(.systemBackground))
-            .cornerRadius(AppTheme.cornerRadiusMedium)
-            .shadow(color: AppTheme.shadowLight.color, radius: AppTheme.shadowLight.radius, y: AppTheme.shadowLight.y)
+            .modifier(SoftCardModifier())
     }
-    
+
     func gradientCard(_ colors: [Color]) -> some View {
         self
             .background(
@@ -77,8 +141,16 @@ extension View {
                     endPoint: .bottomTrailing
                 )
             )
-            .cornerRadius(AppTheme.cornerRadiusLarge)
-            .shadow(color: AppTheme.shadowLight.color, radius: AppTheme.shadowLight.radius, y: AppTheme.shadowLight.y)
+            .overlay(
+                RoundedRectangle(cornerRadius: AppTheme.cornerRadiusLarge, style: .continuous)
+                    .stroke(Color.white.opacity(0.28), lineWidth: 1)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusLarge, style: .continuous))
+            .shadow(color: AppTheme.shadowMedium.color, radius: AppTheme.shadowMedium.radius, x: 0, y: AppTheme.shadowMedium.y)
+    }
+
+    func appPageBackground() -> some View {
+        self.modifier(AppPageBackgroundModifier())
     }
 }
 
@@ -119,13 +191,13 @@ struct AppearanceSettingsView: View {
             Section("预览") {
                 VStack(spacing: 16) {
                     HStack {
-                        gradientPreview("喂养", colors: AppTheme.feedingGradient)
-                        gradientPreview("睡眠", colors: AppTheme.sleepGradient)
+                        gradientPreview("喂养", icon: "drop.fill", colors: AppTheme.feedingGradient)
+                        gradientPreview("睡眠", icon: "moon.stars.fill", colors: AppTheme.sleepGradient)
                     }
-                    
+
                     HStack {
-                        gradientPreview("尿布", colors: AppTheme.diaperGradient)
-                        gradientPreview("生长", colors: AppTheme.growthGradient)
+                        gradientPreview("尿布", icon: "sparkles", colors: AppTheme.diaperGradient)
+                        gradientPreview("生长", icon: "chart.line.uptrend.xyaxis", colors: AppTheme.growthGradient)
                     }
                 }
             }
@@ -134,23 +206,18 @@ struct AppearanceSettingsView: View {
         .navigationBarTitleDisplayMode(.inline)
     }
     
-    private func gradientPreview(_ title: String, colors: [Color]) -> some View {
+    private func gradientPreview(_ title: String, icon: String, colors: [Color]) -> some View {
         VStack {
-            Text("🍼")
-                .font(.title)
+            Image(systemName: icon)
+                .font(.title3.weight(.semibold))
+                .foregroundStyle(.white)
             Text(title)
                 .font(.caption)
+                .foregroundStyle(.white.opacity(0.92))
         }
         .frame(maxWidth: .infinity)
         .padding()
-        .background(
-            LinearGradient(
-                colors: colors,
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
-        .cornerRadius(12)
+        .gradientCard(colors)
     }
 }
 

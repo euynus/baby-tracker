@@ -28,32 +28,33 @@ struct StatisticsView: View {
         NavigationStack {
             ScrollView {
                 VStack(spacing: 20) {
-                    // Baby selector
                     babySelector
-                    
-                    // Time range picker
-                    Picker("时间范围", selection: $timeRange) {
-                        ForEach(TimeRange.allCases, id: \.self) { range in
-                            Text(range.rawValue).tag(range)
+
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text("统计周期")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Picker("时间范围", selection: $timeRange) {
+                            ForEach(TimeRange.allCases, id: \.self) { range in
+                                Text(range.rawValue).tag(range)
+                            }
                         }
+                        .pickerStyle(.segmented)
                     }
-                    .pickerStyle(.segmented)
+                    .padding(12)
+                    .cardStyle()
                     .padding(.horizontal)
                     
                     if let baby = selectedBaby {
-                        // Feeding statistics
                         feedingChart(for: baby)
-                        
-                        // Sleep statistics
                         sleepChart(for: baby)
-                        
-                        // Diaper statistics
                         diaperStats(for: baby)
                     }
                 }
                 .padding(.vertical)
             }
             .navigationTitle("统计")
+            .appPageBackground()
             .onAppear {
                 if selectedBaby == nil {
                     selectedBaby = babies.first
@@ -76,17 +77,24 @@ struct StatisticsView: View {
             }
         } label: {
             HStack {
-                Text("👶")
-                    .font(.title2)
+                Image(systemName: "figure.and.child.holdinghands")
+                    .font(.system(size: 14, weight: .bold))
+                    .foregroundStyle(AppTheme.brand)
+                    .padding(8)
+                    .background(AppTheme.brand.opacity(0.14))
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+
                 Text(selectedBaby?.name ?? "选择宝宝")
                     .font(.headline)
+
+                Spacer()
+
                 Image(systemName: "chevron.down")
                     .font(.caption)
                     .foregroundStyle(.secondary)
             }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
+            .padding(12)
+            .cardStyle()
         }
         .padding(.horizontal)
     }
@@ -97,10 +105,7 @@ struct StatisticsView: View {
         let data = getFeedingData(for: baby)
         
         return VStack(alignment: .leading, spacing: 16) {
-            Text("📊 喂奶统计")
-                .font(.title3)
-                .fontWeight(.bold)
-                .padding(.horizontal)
+            sectionHeader(symbol: "drop.fill", title: "喂奶统计")
             
             Chart(data) { item in
                 BarMark(
@@ -119,13 +124,13 @@ struct StatisticsView: View {
                 statCard(
                     label: "总次数",
                     value: "\(data.reduce(0) { $0 + $1.count })",
-                    icon: "🍼"
+                    symbol: "drop.fill"
                 )
                 
                 statCard(
                     label: "日均次数",
                     value: String(format: "%.1f", Double(data.reduce(0) { $0 + $1.count }) / Double(max(data.count, 1))),
-                    icon: "📊"
+                    symbol: "chart.bar.fill"
                 )
             }
             .padding(.horizontal)
@@ -138,10 +143,7 @@ struct StatisticsView: View {
         let data = getSleepData(for: baby)
         
         return VStack(alignment: .leading, spacing: 16) {
-            Text("💤 睡眠统计")
-                .font(.title3)
-                .fontWeight(.bold)
-                .padding(.horizontal)
+            sectionHeader(symbol: "moon.stars.fill", title: "睡眠统计")
             
             Chart(data) { item in
                 AreaMark(
@@ -173,13 +175,13 @@ struct StatisticsView: View {
                 statCard(
                     label: "总睡眠",
                     value: String(format: "%.1fh", data.reduce(0.0) { $0 + $1.hours }),
-                    icon: "💤"
+                    symbol: "moon.zzz.fill"
                 )
                 
                 statCard(
                     label: "日均睡眠",
                     value: String(format: "%.1fh", data.reduce(0.0) { $0 + $1.hours } / Double(max(data.count, 1))),
-                    icon: "📊"
+                    symbol: "chart.line.uptrend.xyaxis"
                 )
             }
             .padding(.horizontal)
@@ -192,23 +194,20 @@ struct StatisticsView: View {
         let data = getDiaperData(for: baby)
         
         return VStack(alignment: .leading, spacing: 16) {
-            Text("💩 换尿布统计")
-                .font(.title3)
-                .fontWeight(.bold)
-                .padding(.horizontal)
+            sectionHeader(symbol: "sparkles.rectangle.stack.fill", title: "换尿布统计")
             
             HStack(spacing: 12) {
                 statCard(
                     label: "小便",
                     value: "\(data.wetCount)次",
-                    icon: "💧",
+                    symbol: "drop.fill",
                     color: .cyan
                 )
                 
                 statCard(
                     label: "大便",
                     value: "\(data.dirtyCount)次",
-                    icon: "💩",
+                    symbol: "sparkles.rectangle.stack.fill",
                     color: .orange
                 )
             }
@@ -218,14 +217,14 @@ struct StatisticsView: View {
                 statCard(
                     label: "总次数",
                     value: "\(data.totalCount)次",
-                    icon: "📊",
+                    symbol: "chart.bar.fill",
                     color: .green
                 )
                 
                 statCard(
                     label: "日均次数",
                     value: String(format: "%.1f", data.avgPerDay),
-                    icon: "📈",
+                    symbol: "chart.line.uptrend.xyaxis",
                     color: .blue
                 )
             }
@@ -233,10 +232,14 @@ struct StatisticsView: View {
         }
     }
     
-    private func statCard(label: String, value: String, icon: String, color: Color = .blue) -> some View {
+    private func statCard(label: String, value: String, symbol: String, color: Color = .blue) -> some View {
         VStack(spacing: 8) {
-            Text(icon)
-                .font(.title)
+            Image(systemName: symbol)
+                .font(.system(size: 16, weight: .bold))
+                .foregroundStyle(color)
+                .padding(8)
+                .background(color.opacity(0.15))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
             Text(label)
                 .font(.caption)
                 .foregroundStyle(.secondary)
@@ -248,6 +251,17 @@ struct StatisticsView: View {
         .frame(maxWidth: .infinity)
         .padding()
         .cardStyle()
+    }
+
+    private func sectionHeader(symbol: String, title: String) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: symbol)
+                .foregroundStyle(AppTheme.brand)
+            Text(title)
+                .font(.title3.weight(.bold))
+            Spacer()
+        }
+        .padding(.horizontal)
     }
     
     // MARK: - Data Processing

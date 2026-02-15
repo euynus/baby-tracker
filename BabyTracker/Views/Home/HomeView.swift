@@ -13,29 +13,31 @@ struct HomeView: View {
     @Query(sort: \FeedingRecord.timestamp, order: .reverse) private var feedingRecords: [FeedingRecord]
     @Query(sort: \SleepRecord.startTime, order: .reverse) private var sleepRecords: [SleepRecord]
     @Query(sort: \DiaperRecord.timestamp, order: .reverse) private var diaperRecords: [DiaperRecord]
-    
+
     @State private var selectedBaby: Baby?
     @State private var showingFeedingSheet = false
     @State private var showingSleepSheet = false
     @State private var showingDiaperSheet = false
     @State private var showingTemperatureSheet = false
-    
+
+    private let actionColumns = [GridItem(.flexible()), GridItem(.flexible())]
+
     var body: some View {
         NavigationStack {
-            ScrollView {
-                VStack(spacing: 20) {
-                    // Baby selector
-                    babySelector
-                    
-                    // Quick action buttons
-                    quickActionsGrid
-                    
-                    // Today's timeline
-                    if selectedBaby != nil {
-                        timelineSection()
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 18) {
+                    headerCard
+
+                    if babies.isEmpty {
+                        noBabyCard
+                    } else {
+                        babySelector
+                        quickActionsGrid
+                        timelineSection
                     }
                 }
-                .padding()
+                .padding(.horizontal, AppTheme.paddingMedium)
+                .padding(.vertical, 12)
             }
             .navigationTitle("宝宝日记")
             .sheet(isPresented: $showingFeedingSheet) {
@@ -59,6 +61,7 @@ struct HomeView: View {
                 }
             }
         }
+        .appPageBackground()
         .onAppear {
             if selectedBaby == nil {
                 selectedBaby = babies.first
@@ -70,7 +73,40 @@ struct HomeView: View {
             }
         }
     }
-    
+
+    private var headerCard: some View {
+        VStack(alignment: .leading, spacing: 14) {
+            HStack(alignment: .top) {
+                VStack(alignment: .leading, spacing: 6) {
+                    Text("今日概览")
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.88))
+                    Text(selectedBaby?.name ?? "欢迎使用")
+                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                    Text(selectedBaby?.age ?? "先添加宝宝开始记录")
+                        .font(.subheadline)
+                        .foregroundStyle(.white.opacity(0.88))
+                }
+                Spacer()
+                Image(systemName: babyGlyph)
+                    .font(.system(size: 24, weight: .semibold))
+                    .foregroundStyle(.white.opacity(0.95))
+                    .padding(10)
+                    .background(.white.opacity(0.20))
+                    .clipShape(Circle())
+            }
+
+            HStack(spacing: 8) {
+                metricChip(title: "喂奶", value: "\(todayFeedingCount)次")
+                metricChip(title: "尿布", value: "\(todayDiaperCount)次")
+                metricChip(title: "睡眠", value: String(format: "%.1fh", todaySleepHours))
+            }
+        }
+        .padding(18)
+        .gradientCard(AppTheme.heroGradient)
+    }
+
     private var babySelector: some View {
         Menu {
             ForEach(babies) { baby in
@@ -79,122 +115,147 @@ struct HomeView: View {
                 }
             }
         } label: {
-            HStack {
-                Text("👶")
-                    .font(.title2)
-                Text(selectedBaby?.name ?? "选择宝宝")
-                    .font(.headline)
+            HStack(spacing: 12) {
+                ZStack {
+                    Circle()
+                        .fill(AppTheme.brand.opacity(0.18))
+                        .frame(width: 36, height: 36)
+                    Image(systemName: "figure.and.child.holdinghands")
+                        .font(.system(size: 14, weight: .semibold))
+                        .foregroundStyle(AppTheme.brand)
+                }
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("当前宝宝")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(selectedBaby?.name ?? "选择宝宝")
+                        .font(.headline)
+                        .foregroundStyle(.primary)
+                }
+                Spacer()
                 Image(systemName: "chevron.down")
-                    .font(.caption)
+                    .font(.footnote.weight(.semibold))
                     .foregroundStyle(.secondary)
             }
-            .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
+            .padding(.horizontal, 14)
+            .padding(.vertical, 10)
+            .cardStyle()
         }
     }
-    
+
     private var quickActionsGrid: some View {
-        LazyVGrid(columns: [GridItem(.flexible()), GridItem(.flexible())], spacing: 15) {
+        LazyVGrid(columns: actionColumns, spacing: 14) {
             QuickActionButton(
-                icon: "🍼",
+                symbol: "drop.fill",
                 title: "喂奶",
                 subtitle: lastFeedingTime,
-                gradient: [Color.blue.opacity(0.2), Color.blue.opacity(0.4)],
+                gradient: AppTheme.feedingGradient,
                 action: { showingFeedingSheet = true }
             )
 
             QuickActionButton(
-                icon: "💤",
+                symbol: "moon.stars.fill",
                 title: "睡眠",
                 subtitle: activeSleep != nil ? "进行中" : lastSleepTime,
-                gradient: [Color.purple.opacity(0.2), Color.purple.opacity(0.4)],
+                gradient: AppTheme.sleepGradient,
                 action: { showingSleepSheet = true }
             )
 
             QuickActionButton(
-                icon: "💩",
+                symbol: "sparkles.rectangle.stack.fill",
                 title: "尿布",
                 subtitle: lastDiaperTime,
-                gradient: [Color.yellow.opacity(0.2), Color.yellow.opacity(0.4)],
+                gradient: AppTheme.diaperGradient,
                 action: { showingDiaperSheet = true }
             )
 
             QuickActionButton(
-                icon: "🌡️",
+                symbol: "thermometer.medium",
                 title: "体温",
-                subtitle: "-",
-                gradient: [Color.red.opacity(0.2), Color.red.opacity(0.4)],
+                subtitle: "记录测量",
+                gradient: AppTheme.growthGradient,
                 action: { showingTemperatureSheet = true }
             )
         }
         .slideIn(from: .bottom)
     }
-    
-    private func timelineSection() -> some View {
+
+    private var timelineSection: some View {
         VStack(alignment: .leading, spacing: 12) {
             HStack {
-                Text("今日记录")
-                    .font(.title3)
-                    .fontWeight(.bold)
+                Text("今日时间线")
+                    .font(.title3.weight(.bold))
                 Spacer()
-                Text(Date.now, style: .date)
+                Text(Date.now, format: .dateTime.month().day())
                     .font(.subheadline)
                     .foregroundStyle(.secondary)
             }
-            
-            Divider()
-            
-            // Combine and sort all records for today
+
             let todayRecords = getTodayRecords()
-            
             if todayRecords.isEmpty {
-                VStack(spacing: 12) {
+                VStack(spacing: 10) {
                     Image(systemName: "text.badge.plus")
-                        .font(.system(size: 48))
-                        .foregroundStyle(.secondary.opacity(0.5))
-                    Text("暂无记录")
+                        .font(.system(size: 36, weight: .medium))
+                        .foregroundStyle(.secondary.opacity(0.7))
+                    Text("今天还没有记录")
                         .font(.headline)
-                        .foregroundStyle(.secondary)
-                    Text("点击上方按钮开始记录")
+                    Text("点击上方卡片，开始记录宝宝动态。")
                         .font(.subheadline)
-                        .foregroundStyle(.tertiary)
+                        .foregroundStyle(.secondary)
                 }
                 .frame(maxWidth: .infinity)
-                .padding(.vertical, 40)
-                .fadeIn()
+                .padding(.vertical, 26)
+                .cardStyle()
             } else {
                 ForEach(Array(todayRecords.enumerated()), id: \.element.id) { index, record in
                     TimelineItemView(record: record)
-                        .fadeIn(delay: Double(index) * 0.05)
+                        .fadeIn(delay: Double(index) * 0.04)
                 }
             }
         }
     }
-    
-    private var lastFeedingTime: String {
-        guard let last = selectedBabyFeedingRecords.first else {
-            return "-"
+
+    private var noBabyCard: some View {
+        VStack(spacing: 10) {
+            Image(systemName: "person.crop.circle.badge.plus")
+                .font(.system(size: 34, weight: .medium))
+                .foregroundStyle(AppTheme.brand)
+            Text("还没有宝宝档案")
+                .font(.headline)
+            Text("请到“我的”页面添加宝宝信息后开始记录。")
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
         }
-        return timeAgo(from: last.timestamp)
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 30)
+        .cardStyle()
     }
-    
-    private var lastSleepTime: String {
-        guard let last = selectedBabySleepRecords.first(where: { !$0.isActive }) else {
-            return "-"
+
+    private func metricChip(title: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 2) {
+            Text(title)
+                .font(.caption2)
+                .foregroundStyle(.white.opacity(0.88))
+            Text(value)
+                .font(.subheadline.weight(.semibold))
+                .foregroundStyle(.white)
         }
-        return timeAgo(from: last.startTime)
+        .padding(.horizontal, 10)
+        .padding(.vertical, 8)
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .background(.white.opacity(0.18))
+        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
-    
-    private var activeSleep: SleepRecord? {
-        selectedBabySleepRecords.first(where: { $0.isActive })
-    }
-    
-    private var lastDiaperTime: String {
-        guard let last = selectedBabyDiaperRecords.first else {
-            return "-"
+
+    private var babyGlyph: String {
+        guard let baby = selectedBaby else { return "heart.fill" }
+        switch baby.gender {
+        case .male: return "figure.child"
+        case .female: return "figure.stand"
+        case .other: return "figure.2"
         }
-        return timeAgo(from: last.timestamp)
     }
 
     private var selectedBabyFeedingRecords: [FeedingRecord] {
@@ -211,12 +272,56 @@ struct HomeView: View {
         guard let selectedBaby else { return [] }
         return diaperRecords.filter { $0.babyId == selectedBaby.id }
     }
-    
+
+    private var todayFeedingCount: Int {
+        selectedBabyFeedingRecords.filter { Calendar.current.isDateInToday($0.timestamp) }.count
+    }
+
+    private var todayDiaperCount: Int {
+        selectedBabyDiaperRecords.filter { Calendar.current.isDateInToday($0.timestamp) }.count
+    }
+
+    private var todaySleepHours: Double {
+        selectedBabySleepRecords
+            .filter { Calendar.current.isDateInToday($0.startTime) }
+            .reduce(0.0) { total, record in
+                if record.isActive {
+                    return total + Date.now.timeIntervalSince(record.startTime)
+                }
+                return total + record.duration
+            } / 3600
+    }
+
+    private var lastFeedingTime: String {
+        guard let last = selectedBabyFeedingRecords.first else {
+            return "暂无"
+        }
+        return timeAgo(from: last.timestamp)
+    }
+
+    private var lastSleepTime: String {
+        guard let last = selectedBabySleepRecords.first(where: { !$0.isActive }) else {
+            return "暂无"
+        }
+        return timeAgo(from: last.startTime)
+    }
+
+    private var activeSleep: SleepRecord? {
+        selectedBabySleepRecords.first(where: { $0.isActive })
+    }
+
+    private var lastDiaperTime: String {
+        guard let last = selectedBabyDiaperRecords.first else {
+            return "暂无"
+        }
+        return timeAgo(from: last.timestamp)
+    }
+
     private func timeAgo(from date: Date) -> String {
         let interval = Date.now.timeIntervalSince(date)
         let hours = Int(interval) / 3600
         let minutes = (Int(interval) % 3600) / 60
-        
+
         if hours > 0 {
             return "\(hours)小时前"
         } else if minutes > 0 {
@@ -225,28 +330,24 @@ struct HomeView: View {
             return "刚刚"
         }
     }
-    
+
     private func getTodayRecords() -> [TimelineRecord] {
         let calendar = Calendar.current
-        let today = calendar.startOfDay(for: Date())
-        
+
         var records: [TimelineRecord] = []
-        
-        // Add feeding records
+
         selectedBabyFeedingRecords
-            .filter { calendar.isDate($0.timestamp, inSameDayAs: today) }
+            .filter { calendar.isDateInToday($0.timestamp) }
             .forEach { records.append(.feeding($0)) }
-        
-        // Add sleep records
+
         selectedBabySleepRecords
-            .filter { calendar.isDate($0.startTime, inSameDayAs: today) }
+            .filter { calendar.isDateInToday($0.startTime) }
             .forEach { records.append(.sleep($0)) }
-        
-        // Add diaper records
+
         selectedBabyDiaperRecords
-            .filter { calendar.isDate($0.timestamp, inSameDayAs: today) }
+            .filter { calendar.isDateInToday($0.timestamp) }
             .forEach { records.append(.diaper($0)) }
-        
+
         return records.sorted { $0.timestamp > $1.timestamp }
     }
 }
@@ -256,7 +357,7 @@ enum TimelineRecord: Identifiable {
     case feeding(FeedingRecord)
     case sleep(SleepRecord)
     case diaper(DiaperRecord)
-    
+
     var id: UUID {
         switch self {
         case .feeding(let record): return record.id
@@ -264,7 +365,7 @@ enum TimelineRecord: Identifiable {
         case .diaper(let record): return record.id
         }
     }
-    
+
     var timestamp: Date {
         switch self {
         case .feeding(let record): return record.timestamp

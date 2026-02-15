@@ -43,8 +43,7 @@ struct GrowthChartView: View {
                 // Legend
                 legendView
                     .padding()
-                    .background(Color(.systemGray6))
-                    .cornerRadius(12)
+                    .cardStyle()
                     .padding(.horizontal)
                 
                 // Latest measurement
@@ -57,6 +56,7 @@ struct GrowthChartView: View {
         }
         .navigationTitle("生长曲线")
         .navigationBarTitleDisplayMode(.inline)
+        .appPageBackground()
     }
     
     @ViewBuilder
@@ -229,15 +229,15 @@ struct GrowthChartView: View {
             
             VStack(spacing: 8) {
                 if let weight = measurement.weight {
-                    measurementRow(icon: "⚖️", label: "体重", value: String(format: "%.2f kg", weight / 1000))
+                    measurementRow(symbol: "scalemass.fill", label: "体重", value: String(format: "%.2f kg", weight / 1000))
                 }
                 
                 if let height = measurement.height {
-                    measurementRow(icon: "📏", label: "身高", value: String(format: "%.1f cm", height))
+                    measurementRow(symbol: "ruler.fill", label: "身高", value: String(format: "%.1f cm", height))
                 }
                 
                 if let head = measurement.headCircumference {
-                    measurementRow(icon: "⭕️", label: "头围", value: String(format: "%.1f cm", head))
+                    measurementRow(symbol: "circle.dashed", label: "头围", value: String(format: "%.1f cm", head))
                 }
                 
                 Divider()
@@ -251,14 +251,20 @@ struct GrowthChartView: View {
                 }
             }
             .padding()
-            .background(Color(.systemGray6))
-            .cornerRadius(12)
+            .cardStyle()
         }
+        .padding(12)
+        .cardStyle()
     }
     
-    private func measurementRow(icon: String, label: String, value: String) -> some View {
+    private func measurementRow(symbol: String, label: String, value: String) -> some View {
         HStack {
-            Text(icon)
+            Image(systemName: symbol)
+                .font(.system(size: 13, weight: .semibold))
+                .foregroundStyle(chartColor)
+                .frame(width: 24, height: 24)
+                .background(chartColor.opacity(0.14))
+                .clipShape(RoundedRectangle(cornerRadius: 7, style: .continuous))
             Text(label)
                 .foregroundStyle(.secondary)
             Spacer()

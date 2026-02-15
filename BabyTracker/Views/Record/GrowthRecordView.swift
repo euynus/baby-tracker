@@ -27,71 +27,24 @@ struct GrowthRecordView: View {
 
     var body: some View {
         NavigationStack {
-            Form {
-                Section("测量日期") {
-                    DatePicker("日期时间", selection: $recordDate)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 16) {
+                    dateCard
+                    measurementCard
+                    notesCard
+                    saveButton
                 }
-
-                Section("生长数据") {
-                    HStack {
-                        Text("⚖️ 体重")
-                        Spacer()
-                        TextField("5.8", text: $weight)
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                        Text("kg")
-                    }
-
-                    HStack {
-                        Text("📏 身高")
-                        Spacer()
-                        TextField("62.5", text: $height)
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                        Text("cm")
-                    }
-
-                    HStack {
-                        Text("⭕️ 头围")
-                        Spacer()
-                        TextField("42.0", text: $headCircumference)
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                        Text("cm")
-                    }
-
-                    HStack {
-                        Text("🌡️ 体温")
-                        Spacer()
-                        TextField("36.8", text: $temperature)
-                            .keyboardType(.decimalPad)
-                            .multilineTextAlignment(.trailing)
-                        Text("°C")
-                    }
-                }
-
-                Section("备注") {
-                    TextEditor(text: $notes)
-                        .frame(height: 80)
-                        .padding(4)
-                        .background(Color(.systemGray6))
-                        .cornerRadius(AppTheme.cornerRadiusSmall)
-                }
+                .padding(.horizontal, AppTheme.paddingMedium)
+                .padding(.vertical, 12)
             }
             .navigationTitle("生长记录")
             .navigationBarTitleDisplayMode(.inline)
+            .appPageBackground()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("取消") {
                         dismiss()
                     }
-                }
-
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("保存") {
-                        saveRecord()
-                    }
-                    .disabled(!hasValidInput)
                 }
             }
             .alert("提示", isPresented: $showingAlert) {
@@ -103,6 +56,89 @@ struct GrowthRecordView: View {
                 dismiss()
             }
         }
+    }
+
+    private var dateCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("测量日期")
+                .font(.headline)
+            DatePicker("日期时间", selection: $recordDate)
+        }
+        .padding(14)
+        .cardStyle()
+    }
+
+    private var measurementCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("生长数据")
+                .font(.headline)
+
+            measurementRow(symbol: "scalemass.fill", title: "体重", placeholder: "5.8", unit: "kg", text: $weight)
+            measurementRow(symbol: "ruler.fill", title: "身高", placeholder: "62.5", unit: "cm", text: $height)
+            measurementRow(symbol: "circle.dashed", title: "头围", placeholder: "42.0", unit: "cm", text: $headCircumference)
+            measurementRow(symbol: "thermometer.medium", title: "体温", placeholder: "36.8", unit: "°C", text: $temperature)
+        }
+        .padding(14)
+        .cardStyle()
+    }
+
+    private var notesCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("备注")
+                .font(.headline)
+            TextEditor(text: $notes)
+                .frame(height: 90)
+                .padding(4)
+                .background(AppTheme.growthGradient[0].opacity(0.08))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        }
+        .padding(14)
+        .cardStyle()
+    }
+
+    private var saveButton: some View {
+        Button("保存") {
+            saveRecord()
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 14)
+        .background(
+            LinearGradient(
+                colors: hasValidInput ? AppTheme.growthGradient : [Color.gray.opacity(0.35), Color.gray.opacity(0.45)],
+                startPoint: .topLeading,
+                endPoint: .bottomTrailing
+            )
+        )
+        .foregroundStyle(.white)
+        .font(.headline)
+        .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
+        .disabled(!hasValidInput)
+        .scaleButton()
+    }
+
+    private func measurementRow(symbol: String, title: String, placeholder: String, unit: String, text: Binding<String>) -> some View {
+        HStack(spacing: 10) {
+            Image(systemName: symbol)
+                .font(.system(size: 14, weight: .semibold))
+                .foregroundStyle(AppTheme.secondary)
+                .frame(width: 28, height: 28)
+                .background(AppTheme.secondary.opacity(0.15))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+
+            Text(title)
+                .font(.subheadline)
+
+            Spacer()
+
+            TextField(placeholder, text: text)
+                .keyboardType(.decimalPad)
+                .multilineTextAlignment(.trailing)
+                .frame(width: 80)
+
+            Text(unit)
+                .foregroundStyle(.secondary)
+        }
+        .padding(.vertical, 4)
     }
 
     private var hasValidInput: Bool {
@@ -135,7 +171,6 @@ struct GrowthRecordView: View {
 
         let record = GrowthRecord(babyId: baby.id, timestamp: recordDate)
         if let weightValue {
-            // Persist weight in grams; UI input is kg.
             record.weight = weightValue * 1000
         }
         record.height = heightValue

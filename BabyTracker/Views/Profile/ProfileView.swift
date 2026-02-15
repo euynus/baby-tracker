@@ -29,19 +29,36 @@ struct ProfileView: View {
         NavigationStack {
             List {
                 Section {
+                    profileHero
+                        .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+                        .listRowBackground(Color.clear)
+                }
+
+                Section {
                     ForEach(babies) { baby in
                         NavigationLink {
                             BabyDetailView(baby: baby)
                         } label: {
                             BabyRow(baby: baby)
                         }
+                        .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+                        .listRowBackground(Color.clear)
                     }
                     .onDelete(perform: deleteBabies)
                     
                     Button(action: { showingAddBaby = true }) {
-                        Label("添加新宝宝", systemImage: "plus.circle.fill")
-                            .foregroundStyle(.blue)
+                        HStack {
+                            Image(systemName: "plus.circle.fill")
+                                .foregroundStyle(AppTheme.brand)
+                            Text("添加新宝宝")
+                                .foregroundStyle(AppTheme.brand)
+                            Spacer()
+                        }
+                        .padding(12)
+                        .cardStyle()
                     }
+                    .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+                    .listRowBackground(Color.clear)
                 } header: {
                     Text("我的宝宝")
                 }
@@ -51,8 +68,10 @@ struct ProfileView: View {
                         NavigationLink {
                             PhotoGalleryView(baby: baby)
                         } label: {
-                            Label("照片", systemImage: "photo.on.rectangle")
+                            settingsRow(icon: "photo.on.rectangle.angled", title: "照片")
                         }
+                        .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+                        .listRowBackground(Color.clear)
                     }
                 }
                 
@@ -61,45 +80,59 @@ struct ProfileView: View {
                         NavigationLink {
                             ReminderSettingsView(baby: baby)
                         } label: {
-                            Label("提醒设置", systemImage: "bell.badge")
+                            settingsRow(icon: "bell.badge", title: "提醒设置")
                         }
+                        .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+                        .listRowBackground(Color.clear)
                         
                         NavigationLink {
                             GrowthChartView(baby: baby)
                         } label: {
-                            Label("生长曲线", systemImage: "chart.line.uptrend.xyaxis")
+                            settingsRow(icon: "chart.line.uptrend.xyaxis", title: "生长曲线")
                         }
+                        .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+                        .listRowBackground(Color.clear)
                     }
                     
                     NavigationLink {
                         iCloudSyncView()
                     } label: {
-                        Label("iCloud 同步", systemImage: "icloud")
+                        settingsRow(icon: "icloud", title: "iCloud 同步")
                     }
+                    .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+                    .listRowBackground(Color.clear)
                     
                     NavigationLink {
                         SecuritySettingsView()
                     } label: {
-                        Label("安全设置", systemImage: "lock.shield")
+                        settingsRow(icon: "lock.shield", title: "安全设置")
                     }
+                    .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+                    .listRowBackground(Color.clear)
                     
                     NavigationLink {
                         AppearanceSettingsView()
                     } label: {
-                        Label("外观设置", systemImage: "paintbrush")
+                        settingsRow(icon: "paintbrush", title: "外观设置")
                     }
+                    .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+                    .listRowBackground(Color.clear)
                     
                     NavigationLink {
                         ExportView()
                     } label: {
-                        Label("导出数据", systemImage: "square.and.arrow.up")
+                        settingsRow(icon: "square.and.arrow.up", title: "导出数据")
                     }
+                    .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+                    .listRowBackground(Color.clear)
                     
                     NavigationLink {
                         Text("帮助与反馈")
                     } label: {
-                        Label("帮助与反馈", systemImage: "questionmark.circle")
+                        settingsRow(icon: "questionmark.circle", title: "帮助与反馈")
                     }
+                    .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+                    .listRowBackground(Color.clear)
                 } header: {
                     Text("其他")
                 }
@@ -111,13 +144,56 @@ struct ProfileView: View {
                         Text("1.0.0")
                             .foregroundStyle(.secondary)
                     }
+                    .padding(12)
+                    .cardStyle()
+                    .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+                    .listRowBackground(Color.clear)
                 }
             }
             .navigationTitle("我的")
+            .scrollContentBackground(.hidden)
+            .background(Color.clear)
+            .appPageBackground()
             .sheet(isPresented: $showingAddBaby) {
                 AddBabyView()
             }
         }
+    }
+
+    private var profileHero: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("家庭中心")
+                .font(.caption)
+                .foregroundStyle(.white.opacity(0.88))
+            Text("照护与成长")
+                .font(.system(size: 30, weight: .bold, design: .rounded))
+                .foregroundStyle(.white)
+            Text("\(babies.count) 个宝宝档案")
+                .font(.subheadline)
+                .foregroundStyle(.white.opacity(0.9))
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(18)
+        .gradientCard(AppTheme.heroGradient)
+    }
+
+    private func settingsRow(icon: String, title: String) -> some View {
+        HStack(spacing: 12) {
+            Image(systemName: icon)
+                .font(.system(size: 15, weight: .semibold))
+                .foregroundStyle(AppTheme.brand)
+                .frame(width: 28, height: 28)
+                .background(AppTheme.brand.opacity(0.14))
+                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+            Text(title)
+                .foregroundStyle(.primary)
+            Spacer()
+            Image(systemName: "chevron.right")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.tertiary)
+        }
+        .padding(12)
+        .cardStyle()
     }
     
     private func deleteBabies(at offsets: IndexSet) {
@@ -167,20 +243,20 @@ struct BabyRow: View {
     
     var body: some View {
         HStack(spacing: 16) {
-            // Avatar
             ZStack {
-                Circle()
+                RoundedRectangle(cornerRadius: 16, style: .continuous)
                     .fill(
                         LinearGradient(
-                            colors: [Color.blue.opacity(0.6), Color.purple.opacity(0.6)],
+                            colors: AppTheme.heroGradient,
                             startPoint: .topLeading,
                             endPoint: .bottomTrailing
                         )
                     )
-                    .frame(width: 60, height: 60)
-                
-                Text("👶")
-                    .font(.largeTitle)
+                    .frame(width: 56, height: 56)
+
+                Image(systemName: "figure.and.child.holdinghands")
+                    .font(.system(size: 18, weight: .bold))
+                    .foregroundStyle(.white)
             }
             
             VStack(alignment: .leading, spacing: 4) {
@@ -200,7 +276,8 @@ struct BabyRow: View {
             
             Spacer()
         }
-        .padding(.vertical, 4)
+        .padding(12)
+        .cardStyle()
     }
 }
 
@@ -228,56 +305,75 @@ struct BabyDetailView: View {
     }
     
     var body: some View {
-        Form {
-            Section("基本信息") {
-                TextField("姓名", text: $name)
-                
-                DatePicker("出生日期", selection: $birthday, displayedComponents: .date)
-                
-                Picker("性别", selection: $gender) {
-                    Text("男").tag(Gender.male)
-                    Text("女").tag(Gender.female)
-                    Text("其他").tag(Gender.other)
+        ScrollView(showsIndicators: false) {
+            VStack(spacing: 16) {
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("基本信息")
+                        .font(.headline)
+
+                    TextField("姓名", text: $name)
+                        .textFieldStyle(.roundedBorder)
+
+                    DatePicker("出生日期", selection: $birthday, displayedComponents: .date)
+
+                    Picker("性别", selection: $gender) {
+                        Text("男").tag(Gender.male)
+                        Text("女").tag(Gender.female)
+                        Text("其他").tag(Gender.other)
+                    }
+                    .pickerStyle(.segmented)
                 }
-            }
-            
-            Section("最新测量") {
-                HStack {
-                    TextField("体重", text: $weight)
-                        .keyboardType(.decimalPad)
-                    Text("g")
-                        .foregroundStyle(.secondary)
+                .padding(14)
+                .cardStyle()
+
+                VStack(alignment: .leading, spacing: 10) {
+                    Text("最新测量")
+                        .font(.headline)
+
+                    measurementRow(title: "体重", unit: "g", text: $weight)
+                    measurementRow(title: "身高", unit: "cm", text: $height)
+                    measurementRow(title: "头围", unit: "cm", text: $headCircumference)
                 }
-                
-                HStack {
-                    TextField("身高", text: $height)
-                        .keyboardType(.decimalPad)
-                    Text("cm")
-                        .foregroundStyle(.secondary)
-                }
-                
-                HStack {
-                    TextField("头围", text: $headCircumference)
-                        .keyboardType(.decimalPad)
-                    Text("cm")
-                        .foregroundStyle(.secondary)
-                }
-            }
-            
-            Section {
+                .padding(14)
+                .cardStyle()
+
                 Button("保存") {
                     saveBaby()
                 }
                 .frame(maxWidth: .infinity)
-                .foregroundStyle(.blue)
+                .padding(.vertical, 14)
+                .background(
+                    LinearGradient(colors: AppTheme.heroGradient, startPoint: .topLeading, endPoint: .bottomTrailing)
+                )
+                .foregroundStyle(.white)
+                .font(.headline)
+                .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
+                .scaleButton()
             }
+            .padding(.horizontal, AppTheme.paddingMedium)
+            .padding(.vertical, 12)
         }
         .navigationTitle("宝宝资料")
         .navigationBarTitleDisplayMode(.inline)
+        .appPageBackground()
         .alert("保存失败", isPresented: $showingSaveError) {
             Button("确定", role: .cancel) { }
         } message: {
             Text(saveErrorMessage)
+        }
+    }
+
+    private func measurementRow(title: String, unit: String, text: Binding<String>) -> some View {
+        HStack {
+            Text(title)
+                .foregroundStyle(.secondary)
+            Spacer()
+            TextField("-", text: text)
+                .keyboardType(.decimalPad)
+                .multilineTextAlignment(.trailing)
+                .frame(width: 90)
+            Text(unit)
+                .foregroundStyle(.secondary)
         }
     }
     
@@ -317,37 +413,60 @@ struct AddBabyView: View {
     @State private var gender = Gender.male
     @State private var showingSaveError = false
     @State private var saveErrorMessage = ""
+    private var canSave: Bool { !name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty }
     
     var body: some View {
         NavigationStack {
-            Form {
-                Section("基本信息") {
-                    TextField("姓名", text: $name)
-                    
-                    DatePicker("出生日期", selection: $birthday, displayedComponents: .date)
-                    
-                    Picker("性别", selection: $gender) {
-                        Text("男").tag(Gender.male)
-                        Text("女").tag(Gender.female)
-                        Text("其他").tag(Gender.other)
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 16) {
+                    VStack(alignment: .leading, spacing: 10) {
+                        Text("基本信息")
+                            .font(.headline)
+
+                        TextField("姓名", text: $name)
+                            .textFieldStyle(.roundedBorder)
+
+                        DatePicker("出生日期", selection: $birthday, displayedComponents: .date)
+
+                        Picker("性别", selection: $gender) {
+                            Text("男").tag(Gender.male)
+                            Text("女").tag(Gender.female)
+                            Text("其他").tag(Gender.other)
+                        }
+                        .pickerStyle(.segmented)
                     }
-                    .pickerStyle(.segmented)
+                    .padding(14)
+                    .cardStyle()
+
+                    Button("保存") {
+                        addBaby()
+                    }
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 14)
+                    .background(
+                        LinearGradient(
+                            colors: canSave ? AppTheme.heroGradient : [Color.gray.opacity(0.35), Color.gray.opacity(0.45)],
+                            startPoint: .topLeading,
+                            endPoint: .bottomTrailing
+                        )
+                    )
+                    .foregroundStyle(.white)
+                    .font(.headline)
+                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
+                    .disabled(!canSave)
+                    .scaleButton()
                 }
+                .padding(.horizontal, AppTheme.paddingMedium)
+                .padding(.vertical, 12)
             }
             .navigationTitle("添加宝宝")
             .navigationBarTitleDisplayMode(.inline)
+            .appPageBackground()
             .toolbar {
                 ToolbarItem(placement: .cancellationAction) {
                     Button("取消") {
                         dismiss()
                     }
-                }
-                
-                ToolbarItem(placement: .confirmationAction) {
-                    Button("保存") {
-                        addBaby()
-                    }
-                    .disabled(name.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty)
                 }
             }
             .alert("保存失败", isPresented: $showingSaveError) {

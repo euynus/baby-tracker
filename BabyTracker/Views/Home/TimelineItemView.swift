@@ -9,54 +9,60 @@ import SwiftUI
 
 struct TimelineItemView: View {
     let record: TimelineRecord
-    
+
     var body: some View {
         HStack(alignment: .top, spacing: 12) {
-            // Icon
-            Text(icon)
-                .font(.title2)
-            
+            iconBadge
+
             VStack(alignment: .leading, spacing: 4) {
-                HStack {
-                    Text(timeText)
-                        .font(.subheadline)
-                        .fontWeight(.semibold)
-                    
+                HStack(alignment: .firstTextBaseline) {
+                    Text(titleText)
+                        .font(.subheadline.weight(.semibold))
                     Spacer()
+                    Text(timeText)
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
                 }
-                
-                Text(description)
-                    .font(.body)
-                    .foregroundStyle(.primary)
-                
+
                 if let detail = detailText {
                     Text(detail)
-                        .font(.caption)
+                        .font(.subheadline)
                         .foregroundStyle(.secondary)
                 }
             }
-            
-            Spacer()
         }
-        .padding()
+        .padding(14)
         .cardStyle()
     }
-    
-    private var icon: String {
+
+    private var iconBadge: some View {
+        Image(systemName: iconSymbol)
+            .font(.system(size: 14, weight: .bold))
+            .foregroundStyle(.white)
+            .padding(9)
+            .background(
+                LinearGradient(colors: iconGradient, startPoint: .topLeading, endPoint: .bottomTrailing)
+            )
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+    }
+
+    private var iconSymbol: String {
         switch record {
-        case .feeding: return "🍼"
-        case .sleep: return "💤"
-        case .diaper: return "💩"
+        case .feeding: return "drop.fill"
+        case .sleep: return "moon.stars.fill"
+        case .diaper: return "sparkles.rectangle.stack.fill"
         }
     }
-    
-    private var timeText: String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "HH:mm"
-        return formatter.string(from: record.timestamp)
+
+    private var iconGradient: [Color] {
+        switch record {
+        case .feeding: return AppTheme.feedingGradient
+        case .sleep: return AppTheme.sleepGradient
+        case .diaper: return AppTheme.diaperGradient
+        }
     }
-    
-    private var description: String {
+
+    private var titleText: String {
         switch record {
         case .feeding(let feeding):
             switch feeding.method {
@@ -68,40 +74,46 @@ struct TimelineItemView: View {
                 if let right = feeding.rightDuration, right > 0 {
                     sides.append("右侧")
                 }
-                return "母乳 " + sides.joined(separator: " + ")
+                return "母乳喂养" + (sides.isEmpty ? "" : " · " + sides.joined(separator: " + "))
             case .bottle:
-                return "奶粉"
+                return "奶粉喂养"
             case .mixed:
                 return "混合喂养"
             }
-            
+
         case .sleep(let sleep):
-            return sleep.isActive ? "睡眠中..." : "睡眠"
-            
+            return sleep.isActive ? "正在睡眠" : "睡眠结束"
+
         case .diaper(let diaper):
             return diaper.typeDescription
         }
     }
-    
+
+    private var timeText: String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: record.timestamp)
+    }
+
     private var detailText: String? {
         switch record {
         case .feeding(let feeding):
             var details: [String] = []
             if feeding.method == .breastfeeding && feeding.totalDuration > 0 {
-                details.append("时长: \(feeding.durationText)")
+                details.append("时长 \(feeding.durationText)")
             }
             if let amount = feeding.amount {
-                details.append("奶量: \(Int(amount))ml")
+                details.append("奶量 \(Int(amount))ml")
             }
             return details.isEmpty ? nil : details.joined(separator: " · ")
-            
+
         case .sleep(let sleep):
-            return "时长: \(sleep.durationText)"
-            
+            return "时长 \(sleep.durationText)"
+
         case .diaper(let diaper):
             var details: [String] = []
             if let color = diaper.color {
-                details.append("颜色: \(color)")
+                details.append("颜色 \(color)")
             }
             if let consistency = diaper.consistency {
                 details.append(consistency)
@@ -118,12 +130,12 @@ struct TimelineItemView: View {
             timestamp: Date(),
             method: .breastfeeding
         )))
-        
+
         TimelineItemView(record: .sleep(SleepRecord(
             babyId: UUID(),
             startTime: Date().addingTimeInterval(-3600)
         )))
-        
+
         TimelineItemView(record: .diaper(DiaperRecord(
             babyId: UUID(),
             timestamp: Date(),
