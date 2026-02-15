@@ -82,7 +82,11 @@ class BDDTestBase: XCTestCase {
     /// 假如：我有指定的历史记录
     func given_我有历史记录<T: PersistentModel>(_ records: [T]) {
         records.forEach { modelContext.insert($0) }
-        try! modelContext.save()
+        do {
+            try modelContext.saveIfNeeded()
+        } catch {
+            XCTFail("插入历史记录失败: \(error.localizedDescription)")
+        }
     }
     
     // MARK: - When Steps (执行动作)
@@ -105,8 +109,7 @@ class BDDTestBase: XCTestCase {
         文件: StaticString = #filePath,
         行号: UInt = #line
     ) {
-        let descriptor = FetchDescriptor<T>()
-        let records = try! modelContext.fetch(descriptor)
+        let records = 获取所有记录(type, 文件: 文件, 行号: 行号)
         XCTAssertEqual(
             records.count,
             数量,
@@ -144,8 +147,12 @@ class BDDTestBase: XCTestCase {
     // MARK: - Helper Methods
     
     /// 获取最新的记录
-    func 获取最新记录<T: PersistentModel>(_ type: T.Type) -> T? {
-        let records = try! modelContext.fetch(FetchDescriptor<T>())
+    func 获取最新记录<T: PersistentModel>(
+        _ type: T.Type,
+        文件: StaticString = #filePath,
+        行号: UInt = #line
+    ) -> T? {
+        let records = 获取所有记录(type, 文件: 文件, 行号: 行号)
 
         if type == FeedingRecord.self {
             return (records as? [FeedingRecord])?
@@ -172,16 +179,33 @@ class BDDTestBase: XCTestCase {
     }
     
     /// 获取所有记录
-    func 获取所有记录<T: PersistentModel>(_ type: T.Type) -> [T] {
+    func 获取所有记录<T: PersistentModel>(
+        _ type: T.Type,
+        文件: StaticString = #filePath,
+        行号: UInt = #line
+    ) -> [T] {
         let descriptor = FetchDescriptor<T>()
-        return try! modelContext.fetch(descriptor)
+        do {
+            return try modelContext.fetch(descriptor)
+        } catch {
+            XCTFail("查询记录失败: \(error.localizedDescription)", file: 文件, line: 行号)
+            return []
+        }
     }
     
     /// 清空所有记录
-    func 清空所有记录<T: PersistentModel>(_ type: T.Type) {
-        let records = 获取所有记录(type)
+    func 清空所有记录<T: PersistentModel>(
+        _ type: T.Type,
+        文件: StaticString = #filePath,
+        行号: UInt = #line
+    ) {
+        let records = 获取所有记录(type, 文件: 文件, 行号: 行号)
         records.forEach { modelContext.delete($0) }
-        try! modelContext.save()
+        do {
+            try modelContext.saveIfNeeded()
+        } catch {
+            XCTFail("清空记录失败: \(error.localizedDescription)", file: 文件, line: 行号)
+        }
     }
     
     /// 创建测试日期（相对当前时间）
