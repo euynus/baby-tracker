@@ -13,7 +13,8 @@ private let profileLogger = Logger(
     subsystem: Bundle.main.bundleIdentifier ?? "com.babytracker.app",
     category: "Profile"
 )
-private let profileRowInsets = EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0)
+private let profileRowInsets = EdgeInsets(top: 4, leading: 0, bottom: 4, trailing: 0)
+private let profileCardPadding: CGFloat = 14
 
 private extension View {
     func profileListRow() -> some View {
@@ -62,16 +63,16 @@ struct ProfileView: View {
                                 .foregroundStyle(AppTheme.brand)
                             Spacer()
                         }
-                        .padding(12)
+                        .padding(profileCardPadding)
                         .cardStyle()
                     }
                     .profileListRow()
                 } header: {
-                    Text("我的宝宝")
+                    sectionHeader("我的宝宝")
                 }
                 
                 if let baby = babies.first {
-                    Section("快速访问") {
+                    Section {
                         NavigationLink {
                             PhotoGalleryView(baby: baby)
                         } label: {
@@ -85,6 +86,8 @@ struct ProfileView: View {
                             settingsRow(icon: "syringe.fill", title: "疫苗")
                         }
                         .profileListRow()
+                    } header: {
+                        sectionHeader("快速访问")
                     }
                 }
                 
@@ -140,7 +143,7 @@ struct ProfileView: View {
                     }
                     .profileListRow()
                 } header: {
-                    Text("其他")
+                    sectionHeader("其他")
                 }
                 
                 Section {
@@ -150,7 +153,7 @@ struct ProfileView: View {
                         Text("1.0.0")
                             .foregroundStyle(.secondary)
                     }
-                    .padding(12)
+                    .padding(profileCardPadding)
                     .cardStyle()
                     .profileListRow()
                 }
@@ -182,7 +185,7 @@ struct ProfileView: View {
                 .foregroundStyle(.white.opacity(0.9))
         }
         .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(18)
+        .padding(16)
         .gradientCard(AppTheme.heroGradient)
     }
 
@@ -198,8 +201,15 @@ struct ProfileView: View {
                 .foregroundStyle(.primary)
             Spacer()
         }
-        .padding(12)
+        .padding(profileCardPadding)
         .cardStyle()
+    }
+
+    private func sectionHeader(_ title: String) -> some View {
+        Text(title)
+            .font(.title3.weight(.semibold))
+            .foregroundStyle(.secondary)
+            .textCase(nil)
     }
     
     private func deleteBabies(at offsets: IndexSet) {
@@ -286,7 +296,7 @@ struct BabyRow: View {
             
             Spacer()
         }
-        .padding(12)
+        .padding(profileCardPadding)
         .cardStyle()
     }
 }
