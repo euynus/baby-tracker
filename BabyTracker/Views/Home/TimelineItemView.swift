@@ -51,6 +51,7 @@ struct TimelineItemView: View {
         case .feeding: return "drop.fill"
         case .sleep: return "moon.stars.fill"
         case .diaper: return "sparkles.rectangle.stack.fill"
+        case .vaccination: return "syringe.fill"
         }
     }
 
@@ -59,6 +60,7 @@ struct TimelineItemView: View {
         case .feeding: return AppTheme.feedingGradient
         case .sleep: return AppTheme.sleepGradient
         case .diaper: return AppTheme.diaperGradient
+        case .vaccination: return AppTheme.vaccineGradient
         }
     }
 
@@ -86,6 +88,9 @@ struct TimelineItemView: View {
 
         case .diaper(let diaper):
             return diaper.typeDescription
+
+        case .vaccination(let vaccination):
+            return "\(vaccination.vaccineName) \(vaccination.doseLabel)"
         }
     }
 
@@ -119,6 +124,16 @@ struct TimelineItemView: View {
                 details.append(consistency)
             }
             return details.isEmpty ? nil : details.joined(separator: " · ")
+
+        case .vaccination(let vaccination):
+            var details: [String] = []
+            if let institution = vaccination.institution {
+                details.append(institution)
+            }
+            if vaccination.hasAdverseReaction {
+                details.append("已记录不良反应")
+            }
+            return details.isEmpty ? "疫苗接种登记" : details.joined(separator: " · ")
         }
     }
 }

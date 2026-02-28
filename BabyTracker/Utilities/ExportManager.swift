@@ -19,7 +19,8 @@ class ExportManager {
         feedingRecords: [FeedingRecord],
         sleepRecords: [SleepRecord],
         diaperRecords: [DiaperRecord],
-        growthRecords: [GrowthRecord]
+        growthRecords: [GrowthRecord],
+        vaccinationRecords: [VaccinationRecord]
     ) -> URL? {
         var csvContent = "宝宝日记导出 - \(baby.name)\n\n"
         
@@ -77,6 +78,22 @@ class ExportManager {
             
             csvContent += "\(timestamp),\(weight),\(height),\(head),\(temp),\(notes)\n"
         }
+
+        csvContent += "\n疫苗记录\n"
+        csvContent += "接种时间,疫苗,剂次,推荐月龄,机构,批号,不良反应,备注\n"
+
+        for record in vaccinationRecords.filter({ $0.babyId == baby.id }).sorted(by: { $0.administeredAt > $1.administeredAt }) {
+            let administeredAt = formatDate(record.administeredAt)
+            let vaccine = record.vaccineName
+            let dose = record.doseLabel
+            let recommendedAge = record.recommendedAgeDescription
+            let institution = record.institution ?? ""
+            let batch = record.batchNumber ?? ""
+            let adverse = record.hasAdverseReaction ? "是" : "否"
+            let notes = record.notes ?? ""
+
+            csvContent += "\(administeredAt),\(vaccine),\(dose),\(recommendedAge),\(institution),\(batch),\(adverse),\(notes)\n"
+        }
         
         // Save to temp file
         let fileName = "宝宝日记_\(baby.name)_\(Date().timeIntervalSince1970).csv"
@@ -98,7 +115,8 @@ class ExportManager {
         feedingRecords: [FeedingRecord],
         sleepRecords: [SleepRecord],
         diaperRecords: [DiaperRecord],
-        growthRecords: [GrowthRecord]
+        growthRecords: [GrowthRecord],
+        vaccinationRecords: [VaccinationRecord]
     ) -> URL? {
         let pageSize = CGRect(x: 0, y: 0, width: 595, height: 842) // A4
         let renderer = UIGraphicsPDFRenderer(bounds: pageSize)
@@ -148,12 +166,15 @@ class ExportManager {
                 let feedingCount = feedingRecords.filter { $0.babyId == baby.id }.count
                 let sleepCount = sleepRecords.filter { $0.babyId == baby.id }.count
                 let diaperCount = diaperRecords.filter { $0.babyId == baby.id }.count
+                let vaccinationCount = vaccinationRecords.filter { $0.babyId == baby.id }.count
                 
                 "总喂养次数: \(feedingCount)".draw(at: CGPoint(x: margin, y: yPosition), withAttributes: contentAttributes)
                 yPosition += 20
                 "总睡眠记录: \(sleepCount)".draw(at: CGPoint(x: margin, y: yPosition), withAttributes: contentAttributes)
                 yPosition += 20
                 "总换尿布: \(diaperCount)".draw(at: CGPoint(x: margin, y: yPosition), withAttributes: contentAttributes)
+                yPosition += 20
+                "总疫苗登记: \(vaccinationCount)".draw(at: CGPoint(x: margin, y: yPosition), withAttributes: contentAttributes)
                 yPosition += 40
                 
                 // Recent records

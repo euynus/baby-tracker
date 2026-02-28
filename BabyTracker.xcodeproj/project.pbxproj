@@ -44,6 +44,9 @@
 		BA0103 /* GrowthRecordView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0105; };
 		BA0106 /* ModelContext+Persistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0107; };
 		BA0108 /* AppPersistence.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA0109; };
+		BA1200 /* VaccinationRecord.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1201; };
+		BA1202 /* VaccinationSchedule.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1203; };
+		BA1204 /* VaccinationCenterView.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1205; };
 		BA0037 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BA0038; };
 		BA0039 /* Preview Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = BA0040; };
 		BA1000 /* CorePersistenceRegressionTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA1001; };
@@ -105,6 +108,9 @@
 		BA0105 /* GrowthRecordView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = GrowthRecordView.swift; sourceTree = "<group>"; };
 		BA0107 /* ModelContext+Persistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "ModelContext+Persistence.swift"; sourceTree = "<group>"; };
 		BA0109 /* AppPersistence.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppPersistence.swift; sourceTree = "<group>"; };
+		BA1201 /* VaccinationRecord.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaccinationRecord.swift; sourceTree = "<group>"; };
+		BA1203 /* VaccinationSchedule.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaccinationSchedule.swift; sourceTree = "<group>"; };
+		BA1205 /* VaccinationCenterView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = VaccinationCenterView.swift; sourceTree = "<group>"; };
 		BA0038 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
 		BA0040 /* Preview Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = "Preview Assets.xcassets"; sourceTree = "<group>"; };
 		BA0041 /* BabyTracker.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = BabyTracker.app; sourceTree = BUILT_PRODUCTS_DIR; };
@@ -212,6 +218,7 @@
 				BA0012 /* DiaperRecord.swift */,
 				BA0014 /* GrowthRecord.swift */,
 				BA0068 /* PhotoRecord.swift */,
+				BA1201 /* VaccinationRecord.swift */,
 			);
 			path = Models;
 			sourceTree = "<group>";
@@ -254,6 +261,7 @@
 				BA0104 /* KeychainManager.swift */,
 				BA0107 /* ModelContext+Persistence.swift */,
 				BA0109 /* AppPersistence.swift */,
+				BA1203 /* VaccinationSchedule.swift */,
 			);
 			path = Utilities;
 			sourceTree = "<group>";
@@ -284,6 +292,7 @@
 				BA0028 /* SleepTimerView.swift */,
 				BA0030 /* DiaperRecordView.swift */,
 				BA0105 /* GrowthRecordView.swift */,
+				BA1205 /* VaccinationCenterView.swift */,
 			);
 			path = Record;
 			sourceTree = "<group>";
@@ -483,6 +492,9 @@
 				BA0103 /* GrowthRecordView.swift in Sources */,
 				BA0106 /* ModelContext+Persistence.swift in Sources */,
 				BA0108 /* AppPersistence.swift in Sources */,
+				BA1200 /* VaccinationRecord.swift in Sources */,
+				BA1202 /* VaccinationSchedule.swift in Sources */,
+				BA1204 /* VaccinationCenterView.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};

@@ -13,12 +13,14 @@ struct HomeView: View {
     @Query(sort: \FeedingRecord.timestamp, order: .reverse) private var feedingRecords: [FeedingRecord]
     @Query(sort: \SleepRecord.startTime, order: .reverse) private var sleepRecords: [SleepRecord]
     @Query(sort: \DiaperRecord.timestamp, order: .reverse) private var diaperRecords: [DiaperRecord]
+    @Query(sort: \VaccinationRecord.administeredAt, order: .reverse) private var vaccinationRecords: [VaccinationRecord]
 
     @State private var selectedBaby: Baby?
     @State private var showingFeedingSheet = false
     @State private var showingSleepSheet = false
     @State private var showingDiaperSheet = false
     @State private var showingTemperatureSheet = false
+    @State private var showingVaccinationSheet = false
 
     private let actionColumns = [GridItem(.flexible()), GridItem(.flexible())]
 
@@ -58,6 +60,13 @@ struct HomeView: View {
             .sheet(isPresented: $showingTemperatureSheet) {
                 if let baby = selectedBaby {
                     GrowthRecordView(baby: baby)
+                }
+            }
+            .sheet(isPresented: $showingVaccinationSheet) {
+                if let baby = selectedBaby {
+                    NavigationStack {
+                        VaccinationCenterView(baby: baby)
+                    }
                 }
             }
         }
@@ -177,6 +186,14 @@ struct HomeView: View {
                 gradient: AppTheme.growthGradient,
                 action: { showingTemperatureSheet = true }
             )
+
+            QuickActionButton(
+                symbol: "syringe.fill",
+                title: "疫苗",
+                subtitle: nextVaccinationDueText,
+                gradient: AppTheme.vaccineGradient,
+                action: { showingVaccinationSheet = true }
+            )
         }
         .slideIn(from: .bottom)
     }
@@ -273,6 +290,11 @@ struct HomeView: View {
         return diaperRecords.filter { $0.babyId == selectedBaby.id }
     }
 
+    private var selectedBabyVaccinationRecords: [VaccinationRecord] {
+        guard let selectedBaby else { return [] }
+        return vaccinationRecords.filter { $0.babyId == selectedBaby.id }
+    }
+
     private var todayFeedingCount: Int {
         selectedBabyFeedingRecords.filter { Calendar.current.isDateInToday($0.timestamp) }.count
     }
@@ -317,6 +339,32 @@ struct HomeView: View {
         return timeAgo(from: last.timestamp)
     }
 
+    private var nextVaccinationDueText: String {
+        guard let selectedBaby else {
+            return "暂无"
+        }
+        guard let next = VaccinationSchedule.nextPendingMilestone(
+            for: selectedBaby,
+            records: selectedBabyVaccinationRecords
+        ) else {
+            return "首年已完成"
+        }
+
+        let calendar = Calendar.current
+        if calendar.isDateInToday(next.dueDate) {
+            return "今天应种"
+        }
+        if next.dueDate < Date.now {
+            return "已逾期"
+        }
+
+        let days = calendar.dateComponents([.day], from: Date.now, to: next.dueDate).day ?? 0
+        if days <= 30 {
+            return "\(days)天后"
+        }
+        return next.plan.ageDescription
+    }
+
     private func timeAgo(from date: Date) -> String {
         let interval = Date.now.timeIntervalSince(date)
         let hours = Int(interval) / 3600
@@ -348,6 +396,10 @@ struct HomeView: View {
             .filter { calendar.isDateInToday($0.timestamp) }
             .forEach { records.append(.diaper($0)) }
 
+        selectedBabyVaccinationRecords
+            .filter { calendar.isDateInToday($0.administeredAt) }
+            .forEach { records.append(.vaccination($0)) }
+
         return records.sorted { $0.timestamp > $1.timestamp }
     }
 }
@@ -357,12 +409,14 @@ enum TimelineRecord: Identifiable {
     case feeding(FeedingRecord)
     case sleep(SleepRecord)
     case diaper(DiaperRecord)
+    case vaccination(VaccinationRecord)
 
     var id: UUID {
         switch self {
         case .feeding(let record): return record.id
         case .sleep(let record): return record.id
         case .diaper(let record): return record.id
+        case .vaccination(let record): return record.id
         }
     }
 
@@ -371,11 +425,12 @@ enum TimelineRecord: Identifiable {
         case .feeding(let record): return record.timestamp
         case .sleep(let record): return record.startTime
         case .diaper(let record): return record.timestamp
+        case .vaccination(let record): return record.administeredAt
         }
     }
 }
 
 #Preview {
     HomeView()
-        .modelContainer(for: [Baby.self, FeedingRecord.self, SleepRecord.self, DiaperRecord.self])
+        .modelContainer(for: [Baby.self, FeedingRecord.self, SleepRecord.self, DiaperRecord.self, VaccinationRecord.self])
 }

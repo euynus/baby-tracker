@@ -52,12 +52,22 @@ final class CorePersistenceRegressionTests: XCTestCase {
         growth.height = 61.2
 
         let photo = PhotoRecord(babyId: baby.id, timestamp: Date(), imageData: Data([0x01, 0x02]))
+        let vaccination = VaccinationRecord(
+            babyId: baby.id,
+            vaccineCode: "HepB-1",
+            vaccineName: "乙肝疫苗(HepB)",
+            doseLabel: "第1剂",
+            recommendedAgeDescription: "出生后24小时内",
+            dueDate: Date(),
+            administeredAt: Date()
+        )
 
         context.insert(feeding)
         context.insert(sleep)
         context.insert(diaper)
         context.insert(growth)
         context.insert(photo)
+        context.insert(vaccination)
         try context.save()
 
         let feedingCount = try context.fetchCount(FetchDescriptor<FeedingRecord>())
@@ -65,12 +75,14 @@ final class CorePersistenceRegressionTests: XCTestCase {
         let diaperCount = try context.fetchCount(FetchDescriptor<DiaperRecord>())
         let growthCount = try context.fetchCount(FetchDescriptor<GrowthRecord>())
         let photoCount = try context.fetchCount(FetchDescriptor<PhotoRecord>())
+        let vaccinationCount = try context.fetchCount(FetchDescriptor<VaccinationRecord>())
 
         XCTAssertEqual(feedingCount, 1)
         XCTAssertEqual(sleepCount, 1)
         XCTAssertEqual(diaperCount, 1)
         XCTAssertEqual(growthCount, 1)
         XCTAssertEqual(photoCount, 1)
+        XCTAssertEqual(vaccinationCount, 1)
     }
 
     func testUpdateBabyProfileAndPersist() throws {

@@ -14,6 +14,7 @@ struct ExportView: View {
     @Query private var sleepRecords: [SleepRecord]
     @Query private var diaperRecords: [DiaperRecord]
     @Query private var growthRecords: [GrowthRecord]
+    @Query private var vaccinationRecords: [VaccinationRecord]
 
     @State private var selectedBaby: Baby?
     @State private var exportFormat: ExportFormat = .csv
@@ -128,6 +129,7 @@ struct ExportView: View {
             previewRow(symbol: "moon.zzz.fill", title: "睡眠记录", count: sleepCount(for: baby))
             previewRow(symbol: "sparkles", title: "尿布记录", count: diaperCount(for: baby))
             previewRow(symbol: "chart.line.uptrend.xyaxis", title: "生长记录", count: growthCount(for: baby))
+            previewRow(symbol: "syringe.fill", title: "疫苗记录", count: vaccinationCount(for: baby))
         }
         .padding(14)
         .cardStyle()
@@ -199,6 +201,10 @@ struct ExportView: View {
         growthRecords.filter { $0.babyId == baby.id }.count
     }
 
+    private func vaccinationCount(for baby: Baby) -> Int {
+        vaccinationRecords.filter { $0.babyId == baby.id }.count
+    }
+
     private func exportData() {
         guard let baby = selectedBaby else { return }
 
@@ -214,7 +220,8 @@ struct ExportView: View {
                     feedingRecords: feedingRecords,
                     sleepRecords: sleepRecords,
                     diaperRecords: diaperRecords,
-                    growthRecords: growthRecords
+                    growthRecords: growthRecords,
+                    vaccinationRecords: vaccinationRecords
                 )
             case .pdf:
                 url = ExportManager.exportToPDF(
@@ -222,7 +229,8 @@ struct ExportView: View {
                     feedingRecords: feedingRecords,
                     sleepRecords: sleepRecords,
                     diaperRecords: diaperRecords,
-                    growthRecords: growthRecords
+                    growthRecords: growthRecords,
+                    vaccinationRecords: vaccinationRecords
                 )
             }
 
@@ -250,5 +258,5 @@ struct ShareSheet: UIViewControllerRepresentable {
     NavigationStack {
         ExportView()
     }
-    .modelContainer(for: [Baby.self, FeedingRecord.self, SleepRecord.self, DiaperRecord.self, GrowthRecord.self])
+    .modelContainer(for: [Baby.self, FeedingRecord.self, SleepRecord.self, DiaperRecord.self, GrowthRecord.self, VaccinationRecord.self])
 }

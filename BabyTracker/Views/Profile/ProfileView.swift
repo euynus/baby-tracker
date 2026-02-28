@@ -72,6 +72,14 @@ struct ProfileView: View {
                         }
                         .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
                         .listRowBackground(Color.clear)
+
+                        NavigationLink {
+                            VaccinationCenterView(baby: baby)
+                        } label: {
+                            settingsRow(icon: "syringe.fill", title: "疫苗")
+                        }
+                        .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
+                        .listRowBackground(Color.clear)
                     }
                 }
                 
@@ -226,12 +234,16 @@ struct ProfileView: View {
             let photos = try modelContext.fetch(
                 FetchDescriptor<PhotoRecord>(predicate: #Predicate { $0.babyId == babyId })
             )
+            let vaccinations = try modelContext.fetch(
+                FetchDescriptor<VaccinationRecord>(predicate: #Predicate { $0.babyId == babyId })
+            )
 
             feeding.forEach { modelContext.delete($0) }
             sleep.forEach { modelContext.delete($0) }
             diaper.forEach { modelContext.delete($0) }
             growth.forEach { modelContext.delete($0) }
             photos.forEach { modelContext.delete($0) }
+            vaccinations.forEach { modelContext.delete($0) }
         } catch {
             profileLogger.error("删除宝宝关联记录失败: \(error.localizedDescription, privacy: .public)")
         }
@@ -495,5 +507,5 @@ struct AddBabyView: View {
 
 #Preview {
     ProfileView()
-        .modelContainer(for: [Baby.self])
+        .modelContainer(for: [Baby.self, FeedingRecord.self, SleepRecord.self, DiaperRecord.self, GrowthRecord.self, PhotoRecord.self, VaccinationRecord.self])
 }

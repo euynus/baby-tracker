@@ -199,3 +199,55 @@ final class BreastfeedingTimerViewModelTests: XCTestCase {
         XCTAssertEqual(viewModel.formattedCurrentTime, "02:05")
     }
 }
+
+final class VaccinationRecordTests: XCTestCase {
+    func testVaccinationRecordCreation() {
+        let babyId = UUID()
+        let dueDate = Calendar.current.date(byAdding: .month, value: 1, to: Date()) ?? Date()
+
+        let record = VaccinationRecord(
+            babyId: babyId,
+            vaccineCode: "HepB-2",
+            vaccineName: "乙肝疫苗(HepB)",
+            doseLabel: "第2剂",
+            recommendedAgeDescription: "1月龄",
+            dueDate: dueDate,
+            administeredAt: Date()
+        )
+
+        XCTAssertEqual(record.babyId, babyId)
+        XCTAssertEqual(record.vaccineCode, "HepB-2")
+        XCTAssertEqual(record.vaccineName, "乙肝疫苗(HepB)")
+        XCTAssertEqual(record.doseLabel, "第2剂")
+    }
+}
+
+final class VaccinationScheduleTests: XCTestCase {
+    func testScheduleIncludesUpdatedDTaPFirstDoseAtTwoMonths() {
+        let item = VaccinationSchedule.newbornProgram.first { $0.code == "DTaP-1" }
+        XCTAssertNotNil(item)
+        XCTAssertEqual(item?.ageDescription, "2月龄")
+    }
+
+    func testMilestonesMarkCompletionByVaccineCode() {
+        let birthday = Calendar.current.date(byAdding: .month, value: -3, to: Date()) ?? Date()
+        let baby = Baby(name: "测试宝宝", birthday: birthday, gender: .female)
+
+        let completed = VaccinationRecord(
+            babyId: baby.id,
+            vaccineCode: "HepB-1",
+            vaccineName: "乙肝疫苗(HepB)",
+            doseLabel: "第1剂",
+            recommendedAgeDescription: "出生后24小时内",
+            dueDate: birthday,
+            administeredAt: birthday
+        )
+
+        let milestones = VaccinationSchedule.milestones(for: baby, records: [completed])
+        let hepB1 = milestones.first { $0.plan.code == "HepB-1" }
+        let dtap1 = milestones.first { $0.plan.code == "DTaP-1" }
+
+        XCTAssertEqual(hepB1?.isCompleted, true)
+        XCTAssertEqual(dtap1?.isCompleted, false)
+    }
+}

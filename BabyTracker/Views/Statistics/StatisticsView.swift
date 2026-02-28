@@ -14,6 +14,7 @@ struct StatisticsView: View {
     @Query(sort: \FeedingRecord.timestamp, order: .reverse) private var feedingRecords: [FeedingRecord]
     @Query(sort: \SleepRecord.startTime, order: .reverse) private var sleepRecords: [SleepRecord]
     @Query(sort: \DiaperRecord.timestamp, order: .reverse) private var diaperRecords: [DiaperRecord]
+    @Query(sort: \VaccinationRecord.administeredAt, order: .reverse) private var vaccinationRecords: [VaccinationRecord]
     
     @State private var selectedBaby: Baby?
     @State private var timeRange: TimeRange = .week
@@ -49,6 +50,7 @@ struct StatisticsView: View {
                         feedingChart(for: baby)
                         sleepChart(for: baby)
                         diaperStats(for: baby)
+                        vaccinationProgress(for: baby)
                     }
                 }
                 .padding(.vertical)
@@ -231,6 +233,46 @@ struct StatisticsView: View {
             .padding(.horizontal)
         }
     }
+
+    private func vaccinationProgress(for baby: Baby) -> some View {
+        let data = getVaccinationProgress(for: baby)
+
+        return VStack(alignment: .leading, spacing: 16) {
+            sectionHeader(symbol: "syringe.fill", title: "疫苗进度")
+
+            HStack(spacing: 12) {
+                statCard(
+                    label: "应完成",
+                    value: "\(data.dueCount)项",
+                    symbol: "calendar.badge.clock",
+                    color: AppTheme.secondary
+                )
+                statCard(
+                    label: "已登记",
+                    value: "\(data.completedCount)项",
+                    symbol: "checkmark.circle.fill",
+                    color: .green
+                )
+            }
+            .padding(.horizontal)
+
+            HStack(spacing: 12) {
+                statCard(
+                    label: "完成率",
+                    value: String(format: "%.0f%%", data.completionRate * 100),
+                    symbol: "chart.bar.fill",
+                    color: AppTheme.brand
+                )
+                statCard(
+                    label: "已逾期",
+                    value: "\(data.overdueCount)项",
+                    symbol: "exclamationmark.triangle.fill",
+                    color: .red
+                )
+            }
+            .padding(.horizontal)
+        }
+    }
     
     private func statCard(label: String, value: String, symbol: String, color: Color = .blue) -> some View {
         VStack(spacing: 8) {
@@ -347,6 +389,20 @@ struct StatisticsView: View {
             avgPerDay: Double(totalCount) / Double(days)
         )
     }
+
+    private func getVaccinationProgress(for baby: Baby) -> VaccinationProgressData {
+        let babyRecords = vaccinationRecords.filter { $0.babyId == baby.id }
+        let dueMilestones = VaccinationSchedule.dueMilestones(for: baby, records: babyRecords)
+        let completed = dueMilestones.filter { $0.isCompleted }.count
+        let dueCount = dueMilestones.count
+
+        return VaccinationProgressData(
+            dueCount: dueCount,
+            completedCount: completed,
+            overdueCount: dueMilestones.filter { !$0.isCompleted }.count,
+            completionRate: dueCount == 0 ? 1 : Double(completed) / Double(dueCount)
+        )
+    }
 }
 
 struct ChartData: Identifiable {
@@ -363,7 +419,14 @@ struct DiaperData {
     let avgPerDay: Double
 }
 
+struct VaccinationProgressData {
+    let dueCount: Int
+    let completedCount: Int
+    let overdueCount: Int
+    let completionRate: Double
+}
+
 #Preview {
     StatisticsView()
-        .modelContainer(for: [Baby.self, FeedingRecord.self, SleepRecord.self, DiaperRecord.self])
+        .modelContainer(for: [Baby.self, FeedingRecord.self, SleepRecord.self, DiaperRecord.self, VaccinationRecord.self])
 }

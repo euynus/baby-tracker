@@ -24,7 +24,8 @@ enum AppPersistence {
         SleepRecord.self,
         DiaperRecord.self,
         GrowthRecord.self,
-        PhotoRecord.self
+        PhotoRecord.self,
+        VaccinationRecord.self
     ])
 
     static func makeAppContainer() throws -> ModelContainer {

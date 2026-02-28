@@ -13,6 +13,7 @@ struct CalendarView: View {
     @Query private var feedingRecords: [FeedingRecord]
     @Query private var sleepRecords: [SleepRecord]
     @Query private var diaperRecords: [DiaperRecord]
+    @Query private var vaccinationRecords: [VaccinationRecord]
     
     @State private var selectedBaby: Baby?
     @State private var selectedDate = Date()
@@ -176,6 +177,7 @@ struct CalendarView: View {
         let babyFeedingRecords = feedingRecords.filter { $0.babyId == baby.id }
         let babySleepRecords = sleepRecords.filter { $0.babyId == baby.id }
         let babyDiaperRecords = diaperRecords.filter { $0.babyId == baby.id }
+        let babyVaccinationRecords = vaccinationRecords.filter { $0.babyId == baby.id }
 
         let feedingCount = babyFeedingRecords.filter {
             calendar.isDate($0.timestamp, inSameDayAs: selectedDate)
@@ -188,6 +190,10 @@ struct CalendarView: View {
         let diaperCount = babyDiaperRecords.filter {
             calendar.isDate($0.timestamp, inSameDayAs: selectedDate)
         }.count
+
+        let vaccinationCount = babyVaccinationRecords.filter {
+            calendar.isDate($0.administeredAt, inSameDayAs: selectedDate)
+        }.count
         
         let totalSleepHours = sleeps.reduce(0.0) { $0 + $1.duration } / 3600
         
@@ -199,6 +205,7 @@ struct CalendarView: View {
                 summaryRow(symbol: "drop.fill", label: "喂奶", value: "\(feedingCount)次", color: .blue)
                 summaryRow(symbol: "sparkles.rectangle.stack.fill", label: "换尿布", value: "\(diaperCount)次", color: .orange)
                 summaryRow(symbol: "moon.stars.fill", label: "睡眠", value: String(format: "%.1f小时", totalSleepHours), color: .purple)
+                summaryRow(symbol: "syringe.fill", label: "疫苗", value: "\(vaccinationCount)次", color: AppTheme.secondary)
             }
             .padding()
             .cardStyle()
@@ -286,11 +293,15 @@ struct CalendarView: View {
             .filter { $0.babyId == baby.id }
             .forEach { dates.insert(calendar.startOfDay(for: $0.timestamp)) }
 
+        vaccinationRecords
+            .filter { $0.babyId == baby.id }
+            .forEach { dates.insert(calendar.startOfDay(for: $0.administeredAt)) }
+
         return dates
     }
 }
 
 #Preview {
     CalendarView()
-        .modelContainer(for: [Baby.self, FeedingRecord.self, SleepRecord.self, DiaperRecord.self])
+        .modelContainer(for: [Baby.self, FeedingRecord.self, SleepRecord.self, DiaperRecord.self, VaccinationRecord.self])
 }

@@ -21,12 +21,14 @@ struct AppTheme {
     static let sleep = Color("SleepColor", bundle: .main)
     static let diaper = Color("DiaperColor", bundle: .main)
     static let growth = Color("GrowthColor", bundle: .main)
+    static let vaccine = Color(red: 0.39, green: 0.61, blue: 0.89)
 
     // Gradients
     static let feedingGradient = [Color(red: 0.98, green: 0.73, blue: 0.32), Color(red: 0.97, green: 0.48, blue: 0.34)]
     static let sleepGradient = [Color(red: 0.28, green: 0.60, blue: 0.86), Color(red: 0.21, green: 0.43, blue: 0.80)]
     static let diaperGradient = [Color(red: 0.59, green: 0.78, blue: 0.40), Color(red: 0.39, green: 0.65, blue: 0.33)]
     static let growthGradient = [Color(red: 0.21, green: 0.74, blue: 0.70), Color(red: 0.18, green: 0.53, blue: 0.67)]
+    static let vaccineGradient = [Color(red: 0.30, green: 0.62, blue: 0.88), Color(red: 0.22, green: 0.49, blue: 0.81)]
 
     static let heroGradient = [Color(red: 0.99, green: 0.64, blue: 0.43), Color(red: 0.97, green: 0.45, blue: 0.37)]
     static let disabledGradient = [Color(red: 0.66, green: 0.69, blue: 0.73), Color(red: 0.56, green: 0.59, blue: 0.63)]
