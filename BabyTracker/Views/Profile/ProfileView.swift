@@ -13,6 +13,16 @@ private let profileLogger = Logger(
     subsystem: Bundle.main.bundleIdentifier ?? "com.babytracker.app",
     category: "Profile"
 )
+private let profileRowInsets = EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0)
+
+private extension View {
+    func profileListRow() -> some View {
+        self
+            .listRowInsets(profileRowInsets)
+            .listRowBackground(Color.clear)
+            .listRowSeparator(.hidden)
+    }
+}
 
 struct ProfileView: View {
     @Environment(\.modelContext) private var modelContext
@@ -30,8 +40,7 @@ struct ProfileView: View {
             List {
                 Section {
                     profileHero
-                        .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
-                        .listRowBackground(Color.clear)
+                        .profileListRow()
                 }
 
                 Section {
@@ -41,8 +50,7 @@ struct ProfileView: View {
                         } label: {
                             BabyRow(baby: baby)
                         }
-                        .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
-                        .listRowBackground(Color.clear)
+                        .profileListRow()
                     }
                     .onDelete(perform: deleteBabies)
                     
@@ -57,8 +65,7 @@ struct ProfileView: View {
                         .padding(12)
                         .cardStyle()
                     }
-                    .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
-                    .listRowBackground(Color.clear)
+                    .profileListRow()
                 } header: {
                     Text("我的宝宝")
                 }
@@ -70,16 +77,14 @@ struct ProfileView: View {
                         } label: {
                             settingsRow(icon: "photo.on.rectangle.angled", title: "照片")
                         }
-                        .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
-                        .listRowBackground(Color.clear)
+                        .profileListRow()
 
                         NavigationLink {
                             VaccinationCenterView(baby: baby)
                         } label: {
                             settingsRow(icon: "syringe.fill", title: "疫苗")
                         }
-                        .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
-                        .listRowBackground(Color.clear)
+                        .profileListRow()
                     }
                 }
                 
@@ -90,16 +95,14 @@ struct ProfileView: View {
                         } label: {
                             settingsRow(icon: "bell.badge", title: "提醒设置")
                         }
-                        .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
-                        .listRowBackground(Color.clear)
+                        .profileListRow()
                         
                         NavigationLink {
                             GrowthChartView(baby: baby)
                         } label: {
                             settingsRow(icon: "chart.line.uptrend.xyaxis", title: "生长曲线")
                         }
-                        .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
-                        .listRowBackground(Color.clear)
+                        .profileListRow()
                     }
                     
                     NavigationLink {
@@ -107,40 +110,35 @@ struct ProfileView: View {
                     } label: {
                         settingsRow(icon: "icloud", title: "iCloud 同步")
                     }
-                    .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
-                    .listRowBackground(Color.clear)
+                    .profileListRow()
                     
                     NavigationLink {
                         SecuritySettingsView()
                     } label: {
                         settingsRow(icon: "lock.shield", title: "安全设置")
                     }
-                    .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
-                    .listRowBackground(Color.clear)
+                    .profileListRow()
                     
                     NavigationLink {
                         AppearanceSettingsView()
                     } label: {
                         settingsRow(icon: "paintbrush", title: "外观设置")
                     }
-                    .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
-                    .listRowBackground(Color.clear)
+                    .profileListRow()
                     
                     NavigationLink {
                         ExportView()
                     } label: {
                         settingsRow(icon: "square.and.arrow.up", title: "导出数据")
                     }
-                    .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
-                    .listRowBackground(Color.clear)
+                    .profileListRow()
                     
                     NavigationLink {
                         Text("帮助与反馈")
                     } label: {
                         settingsRow(icon: "questionmark.circle", title: "帮助与反馈")
                     }
-                    .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
-                    .listRowBackground(Color.clear)
+                    .profileListRow()
                 } header: {
                     Text("其他")
                 }
@@ -154,11 +152,14 @@ struct ProfileView: View {
                     }
                     .padding(12)
                     .cardStyle()
-                    .listRowInsets(EdgeInsets(top: 6, leading: 0, bottom: 6, trailing: 0))
-                    .listRowBackground(Color.clear)
+                    .profileListRow()
                 }
             }
             .navigationTitle("我的")
+            .listStyle(.insetGrouped)
+            .listSectionSeparator(.hidden)
+            .listSectionSpacing(14)
+            .listRowSeparator(.hidden)
             .scrollContentBackground(.hidden)
             .background(Color.clear)
             .appPageBackground()
@@ -196,9 +197,6 @@ struct ProfileView: View {
             Text(title)
                 .foregroundStyle(.primary)
             Spacer()
-            Image(systemName: "chevron.right")
-                .font(.caption.weight(.semibold))
-                .foregroundStyle(.tertiary)
         }
         .padding(12)
         .cardStyle()
