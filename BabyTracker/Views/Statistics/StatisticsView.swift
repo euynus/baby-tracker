@@ -392,7 +392,12 @@ struct StatisticsView: View {
 
     private func getVaccinationProgress(for baby: Baby) -> VaccinationProgressData {
         let babyRecords = vaccinationRecords.filter { $0.babyId == baby.id }
-        let dueMilestones = VaccinationSchedule.dueMilestones(for: baby, records: babyRecords)
+        let selectedTrack = VaccinationSchedule.storedTrack(for: baby.id)
+        let dueMilestones = VaccinationSchedule.dueMilestones(
+            for: baby,
+            records: babyRecords,
+            track: selectedTrack
+        )
         let completed = dueMilestones.filter { $0.isCompleted }.count
         let dueCount = dueMilestones.count
 

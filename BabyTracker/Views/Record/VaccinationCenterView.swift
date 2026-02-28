@@ -13,6 +13,7 @@ struct VaccinationCenterView: View {
 
     let baby: Baby
 
+    @State private var selectedTrack: VaccinationTrack = .free
     @State private var selectedMilestone: VaccinationMilestone?
 
     private var babyRecords: [VaccinationRecord] {
@@ -20,7 +21,7 @@ struct VaccinationCenterView: View {
     }
 
     private var milestones: [VaccinationMilestone] {
-        VaccinationSchedule.milestones(for: baby, records: babyRecords)
+        VaccinationSchedule.milestones(for: baby, records: babyRecords, track: selectedTrack)
     }
 
     private var pendingMilestones: [VaccinationMilestone] {
@@ -36,13 +37,14 @@ struct VaccinationCenterView: View {
     }
 
     private var nextMilestone: VaccinationMilestone? {
-        VaccinationSchedule.nextPendingMilestone(for: baby, records: babyRecords)
+        VaccinationSchedule.nextPendingMilestone(for: baby, records: babyRecords, track: selectedTrack)
     }
 
     var body: some View {
         ScrollView(showsIndicators: false) {
             VStack(spacing: 16) {
                 heroCard
+                trackSelectorCard
 
                 if pendingMilestones.isEmpty {
                     completedCard
@@ -60,7 +62,13 @@ struct VaccinationCenterView: View {
         .navigationBarTitleDisplayMode(.inline)
         .appPageBackground()
         .sheet(item: $selectedMilestone) { milestone in
-            VaccinationRecordEntryView(baby: baby, milestone: milestone)
+            VaccinationRecordEntryView(baby: baby, milestone: milestone, selectedTrack: selectedTrack)
+        }
+        .onAppear {
+            selectedTrack = VaccinationSchedule.storedTrack(for: baby.id)
+        }
+        .onChange(of: selectedTrack) { _, track in
+            VaccinationSchedule.setStoredTrack(track, for: baby.id)
         }
     }
 
@@ -69,6 +77,13 @@ struct VaccinationCenterView: View {
             Text("首年免疫进度")
                 .font(.caption)
                 .foregroundStyle(.white.opacity(0.88))
+
+            Text(selectedTrack.title)
+                .font(.caption.weight(.semibold))
+                .padding(.horizontal, 10)
+                .padding(.vertical, 5)
+                .background(.white.opacity(0.2))
+                .clipShape(Capsule())
 
             Text("\(completedMilestones.count) / \(milestones.count)")
                 .font(.system(size: 34, weight: .bold, design: .rounded))
@@ -91,6 +106,26 @@ struct VaccinationCenterView: View {
         }
         .padding(16)
         .gradientCard(AppTheme.vaccineGradient)
+    }
+
+    private var trackSelectorCard: some View {
+        VStack(alignment: .leading, spacing: 10) {
+            Text("接种方案")
+                .font(.headline)
+
+            Picker("方案", selection: $selectedTrack) {
+                ForEach(VaccinationTrack.allCases) { track in
+                    Text(track.title).tag(track)
+                }
+            }
+            .pickerStyle(.segmented)
+
+            Text("当前：\(selectedTrack.subtitle)")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+        }
+        .padding(14)
+        .cardStyle()
     }
 
     private var pendingSection: some View {
@@ -142,7 +177,7 @@ struct VaccinationCenterView: View {
         VStack(alignment: .leading, spacing: 8) {
             Label("参考依据", systemImage: "doc.text.magnifyingglass")
                 .font(.headline)
-            Text(VaccinationSchedule.programVersion)
+            Text(VaccinationSchedule.programVersion(for: selectedTrack))
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             Text("各地门诊执行细节可能不同，最终请以属地接种门诊和接种证为准。")
@@ -260,6 +295,7 @@ private struct VaccinationRecordEntryView: View {
 
     let baby: Baby
     let milestone: VaccinationMilestone
+    let selectedTrack: VaccinationTrack
 
     @State private var administeredAt = Date()
     @State private var institution = ""
@@ -315,6 +351,9 @@ private struct VaccinationRecordEntryView: View {
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
             Text("参考日期：\(dateText(milestone.dueDate))")
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Text("方案：\(selectedTrack.title)")
                 .font(.caption)
                 .foregroundStyle(.secondary)
         }
@@ -411,9 +450,11 @@ private struct VaccinationRecordEntryView: View {
                 doseLabel: milestone.plan.doseLabel,
                 recommendedAgeDescription: milestone.plan.ageDescription,
                 dueDate: milestone.dueDate,
-                administeredAt: administeredAt
+                administeredAt: administeredAt,
+                track: selectedTrack
             )
 
+            record.track = selectedTrack
             record.vaccineName = milestone.plan.vaccineName
             record.doseLabel = milestone.plan.doseLabel
             record.recommendedAgeDescription = milestone.plan.ageDescription
@@ -441,9 +482,10 @@ private struct VaccinationRecordEntryView: View {
     private func fetchExistingRecord() throws -> VaccinationRecord? {
         let babyId = baby.id
         let vaccineCode = milestone.plan.code
+        let trackRaw = selectedTrack.rawValue
         let descriptor = FetchDescriptor<VaccinationRecord>(
             predicate: #Predicate { record in
-                record.babyId == babyId && record.vaccineCode == vaccineCode
+                record.babyId == babyId && record.vaccineCode == vaccineCode && record.trackRaw == trackRaw
             }
         )
         return try modelContext.fetch(descriptor).first

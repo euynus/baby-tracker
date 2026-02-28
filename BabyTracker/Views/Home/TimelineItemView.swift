@@ -127,6 +127,7 @@ struct TimelineItemView: View {
 
         case .vaccination(let vaccination):
             var details: [String] = []
+            details.append(vaccination.track.title)
             if let institution = vaccination.institution {
                 details.append(institution)
             }

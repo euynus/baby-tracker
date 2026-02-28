@@ -12,6 +12,7 @@ import SwiftData
 final class VaccinationRecord {
     var id: UUID = UUID()
     var babyId: UUID = UUID()
+    var trackRaw: String = VaccinationTrack.free.rawValue
 
     // Program identity
     var vaccineCode: String = ""
@@ -37,15 +38,22 @@ final class VaccinationRecord {
         doseLabel: String,
         recommendedAgeDescription: String,
         dueDate: Date,
-        administeredAt: Date = Date()
+        administeredAt: Date = Date(),
+        track: VaccinationTrack = .free
     ) {
         self.id = UUID()
         self.babyId = babyId
+        self.trackRaw = track.rawValue
         self.vaccineCode = vaccineCode
         self.vaccineName = vaccineName
         self.doseLabel = doseLabel
         self.recommendedAgeDescription = recommendedAgeDescription
         self.dueDate = dueDate
         self.administeredAt = administeredAt
+    }
+
+    var track: VaccinationTrack {
+        get { VaccinationTrack(rawValue: trackRaw) ?? .free }
+        set { trackRaw = newValue.rawValue }
     }
 }

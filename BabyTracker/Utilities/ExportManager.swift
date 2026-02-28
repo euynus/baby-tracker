@@ -80,10 +80,11 @@ class ExportManager {
         }
 
         csvContent += "\n疫苗记录\n"
-        csvContent += "接种时间,疫苗,剂次,推荐月龄,机构,批号,不良反应,备注\n"
+        csvContent += "接种时间,方案,疫苗,剂次,推荐月龄,机构,批号,不良反应,备注\n"
 
         for record in vaccinationRecords.filter({ $0.babyId == baby.id }).sorted(by: { $0.administeredAt > $1.administeredAt }) {
             let administeredAt = formatDate(record.administeredAt)
+            let track = record.track.title
             let vaccine = record.vaccineName
             let dose = record.doseLabel
             let recommendedAge = record.recommendedAgeDescription
@@ -92,7 +93,7 @@ class ExportManager {
             let adverse = record.hasAdverseReaction ? "是" : "否"
             let notes = record.notes ?? ""
 
-            csvContent += "\(administeredAt),\(vaccine),\(dose),\(recommendedAge),\(institution),\(batch),\(adverse),\(notes)\n"
+            csvContent += "\(administeredAt),\(track),\(vaccine),\(dose),\(recommendedAge),\(institution),\(batch),\(adverse),\(notes)\n"
         }
         
         // Save to temp file

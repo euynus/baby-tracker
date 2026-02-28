@@ -219,6 +219,7 @@ final class VaccinationRecordTests: XCTestCase {
         XCTAssertEqual(record.vaccineCode, "HepB-2")
         XCTAssertEqual(record.vaccineName, "乙肝疫苗(HepB)")
         XCTAssertEqual(record.doseLabel, "第2剂")
+        XCTAssertEqual(record.track, .free)
     }
 }
 
@@ -249,5 +250,27 @@ final class VaccinationScheduleTests: XCTestCase {
 
         XCTAssertEqual(hepB1?.isCompleted, true)
         XCTAssertEqual(dtap1?.isCompleted, false)
+    }
+
+    func testMilestonesIsolatedByTrack() {
+        let birthday = Calendar.current.date(byAdding: .month, value: -3, to: Date()) ?? Date()
+        let baby = Baby(name: "测试宝宝", birthday: birthday, gender: .female)
+
+        let selfPaidRecord = VaccinationRecord(
+            babyId: baby.id,
+            vaccineCode: "HepB-1",
+            vaccineName: "乙肝疫苗(HepB)",
+            doseLabel: "第1剂",
+            recommendedAgeDescription: "出生后24小时内",
+            dueDate: birthday,
+            administeredAt: birthday,
+            track: .selfPaid
+        )
+
+        let freeMilestones = VaccinationSchedule.milestones(for: baby, records: [selfPaidRecord], track: .free)
+        let paidMilestones = VaccinationSchedule.milestones(for: baby, records: [selfPaidRecord], track: .selfPaid)
+
+        XCTAssertEqual(freeMilestones.first(where: { $0.plan.code == "HepB-1" })?.isCompleted, false)
+        XCTAssertEqual(paidMilestones.first(where: { $0.plan.code == "HepB-1" })?.isCompleted, true)
     }
 }

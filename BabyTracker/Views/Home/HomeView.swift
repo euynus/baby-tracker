@@ -343,9 +343,11 @@ struct HomeView: View {
         guard let selectedBaby else {
             return "暂无"
         }
+        let track = VaccinationSchedule.storedTrack(for: selectedBaby.id)
         guard let next = VaccinationSchedule.nextPendingMilestone(
             for: selectedBaby,
-            records: selectedBabyVaccinationRecords
+            records: selectedBabyVaccinationRecords,
+            track: track
         ) else {
             return "首年已完成"
         }
