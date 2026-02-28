@@ -88,6 +88,7 @@ struct CalendarView: View {
                     .font(.title3.weight(.semibold))
                     .foregroundStyle(AppTheme.brand)
             }
+            .minimumTappableSize()
             
             Spacer()
             
@@ -102,6 +103,7 @@ struct CalendarView: View {
                     .font(.title3.weight(.semibold))
                     .foregroundStyle(AppTheme.brand)
             }
+            .minimumTappableSize()
         }
         .padding()
         .cardStyle()

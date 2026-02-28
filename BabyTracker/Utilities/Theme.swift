@@ -34,21 +34,21 @@ struct AppTheme {
     static let disabledGradient = [Color(red: 0.66, green: 0.69, blue: 0.73), Color(red: 0.56, green: 0.59, blue: 0.63)]
 
     static func pageGradient(for scheme: ColorScheme) -> LinearGradient {
-        let light = [Color(red: 1.0, green: 0.98, blue: 0.94), Color(red: 0.94, green: 0.97, blue: 0.98)]
-        let dark = [Color(red: 0.14, green: 0.16, blue: 0.21), Color(red: 0.09, green: 0.11, blue: 0.15)]
+        let light = [Color(uiColor: .systemGroupedBackground), Color(uiColor: .systemGroupedBackground)]
+        let dark = [Color(uiColor: .black), Color(uiColor: .black)]
         return LinearGradient(colors: scheme == .dark ? dark : light, startPoint: .topLeading, endPoint: .bottomTrailing)
     }
 
     static func surfaceFill(for scheme: ColorScheme) -> Color {
-        scheme == .dark ? Color.white.opacity(0.06) : Color.white.opacity(0.72)
+        scheme == .dark ? Color(uiColor: .secondarySystemGroupedBackground) : Color(uiColor: .secondarySystemGroupedBackground)
     }
 
     static func surfaceBorder(for scheme: ColorScheme) -> Color {
-        scheme == .dark ? Color.white.opacity(0.16) : Color.white.opacity(0.52)
+        scheme == .dark ? Color.white.opacity(0.08) : Color.black.opacity(0.06)
     }
 
     static func shadowColor(for scheme: ColorScheme) -> Color {
-        scheme == .dark ? .black.opacity(0.36) : .black.opacity(0.08)
+        scheme == .dark ? .black.opacity(0.20) : .black.opacity(0.04)
     }
 
     // MARK: - Typography
@@ -91,21 +91,7 @@ private struct AppPageBackgroundModifier: ViewModifier {
     func body(content: Content) -> some View {
         content
             .background {
-                ZStack {
-                    AppTheme.pageGradient(for: colorScheme)
-
-                    Circle()
-                        .fill(AppTheme.brand.opacity(colorScheme == .dark ? 0.16 : 0.24))
-                        .frame(width: 280, height: 280)
-                        .blur(radius: 24)
-                        .offset(x: 130, y: -220)
-
-                    Circle()
-                        .fill(AppTheme.secondary.opacity(colorScheme == .dark ? 0.14 : 0.20))
-                        .frame(width: 240, height: 240)
-                        .blur(radius: 22)
-                        .offset(x: -140, y: 260)
-                }
+                AppTheme.pageGradient(for: colorScheme)
                 .ignoresSafeArea()
             }
     }
@@ -124,9 +110,9 @@ private struct SoftCardModifier: ViewModifier {
             .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
             .shadow(
                 color: AppTheme.shadowColor(for: colorScheme),
-                radius: AppTheme.shadowLight.radius,
+                radius: 4,
                 x: 0,
-                y: AppTheme.shadowLight.y
+                y: 1
             )
     }
 }
@@ -148,10 +134,10 @@ extension View {
             )
             .overlay(
                 RoundedRectangle(cornerRadius: AppTheme.cornerRadiusLarge, style: .continuous)
-                    .stroke(Color.white.opacity(0.28), lineWidth: 1)
+                    .stroke(Color.white.opacity(0.20), lineWidth: 1)
             )
             .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusLarge, style: .continuous))
-            .shadow(color: AppTheme.shadowMedium.color, radius: AppTheme.shadowMedium.radius, x: 0, y: AppTheme.shadowMedium.y)
+            .shadow(color: .black.opacity(0.10), radius: 6, x: 0, y: 3)
     }
 
     func appPageBackground() -> some View {

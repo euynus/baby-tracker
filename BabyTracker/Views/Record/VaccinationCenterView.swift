@@ -244,6 +244,7 @@ struct VaccinationCenterView: View {
                 )
                 .foregroundStyle(milestone.isOverdue ? .red : AppTheme.brand)
                 .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .minimumTappableSize()
             }
         }
         .padding(12)

@@ -38,7 +38,7 @@ struct ContentView: View {
         }
         .tint(AppTheme.brand)
         .toolbarBackground(.visible, for: .tabBar)
-        .toolbarBackground(.ultraThinMaterial, for: .tabBar)
+        .toolbarBackground(Color(uiColor: .systemBackground), for: .tabBar)
     }
 }
 

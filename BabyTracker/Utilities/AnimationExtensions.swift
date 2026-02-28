@@ -122,6 +122,10 @@ extension View {
     func fadeIn(delay: Double = 0) -> some View {
         modifier(FadeInModifier(delay: delay))
     }
+
+    func minimumTappableSize() -> some View {
+        frame(minWidth: 44, minHeight: 44)
+    }
 }
 
 // MARK: - Conditional Modifier
