@@ -94,23 +94,14 @@ struct FeedingRecordView: View {
             }
 
             Button(action: { showBreastfeedingTimer = true }) {
-                HStack {
-                    Text("开始母乳计时")
-                        .font(.headline)
-                    Spacer()
-                    Image(systemName: "arrow.right.circle.fill")
-                }
-                .foregroundStyle(.white)
-                .padding(.horizontal, 14)
-                .padding(.vertical, 12)
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .background(
-                    LinearGradient(colors: AppTheme.feedingGradient, startPoint: .topLeading, endPoint: .bottomTrailing)
-                )
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
+                Label("开始母乳计时", systemImage: "play.circle.fill")
+                    .font(.headline)
+                    .frame(maxWidth: .infinity, alignment: .center)
             }
-            .buttonStyle(.plain)
-            .scaleButton()
+            .buttonStyle(.borderedProminent)
+            .controlSize(.large)
+            .tint(AppTheme.brand)
+            .minimumTappableSize()
 
             Text("点击开始计时，可记录左右侧时长。")
                 .font(.caption)
@@ -125,14 +116,19 @@ struct FeedingRecordView: View {
             Text("奶量")
                 .font(.headline)
             HStack {
-                TextField("请输入奶量", text: $amount)
+                TextField("例如 90", text: $amount)
                     .keyboardType(.decimalPad)
+                    .textFieldStyle(.plain)
                 Text("ml")
                     .foregroundStyle(.secondary)
             }
             .padding(.horizontal, 12)
             .padding(.vertical, 10)
-            .background(AppTheme.brand.opacity(0.08))
+            .background(Color(uiColor: .tertiarySystemFill))
+            .overlay(
+                RoundedRectangle(cornerRadius: 10, style: .continuous)
+                    .stroke(Color.primary.opacity(0.08), lineWidth: 1)
+            )
             .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .padding(14)
@@ -146,7 +142,16 @@ struct FeedingRecordView: View {
             TextEditor(text: $notes)
                 .frame(height: 90)
                 .padding(4)
-                .background(AppTheme.brand.opacity(0.08))
+                .background(Color(uiColor: .tertiarySystemFill))
+                .overlay(alignment: .topLeading) {
+                    if notes.isEmpty {
+                        Text("可填写喂养状态、精神情况等")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .padding(.top, 12)
+                            .padding(.leading, 10)
+                    }
+                }
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .padding(14)
@@ -157,15 +162,12 @@ struct FeedingRecordView: View {
         Button("保存记录") {
             saveQuickRecord()
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 14)
-        .background(
-            LinearGradient(colors: AppTheme.feedingGradient, startPoint: .topLeading, endPoint: .bottomTrailing)
-        )
-        .foregroundStyle(.white)
+        .buttonStyle(.borderedProminent)
+        .controlSize(.large)
+        .tint(AppTheme.brand)
         .font(.headline)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
-        .scaleButton()
+        .minimumTappableSize()
+        .scaleButton(scale: 0.98)
     }
 
     private func saveQuickRecord() {

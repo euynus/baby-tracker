@@ -63,6 +63,8 @@ struct GrowthRecordView: View {
             Text("测量日期")
                 .font(.headline)
             DatePicker("日期时间", selection: $recordDate)
+                .datePickerStyle(.compact)
+                .minimumTappableSize()
         }
         .padding(14)
         .cardStyle()
@@ -89,7 +91,16 @@ struct GrowthRecordView: View {
             TextEditor(text: $notes)
                 .frame(height: 90)
                 .padding(4)
-                .background(AppTheme.growthGradient[0].opacity(0.08))
+                .background(Color(uiColor: .tertiarySystemFill))
+                .overlay(alignment: .topLeading) {
+                    if notes.isEmpty {
+                        Text("可填写测量场景或宝宝状态")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .padding(.top, 12)
+                            .padding(.leading, 10)
+                    }
+                }
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .padding(14)
@@ -97,23 +108,16 @@ struct GrowthRecordView: View {
     }
 
     private var saveButton: some View {
-        Button("保存") {
+        Button("保存记录") {
             saveRecord()
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 14)
-        .background(
-                LinearGradient(
-                colors: hasValidInput ? AppTheme.growthGradient : AppTheme.disabledGradient,
-                startPoint: .topLeading,
-                endPoint: .bottomTrailing
-            )
-        )
-        .foregroundStyle(.white)
+        .buttonStyle(.borderedProminent)
+        .controlSize(.large)
+        .tint(AppTheme.brand)
         .font(.headline)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
+        .minimumTappableSize()
         .disabled(!hasValidInput)
-        .scaleButton()
+        .scaleButton(scale: 0.98)
     }
 
     private func measurementRow(symbol: String, title: String, placeholder: String, unit: String, text: Binding<String>) -> some View {
@@ -134,15 +138,22 @@ struct GrowthRecordView: View {
                 .keyboardType(.decimalPad)
                 .multilineTextAlignment(.trailing)
                 .frame(width: 80)
+                .minimumTappableSize()
 
             Text(unit)
                 .foregroundStyle(.secondary)
         }
-        .padding(.vertical, 4)
+        .padding(.horizontal, 12)
+        .padding(.vertical, 10)
+        .background(Color(uiColor: .tertiarySystemFill))
+        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
     }
 
     private var hasValidInput: Bool {
-        !weight.isEmpty || !height.isEmpty || !headCircumference.isEmpty || !temperature.isEmpty
+        !weight.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+        !height.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+        !headCircumference.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty ||
+        !temperature.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty
     }
 
     private func saveRecord() {

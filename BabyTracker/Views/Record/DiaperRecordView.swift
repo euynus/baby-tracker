@@ -100,21 +100,39 @@ struct DiaperRecordView: View {
             Text("大便详情")
                 .font(.headline)
 
-            Picker("颜色", selection: $color) {
-                Text("请选择").tag("")
-                ForEach(colors, id: \.self) { color in
-                    Text(color).tag(color)
+            LabeledContent("颜色") {
+                Picker("颜色", selection: $color) {
+                    Text("请选择").tag("")
+                    ForEach(colors, id: \.self) { color in
+                        Text(color).tag(color)
+                    }
                 }
+                .labelsHidden()
+                .pickerStyle(.menu)
+                .minimumTappableSize()
             }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(Color(uiColor: .tertiarySystemFill))
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
 
             Divider()
 
-            Picker("性状", selection: $consistency) {
-                Text("请选择").tag("")
-                ForEach(consistencies, id: \.self) { consistency in
-                    Text(consistency).tag(consistency)
+            LabeledContent("性状") {
+                Picker("性状", selection: $consistency) {
+                    Text("请选择").tag("")
+                    ForEach(consistencies, id: \.self) { consistency in
+                        Text(consistency).tag(consistency)
+                    }
                 }
+                .labelsHidden()
+                .pickerStyle(.menu)
+                .minimumTappableSize()
             }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 10)
+            .background(Color(uiColor: .tertiarySystemFill))
+            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .padding(14)
         .cardStyle()
@@ -128,7 +146,16 @@ struct DiaperRecordView: View {
             TextEditor(text: $notes)
                 .frame(height: 90)
                 .padding(4)
-                .background(AppTheme.diaperGradient[0].opacity(0.08))
+                .background(Color(uiColor: .tertiarySystemFill))
+                .overlay(alignment: .topLeading) {
+                    if notes.isEmpty {
+                        Text("可填写颜色/性状补充说明")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                            .padding(.top, 12)
+                            .padding(.leading, 10)
+                    }
+                }
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
         }
         .padding(14)
@@ -136,24 +163,14 @@ struct DiaperRecordView: View {
     }
 
     private var saveButton: some View {
-        Button(action: saveRecord) {
-            Text("保存记录")
-                .font(.headline)
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 14)
-                .background(
-                    LinearGradient(
-                        colors: (hasWet || hasDirty) ? AppTheme.diaperGradient : AppTheme.disabledGradient,
-                        startPoint: .topLeading,
-                        endPoint: .bottomTrailing
-                    )
-                )
-                .foregroundStyle(.white)
-                .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
-        }
+        Button("保存记录", action: saveRecord)
+        .buttonStyle(.borderedProminent)
+        .controlSize(.large)
+        .tint(AppTheme.brand)
+        .font(.headline)
+        .minimumTappableSize()
         .disabled(!hasWet && !hasDirty)
-        .buttonStyle(.plain)
-        .scaleButton()
+        .scaleButton(scale: 0.98)
     }
 
     private func typeCard(symbol: String, title: String, isSelected: Bool, color: Color, action: @escaping () -> Void) -> some View {
@@ -180,6 +197,7 @@ struct DiaperRecordView: View {
             .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
         }
         .buttonStyle(.plain)
+        .minimumTappableSize()
     }
 
     private func saveRecord() {

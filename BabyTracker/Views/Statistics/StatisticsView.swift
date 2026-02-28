@@ -27,30 +27,39 @@ struct StatisticsView: View {
     
     var body: some View {
         NavigationStack {
-            ScrollView {
+            ScrollView(showsIndicators: false) {
                 VStack(spacing: 20) {
                     babySelector
 
-                    VStack(alignment: .leading, spacing: 8) {
-                        Text("统计周期")
-                            .font(.caption)
-                            .foregroundStyle(.secondary)
-                        Picker("时间范围", selection: $timeRange) {
-                            ForEach(TimeRange.allCases, id: \.self) { range in
-                                Text(range.rawValue).tag(range)
+                    if babies.isEmpty {
+                        emptyStateCard(
+                            symbol: "figure.and.child.holdinghands",
+                            title: "还没有宝宝档案",
+                            message: "先在“档案”中添加宝宝，才可以查看统计数据。"
+                        )
+                        .padding(.horizontal)
+                    } else {
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("统计周期")
+                                .font(.caption)
+                                .foregroundStyle(.secondary)
+                            Picker("时间范围", selection: $timeRange) {
+                                ForEach(TimeRange.allCases, id: \.self) { range in
+                                    Text(range.rawValue).tag(range)
+                                }
                             }
+                            .pickerStyle(.segmented)
                         }
-                        .pickerStyle(.segmented)
-                    }
-                    .padding(12)
-                    .cardStyle()
-                    .padding(.horizontal)
-                    
-                    if let baby = selectedBaby {
-                        feedingChart(for: baby)
-                        sleepChart(for: baby)
-                        diaperStats(for: baby)
-                        vaccinationProgress(for: baby)
+                        .padding(12)
+                        .cardStyle()
+                        .padding(.horizontal)
+
+                        if let baby = selectedBaby {
+                            feedingChart(for: baby)
+                            sleepChart(for: baby)
+                            diaperStats(for: baby)
+                            vaccinationProgress(for: baby)
+                        }
                     }
                 }
                 .padding(.vertical)
@@ -98,6 +107,8 @@ struct StatisticsView: View {
             .padding(12)
             .cardStyle()
         }
+        .disabled(babies.isEmpty)
+        .minimumTappableSize()
         .padding(.horizontal)
     }
     
@@ -108,18 +119,23 @@ struct StatisticsView: View {
         
         return VStack(alignment: .leading, spacing: 16) {
             sectionHeader(symbol: "drop.fill", title: "喂奶统计")
-            
-            Chart(data) { item in
-                BarMark(
-                    x: .value("日期", item.date, unit: .day),
-                    y: .value("次数", item.count)
-                )
-                .foregroundStyle(Color.blue.gradient)
+
+            if data.isEmpty {
+                noDataCard(message: "该周期暂无喂养记录")
+                    .padding(.horizontal)
+            } else {
+                Chart(data) { item in
+                    BarMark(
+                        x: .value("日期", item.date, unit: .day),
+                        y: .value("次数", item.count)
+                    )
+                    .foregroundStyle(Color.blue.gradient)
+                }
+                .frame(height: 200)
+                .padding()
+                .cardStyle()
+                .padding(.horizontal)
             }
-            .frame(height: 200)
-            .padding()
-            .cardStyle()
-            .padding(.horizontal)
             
             // Summary stats
             HStack(spacing: 16) {
@@ -146,32 +162,37 @@ struct StatisticsView: View {
         
         return VStack(alignment: .leading, spacing: 16) {
             sectionHeader(symbol: "moon.stars.fill", title: "睡眠统计")
-            
-            Chart(data) { item in
-                AreaMark(
-                    x: .value("日期", item.date, unit: .day),
-                    y: .value("时长", item.hours)
-                )
-                .foregroundStyle(
-                    LinearGradient(
-                        colors: [Color.purple.opacity(0.5), Color.purple.opacity(0.1)],
-                        startPoint: .top,
-                        endPoint: .bottom
+
+            if data.isEmpty {
+                noDataCard(message: "该周期暂无睡眠记录")
+                    .padding(.horizontal)
+            } else {
+                Chart(data) { item in
+                    AreaMark(
+                        x: .value("日期", item.date, unit: .day),
+                        y: .value("时长", item.hours)
                     )
-                )
-                
-                LineMark(
-                    x: .value("日期", item.date, unit: .day),
-                    y: .value("时长", item.hours)
-                )
-                .foregroundStyle(Color.purple)
-                .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round))
+                    .foregroundStyle(
+                        LinearGradient(
+                            colors: [Color.purple.opacity(0.5), Color.purple.opacity(0.1)],
+                            startPoint: .top,
+                            endPoint: .bottom
+                        )
+                    )
+
+                    LineMark(
+                        x: .value("日期", item.date, unit: .day),
+                        y: .value("时长", item.hours)
+                    )
+                    .foregroundStyle(Color.purple)
+                    .lineStyle(StrokeStyle(lineWidth: 3, lineCap: .round))
+                }
+                .frame(height: 200)
+                .padding()
+                .cardStyle()
+                .padding(.horizontal)
             }
-            .frame(height: 200)
-            .padding()
-            .cardStyle()
-            .padding(.horizontal)
-            
+
             // Summary stats
             HStack(spacing: 16) {
                 statCard(
@@ -179,7 +200,7 @@ struct StatisticsView: View {
                     value: String(format: "%.1fh", data.reduce(0.0) { $0 + $1.hours }),
                     symbol: "moon.zzz.fill"
                 )
-                
+
                 statCard(
                     label: "日均睡眠",
                     value: String(format: "%.1fh", data.reduce(0.0) { $0 + $1.hours } / Double(max(data.count, 1))),
@@ -197,40 +218,45 @@ struct StatisticsView: View {
         
         return VStack(alignment: .leading, spacing: 16) {
             sectionHeader(symbol: "sparkles.rectangle.stack.fill", title: "换尿布统计")
-            
-            HStack(spacing: 12) {
-                statCard(
-                    label: "小便",
-                    value: "\(data.wetCount)次",
-                    symbol: "drop.fill",
-                    color: .cyan
-                )
-                
-                statCard(
-                    label: "大便",
-                    value: "\(data.dirtyCount)次",
-                    symbol: "sparkles.rectangle.stack.fill",
-                    color: .orange
-                )
+
+            if data.totalCount == 0 {
+                noDataCard(message: "该周期暂无尿布记录")
+                    .padding(.horizontal)
+            } else {
+                HStack(spacing: 12) {
+                    statCard(
+                        label: "小便",
+                        value: "\(data.wetCount)次",
+                        symbol: "drop.fill",
+                        color: .cyan
+                    )
+
+                    statCard(
+                        label: "大便",
+                        value: "\(data.dirtyCount)次",
+                        symbol: "sparkles.rectangle.stack.fill",
+                        color: .orange
+                    )
+                }
+                .padding(.horizontal)
+
+                HStack(spacing: 12) {
+                    statCard(
+                        label: "总次数",
+                        value: "\(data.totalCount)次",
+                        symbol: "chart.bar.fill",
+                        color: .green
+                    )
+
+                    statCard(
+                        label: "日均次数",
+                        value: String(format: "%.1f", data.avgPerDay),
+                        symbol: "chart.line.uptrend.xyaxis",
+                        color: .blue
+                    )
+                }
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
-            
-            HStack(spacing: 12) {
-                statCard(
-                    label: "总次数",
-                    value: "\(data.totalCount)次",
-                    symbol: "chart.bar.fill",
-                    color: .green
-                )
-                
-                statCard(
-                    label: "日均次数",
-                    value: String(format: "%.1f", data.avgPerDay),
-                    symbol: "chart.line.uptrend.xyaxis",
-                    color: .blue
-                )
-            }
-            .padding(.horizontal)
         }
     }
 
@@ -240,37 +266,42 @@ struct StatisticsView: View {
         return VStack(alignment: .leading, spacing: 16) {
             sectionHeader(symbol: "syringe.fill", title: "疫苗进度")
 
-            HStack(spacing: 12) {
-                statCard(
-                    label: "应完成",
-                    value: "\(data.dueCount)项",
-                    symbol: "calendar.badge.clock",
-                    color: AppTheme.secondary
-                )
-                statCard(
-                    label: "已登记",
-                    value: "\(data.completedCount)项",
-                    symbol: "checkmark.circle.fill",
-                    color: .green
-                )
-            }
-            .padding(.horizontal)
+            if data.dueCount == 0 {
+                noDataCard(message: "当前周期暂无应接种疫苗")
+                    .padding(.horizontal)
+            } else {
+                HStack(spacing: 12) {
+                    statCard(
+                        label: "应完成",
+                        value: "\(data.dueCount)项",
+                        symbol: "calendar.badge.clock",
+                        color: AppTheme.secondary
+                    )
+                    statCard(
+                        label: "已登记",
+                        value: "\(data.completedCount)项",
+                        symbol: "checkmark.circle.fill",
+                        color: .green
+                    )
+                }
+                .padding(.horizontal)
 
-            HStack(spacing: 12) {
-                statCard(
-                    label: "完成率",
-                    value: String(format: "%.0f%%", data.completionRate * 100),
-                    symbol: "chart.bar.fill",
-                    color: AppTheme.brand
-                )
-                statCard(
-                    label: "已逾期",
-                    value: "\(data.overdueCount)项",
-                    symbol: "exclamationmark.triangle.fill",
-                    color: .red
-                )
+                HStack(spacing: 12) {
+                    statCard(
+                        label: "完成率",
+                        value: String(format: "%.0f%%", data.completionRate * 100),
+                        symbol: "chart.bar.fill",
+                        color: AppTheme.brand
+                    )
+                    statCard(
+                        label: "已逾期",
+                        value: "\(data.overdueCount)项",
+                        symbol: "exclamationmark.triangle.fill",
+                        color: .red
+                    )
+                }
+                .padding(.horizontal)
             }
-            .padding(.horizontal)
         }
     }
     
@@ -292,6 +323,37 @@ struct StatisticsView: View {
         }
         .frame(maxWidth: .infinity)
         .padding()
+        .cardStyle()
+    }
+
+    private func emptyStateCard(symbol: String, title: String, message: String) -> some View {
+        VStack(spacing: 12) {
+            Image(systemName: symbol)
+                .font(.system(size: 26, weight: .semibold))
+                .foregroundStyle(AppTheme.brand)
+            Text(title)
+                .font(.headline)
+            Text(message)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .frame(maxWidth: .infinity)
+        .padding(.vertical, 26)
+        .padding(.horizontal, 16)
+        .cardStyle()
+    }
+
+    private func noDataCard(message: String) -> some View {
+        HStack(spacing: 8) {
+            Image(systemName: "tray")
+                .foregroundStyle(.secondary)
+            Text(message)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            Spacer()
+        }
+        .padding(14)
         .cardStyle()
     }
 
