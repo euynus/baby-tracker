@@ -163,6 +163,8 @@ struct ProfileView: View {
             .listSectionSeparator(.hidden)
             .listSectionSpacing(14)
             .listRowSeparator(.hidden)
+            .contentMargins(.top, 6, for: .scrollContent)
+            .contentMargins(.bottom, 16, for: .scrollContent)
             .scrollContentBackground(.hidden)
             .background(Color.clear)
             .appPageBackground()
