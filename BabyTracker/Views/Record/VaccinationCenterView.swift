@@ -66,9 +66,11 @@ struct VaccinationCenterView: View {
         }
         .onAppear {
             selectedTrack = VaccinationSchedule.storedTrack(for: baby.id)
+            syncVaccinationReminderIfNeeded()
         }
         .onChange(of: selectedTrack) { _, track in
             VaccinationSchedule.setStoredTrack(track, for: baby.id)
+            syncVaccinationReminderIfNeeded()
         }
     }
 
@@ -287,6 +289,22 @@ struct VaccinationCenterView: View {
         formatter.dateFormat = "yyyy-MM-dd"
         return formatter.string(from: date)
     }
+
+    private func syncVaccinationReminderIfNeeded() {
+        let defaults = UserDefaults.standard
+        let enabledKey = "vaccineReminderEnabled.\(baby.id.uuidString)"
+        let daysAheadKey = "vaccineDaysAhead.\(baby.id.uuidString)"
+        let isEnabled = defaults.object(forKey: enabledKey) as? Bool ?? false
+        guard isEnabled else { return }
+
+        let daysAhead = defaults.object(forKey: daysAheadKey) as? Int ?? 1
+        NotificationManager.shared.scheduleVaccinationReminder(
+            baby: baby,
+            records: babyRecords,
+            track: selectedTrack,
+            daysAhead: daysAhead
+        )
+    }
 }
 
 private struct VaccinationRecordEntryView: View {
@@ -471,6 +489,7 @@ private struct VaccinationRecordEntryView: View {
             }
 
             try modelContext.saveIfNeeded()
+            try rescheduleVaccinationReminderIfNeeded()
             HapticManager.shared.success()
             showingSaveSuccess = true
         } catch {
@@ -494,6 +513,26 @@ private struct VaccinationRecordEntryView: View {
     private func trimmedOrNil(_ value: String) -> String? {
         let trimmed = value.trimmingCharacters(in: .whitespacesAndNewlines)
         return trimmed.isEmpty ? nil : trimmed
+    }
+
+    private func rescheduleVaccinationReminderIfNeeded() throws {
+        let defaults = UserDefaults.standard
+        let enabledKey = "vaccineReminderEnabled.\(baby.id.uuidString)"
+        let daysAheadKey = "vaccineDaysAhead.\(baby.id.uuidString)"
+        let isEnabled = defaults.object(forKey: enabledKey) as? Bool ?? false
+        guard isEnabled else { return }
+
+        let daysAhead = defaults.object(forKey: daysAheadKey) as? Int ?? 1
+        let babyId = baby.id
+        let descriptor = FetchDescriptor<VaccinationRecord>(predicate: #Predicate { $0.babyId == babyId })
+        let allRecords = try modelContext.fetch(descriptor)
+
+        NotificationManager.shared.scheduleVaccinationReminder(
+            baby: baby,
+            records: allRecords,
+            track: selectedTrack,
+            daysAhead: daysAhead
+        )
     }
 
     private func dateText(_ date: Date) -> String {

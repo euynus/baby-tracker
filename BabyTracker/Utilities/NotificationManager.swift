@@ -79,6 +79,79 @@ class NotificationManager: ObservableObject {
             }
         }
     }
+
+    func scheduleVaccinationReminder(
+        baby: Baby,
+        records: [VaccinationRecord],
+        track: VaccinationTrack,
+        daysAhead: Int
+    ) {
+        guard let next = VaccinationSchedule.nextPendingMilestone(
+            for: baby,
+            records: records,
+            track: track
+        ) else {
+            cancelReminder(type: "vaccine", babyId: baby.id)
+            return
+        }
+
+        let calendar = Calendar.current
+        let dueDate = calendar.startOfDay(for: next.dueDate)
+        let reminderDay = calendar.date(byAdding: .day, value: -daysAhead, to: dueDate) ?? dueDate
+
+        // Normalize to a daytime reminder for better visibility.
+        let reminderDate = calendar.date(
+            bySettingHour: 9,
+            minute: 0,
+            second: 0,
+            of: reminderDay
+        ) ?? reminderDay
+
+        if reminderDate <= Date.now {
+            // If the target time has passed, schedule an immediate one-time reminder.
+            let content = UNMutableNotificationContent()
+            content.title = "疫苗提醒"
+            content.body = "\(baby.name)：\(next.plan.vaccineName)\(next.plan.doseLabel)已到提醒时间"
+            content.sound = .default
+
+            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
+            let request = UNNotificationRequest(
+                identifier: "vaccine-\(baby.id.uuidString)",
+                content: content,
+                trigger: trigger
+            )
+
+            UNUserNotificationCenter.current().add(request) { error in
+                if let error {
+                    print("添加疫苗提醒失败: \(error.localizedDescription)")
+                }
+            }
+            return
+        }
+
+        let components = calendar.dateComponents(
+            [.year, .month, .day, .hour, .minute],
+            from: reminderDate
+        )
+
+        let content = UNMutableNotificationContent()
+        content.title = "疫苗提醒"
+        content.body = "\(baby.name)：请按时接种\(next.plan.vaccineName)\(next.plan.doseLabel)"
+        content.sound = .default
+
+        let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
+        let request = UNNotificationRequest(
+            identifier: "vaccine-\(baby.id.uuidString)",
+            content: content,
+            trigger: trigger
+        )
+
+        UNUserNotificationCenter.current().add(request) { error in
+            if let error {
+                print("添加疫苗提醒失败: \(error.localizedDescription)")
+            }
+        }
+    }
     
     func cancelReminder(type: String, babyId: UUID) {
         UNUserNotificationCenter.current().removePendingNotificationRequests(
