@@ -121,6 +121,7 @@ struct VaccinationCenterView: View {
                 }
             }
             .pickerStyle(.segmented)
+            .minimumTappableSize()
 
             Text("当前：\(selectedTrack.subtitle)")
                 .font(.caption)
@@ -234,16 +235,9 @@ struct VaccinationCenterView: View {
                 Button("登记") {
                     selectedMilestone = milestone
                 }
-                .font(.caption.weight(.semibold))
-                .padding(.horizontal, 10)
-                .padding(.vertical, 6)
-                .background(
-                    milestone.isOverdue
-                        ? Color.red.opacity(0.12)
-                        : AppTheme.brand.opacity(0.12)
-                )
-                .foregroundStyle(milestone.isOverdue ? .red : AppTheme.brand)
-                .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+                .buttonStyle(.borderedProminent)
+                .controlSize(.small)
+                .tint(milestone.isOverdue ? .red : AppTheme.brand)
                 .minimumTappableSize()
             }
         }
@@ -386,17 +380,27 @@ private struct VaccinationRecordEntryView: View {
                 .font(.headline)
 
             DatePicker("接种时间", selection: $administeredAt, displayedComponents: [.date, .hourAndMinute])
+                .datePickerStyle(.compact)
+                .minimumTappableSize()
 
             TextField("接种机构（可选）", text: $institution)
-                .textFieldStyle(.roundedBorder)
+                .textFieldStyle(.plain)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
+                .background(Color(uiColor: .tertiarySystemFill))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
 
             TextField("疫苗批号（可选）", text: $batchNumber)
-                .textFieldStyle(.roundedBorder)
+                .textFieldStyle(.plain)
+                .padding(.horizontal, 12)
+                .padding(.vertical, 10)
+                .background(Color(uiColor: .tertiarySystemFill))
+                .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
 
             TextEditor(text: $notes)
                 .frame(height: 86)
                 .padding(4)
-                .background(AppTheme.vaccineGradient[0].opacity(0.08))
+                .background(Color(uiColor: .tertiarySystemFill))
                 .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                 .overlay(alignment: .topLeading) {
                     if notes.isEmpty {
@@ -421,7 +425,7 @@ private struct VaccinationRecordEntryView: View {
                 TextEditor(text: $reactionNotes)
                     .frame(height: 80)
                     .padding(4)
-                    .background(Color.red.opacity(0.08))
+                    .background(Color(uiColor: .tertiarySystemFill))
                     .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
                     .overlay(alignment: .topLeading) {
                         if reactionNotes.isEmpty {
@@ -442,15 +446,12 @@ private struct VaccinationRecordEntryView: View {
         Button("保存登记") {
             saveRecord()
         }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 14)
-        .background(
-            LinearGradient(colors: AppTheme.vaccineGradient, startPoint: .topLeading, endPoint: .bottomTrailing)
-        )
-        .foregroundStyle(.white)
+        .buttonStyle(.borderedProminent)
+        .controlSize(.large)
+        .tint(AppTheme.brand)
         .font(.headline)
-        .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
-        .scaleButton()
+        .minimumTappableSize()
+        .scaleButton(scale: 0.98)
     }
 
     private func saveRecord() {
