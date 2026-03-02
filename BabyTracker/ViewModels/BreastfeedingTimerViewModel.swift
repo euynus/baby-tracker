@@ -40,11 +40,11 @@ class BreastfeedingTimerViewModel: ObservableObject {
     }
     
     var formattedCurrentTime: String {
-        formatTime(currentDuration)
+        currentDuration.formatMMSS()
     }
     
     var formattedTotalTime: String {
-        formatTime(totalDuration)
+        totalDuration.formatMMSS()
     }
     
     var formattedStartTime: String {
@@ -67,8 +67,8 @@ class BreastfeedingTimerViewModel: ObservableObject {
     var isRightRunning: Bool { isRunning && currentSide == .right }
     var leftElapsed: TimeInterval { leftDuration }
     var rightElapsed: TimeInterval { rightDuration }
-    var leftElapsedTime: String { formatTime(leftDuration) }
-    var rightElapsedTime: String { formatTime(rightDuration) }
+    var leftElapsedTime: String { leftDuration.formatMMSS() }
+    var rightElapsedTime: String { rightDuration.formatMMSS() }
     
     // MARK: - Initialization
     
@@ -230,13 +230,6 @@ class BreastfeedingTimerViewModel: ObservableObject {
         } else {
             rightDuration = elapsed
         }
-    }
-    
-    private func formatTime(_ duration: TimeInterval) -> String {
-        let total = Int(duration)
-        let minutes = total / 60
-        let seconds = total % 60
-        return String(format: "%02d:%02d", minutes, seconds)
     }
     
     deinit {

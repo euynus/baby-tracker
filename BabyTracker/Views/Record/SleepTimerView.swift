@@ -126,7 +126,7 @@ struct SleepTimerView: View {
                     .font(.subheadline)
                     .foregroundStyle(.white.opacity(0.9))
 
-                Text(formatDuration(sleep.duration))
+                Text(sleep.duration.formatHHMMSS())
                     .font(.system(size: 52, weight: .bold, design: .rounded))
                     .foregroundStyle(.white)
                     .monospacedDigit()
@@ -209,14 +209,6 @@ struct SleepTimerView: View {
     }
 
     // MARK: - Formatters
-
-    private func formatDuration(_ duration: TimeInterval) -> String {
-        let total = Int(duration)
-        let hours = total / 3600
-        let minutes = (total % 3600) / 60
-        let seconds = total % 60
-        return String(format: "%d:%02d:%02d", hours, minutes, seconds)
-    }
 
     private func formatTime(_ date: Date) -> String {
         let formatter = DateFormatter()
