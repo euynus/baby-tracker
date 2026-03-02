@@ -139,15 +139,16 @@ struct StatisticsView: View {
             
             // Summary stats
             HStack(spacing: 16) {
+                let totalCount = data.reduce(0) { $0 + $1.count }
                 statCard(
                     label: "总次数",
-                    value: "\(data.reduce(0) { $0 + $1.count })",
+                    value: "\(totalCount)",
                     symbol: "drop.fill"
                 )
                 
                 statCard(
                     label: "日均次数",
-                    value: String(format: "%.1f", Double(data.reduce(0) { $0 + $1.count }) / Double(max(data.count, 1))),
+                    value: String(format: "%.1f", Double(totalCount) / Double(max(data.count, 1))),
                     symbol: "chart.bar.fill"
                 )
             }
@@ -195,15 +196,16 @@ struct StatisticsView: View {
 
             // Summary stats
             HStack(spacing: 16) {
+                let totalHours = data.reduce(0.0) { $0 + $1.hours }
                 statCard(
                     label: "总睡眠",
-                    value: String(format: "%.1fh", data.reduce(0.0) { $0 + $1.hours }),
+                    value: String(format: "%.1fh", totalHours),
                     symbol: "moon.zzz.fill"
                 )
 
                 statCard(
                     label: "日均睡眠",
-                    value: String(format: "%.1fh", data.reduce(0.0) { $0 + $1.hours } / Double(max(data.count, 1))),
+                    value: String(format: "%.1fh", totalHours / Double(max(data.count, 1))),
                     symbol: "chart.line.uptrend.xyaxis"
                 )
             }
