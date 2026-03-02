@@ -201,7 +201,7 @@ struct BreastfeedingTimerView: View {
                 .font(.caption)
                 .foregroundStyle(.secondary)
 
-            Text(formatDuration(duration))
+            Text(duration.formatMMSS(leadingZero: false))
                 .font(.title3.weight(.bold))
                 .monospacedDigit()
 
@@ -383,13 +383,6 @@ struct BreastfeedingTimerView: View {
 
     private var timingDescription: String {
         viewModel.isRunning ? "\(currentSideText)进行中" : "已暂停，可继续或切换侧别"
-    }
-
-    private func formatDuration(_ duration: TimeInterval) -> String {
-        let total = Int(duration)
-        let minutes = total / 60
-        let seconds = total % 60
-        return String(format: "%d:%02d", minutes, seconds)
     }
 
     private func saveRecord() {
