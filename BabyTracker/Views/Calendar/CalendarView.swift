@@ -88,6 +88,7 @@ struct CalendarView: View {
                     .font(.title3.weight(.semibold))
                     .foregroundStyle(AppTheme.brand)
             }
+            .accessibilityLabel("上个月")
             .minimumTappableSize()
             
             Spacer()
@@ -103,6 +104,7 @@ struct CalendarView: View {
                     .font(.title3.weight(.semibold))
                     .foregroundStyle(AppTheme.brand)
             }
+            .accessibilityLabel("下个月")
             .minimumTappableSize()
         }
         .padding()
