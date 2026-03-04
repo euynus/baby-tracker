@@ -23,9 +23,6 @@ struct SleepTimerView: View {
         sleepRecords.first(where: { $0.babyId == baby.id && $0.isActive })
     }
 
-    @State private var currentTime = Date()
-    @State private var timer: Timer?
-
     var body: some View {
         NavigationStack {
             ScrollView(showsIndicators: false) {
@@ -53,12 +50,6 @@ struct SleepTimerView: View {
                 Button("确定", role: .cancel) { }
             } message: {
                 Text(saveErrorMessage)
-            }
-            .onAppear {
-                startTimer()
-            }
-            .onDisappear {
-                stopTimer()
             }
         }
     }
@@ -126,10 +117,12 @@ struct SleepTimerView: View {
                     .font(.subheadline)
                     .foregroundStyle(.white.opacity(0.9))
 
-                Text(formatDuration(sleep.duration))
-                    .font(.system(size: 52, weight: .bold, design: .rounded))
-                    .foregroundStyle(.white)
-                    .monospacedDigit()
+                TimelineView(.periodic(from: .now, by: 1)) { context in
+                    Text(formatDuration(displayDuration(for: sleep, at: context.date)))
+                        .font(.system(size: 52, weight: .bold, design: .rounded))
+                        .foregroundStyle(.white)
+                        .monospacedDigit()
+                }
 
                 Text("开始于 \(formatTime(sleep.startTime))")
                     .font(.subheadline)
@@ -195,19 +188,6 @@ struct SleepTimerView: View {
         }
     }
 
-    // MARK: - Timer
-
-    private func startTimer() {
-        timer = Timer.scheduledTimer(withTimeInterval: 1.0, repeats: true) { _ in
-            currentTime = Date()
-        }
-    }
-
-    private func stopTimer() {
-        timer?.invalidate()
-        timer = nil
-    }
-
     // MARK: - Formatters
 
     private func formatDuration(_ duration: TimeInterval) -> String {
@@ -222,6 +202,13 @@ struct SleepTimerView: View {
         let formatter = DateFormatter()
         formatter.dateFormat = "HH:mm"
         return formatter.string(from: date)
+    }
+
+    private func displayDuration(for sleep: SleepRecord, at now: Date) -> TimeInterval {
+        if let endTime = sleep.endTime {
+            return max(0, endTime.timeIntervalSince(sleep.startTime))
+        }
+        return max(0, now.timeIntervalSince(sleep.startTime))
     }
 }
 
