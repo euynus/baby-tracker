@@ -36,7 +36,7 @@ class ExportManager {
             let amount = record.amount.map { String(format: "%.0f", $0) } ?? ""
             let notes = record.notes ?? ""
             
-            csvContent += "\(timestamp),\(method),\(leftMin),\(rightMin),\(amount),\(notes)\n"
+            csvContent += csvLine([timestamp, method, leftMin, rightMin, amount, notes])
         }
         
         csvContent += "\n睡眠记录\n"
@@ -49,7 +49,7 @@ class ExportManager {
             let duration = String(format: "%.1f", record.duration / 3600)
             let notes = record.notes ?? ""
             
-            csvContent += "\(start),\(end),\(duration),\(notes)\n"
+            csvContent += csvLine([start, end, duration, notes])
         }
         
         csvContent += "\n尿布记录\n"
@@ -62,7 +62,7 @@ class ExportManager {
             let consistency = record.consistency ?? ""
             let notes = record.notes ?? ""
             
-            csvContent += "\(timestamp),\(type),\(color),\(consistency),\(notes)\n"
+            csvContent += csvLine([timestamp, type, color, consistency, notes])
         }
         
         csvContent += "\n生长记录\n"
@@ -76,7 +76,7 @@ class ExportManager {
             let temp = record.temperature.map { String(format: "%.1f", $0) } ?? ""
             let notes = record.notes ?? ""
             
-            csvContent += "\(timestamp),\(weight),\(height),\(head),\(temp),\(notes)\n"
+            csvContent += csvLine([timestamp, weight, height, head, temp, notes])
         }
 
         csvContent += "\n疫苗记录\n"
@@ -93,7 +93,7 @@ class ExportManager {
             let adverse = record.hasAdverseReaction ? "是" : "否"
             let notes = record.notes ?? ""
 
-            csvContent += "\(administeredAt),\(track),\(vaccine),\(dose),\(recommendedAge),\(institution),\(batch),\(adverse),\(notes)\n"
+            csvContent += csvLine([administeredAt, track, vaccine, dose, recommendedAge, institution, batch, adverse, notes])
         }
         
         // Save to temp file
@@ -229,5 +229,22 @@ class ExportManager {
         case .bottle: return "奶粉"
         case .mixed: return "混合"
         }
+    }
+
+    private static func csvLine(_ fields: [String]) -> String {
+        fields.map(csvSafeField).joined(separator: ",") + "\n"
+    }
+
+    private static func csvSafeField(_ field: String) -> String {
+        var sanitized = field
+            .replacingOccurrences(of: "\r\n", with: "\n")
+            .replacingOccurrences(of: "\r", with: "\n")
+
+        if let first = sanitized.first, ["=", "+", "-", "@", "\t"].contains(first) {
+            sanitized = "'" + sanitized
+        }
+
+        sanitized = sanitized.replacingOccurrences(of: "\"", with: "\"\"")
+        return "\"\(sanitized)\""
     }
 }
