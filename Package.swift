@@ -4,7 +4,8 @@ import PackageDescription
 let package = Package(
     name: "BabyTracker",
     platforms: [
-        .iOS(.v17)
+        .iOS(.v17),
+        .macOS(.v14)
     ],
     products: [
         .library(
@@ -26,6 +27,13 @@ let package = Package(
                 "Views/Settings/SecuritySettingsView.swift",
                 "Views/Settings/iCloudSyncView.swift",
                 "Views/Settings/ReminderSettingsView.swift"
+            ],
+            sources: [
+                "Models",
+                "ViewModels/BreastfeedingTimerViewModel.swift",
+                "Utilities/AppPersistence.swift",
+                "Utilities/ModelContext+Persistence.swift",
+                "Utilities/VaccinationSchedule.swift"
             ]
         ),
         .testTarget(
