@@ -15,6 +15,7 @@ struct VaccinationCenterView: View {
 
     @State private var selectedTrack: VaccinationTrack = .free
     @State private var selectedMilestone: VaccinationMilestone?
+    @State private var selectedDetailMilestone: VaccinationMilestone?
 
     private var babyRecords: [VaccinationRecord] {
         records.filter { $0.babyId == baby.id }
@@ -63,6 +64,18 @@ struct VaccinationCenterView: View {
         .appPageBackground()
         .sheet(item: $selectedMilestone) { milestone in
             VaccinationRecordEntryView(baby: baby, milestone: milestone, selectedTrack: selectedTrack)
+        }
+        .sheet(item: $selectedDetailMilestone) { milestone in
+            VaccinationMilestoneDetailView(
+                milestone: milestone,
+                selectedTrack: selectedTrack,
+                onRegister: { target in
+                    selectedDetailMilestone = nil
+                    DispatchQueue.main.async {
+                        selectedMilestone = target
+                    }
+                }
+            )
         }
         .onAppear {
             selectedTrack = VaccinationSchedule.storedTrack(for: baby.id)
@@ -240,6 +253,14 @@ struct VaccinationCenterView: View {
                 .tint(milestone.isOverdue ? .red : AppTheme.brand)
                 .minimumTappableSize()
             }
+
+            Image(systemName: "chevron.right")
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+        }
+        .contentShape(Rectangle())
+        .onTapGesture {
+            selectedDetailMilestone = milestone
         }
         .padding(12)
         .background(Color.white.opacity(0.001))
@@ -299,6 +320,124 @@ struct VaccinationCenterView: View {
             track: selectedTrack,
             daysAhead: daysAhead
         )
+    }
+}
+
+private struct VaccinationMilestoneDetailView: View {
+    @Environment(\.dismiss) private var dismiss
+
+    let milestone: VaccinationMilestone
+    let selectedTrack: VaccinationTrack
+    let onRegister: (VaccinationMilestone) -> Void
+
+    var body: some View {
+        NavigationStack {
+            ScrollView(showsIndicators: false) {
+                VStack(spacing: 16) {
+                    planCard
+                    if milestone.isCompleted {
+                        completedRecordCard
+                    } else {
+                        pendingStatusCard
+                        registerButton
+                    }
+                }
+                .padding(.horizontal, AppTheme.paddingMedium)
+                .padding(.vertical, 12)
+            }
+            .navigationTitle("疫苗详情")
+            .navigationBarTitleDisplayMode(.inline)
+            .appPageBackground()
+            .toolbar {
+                ToolbarItem(placement: .cancellationAction) {
+                    Button("关闭") {
+                        dismiss()
+                    }
+                }
+            }
+        }
+    }
+
+    private var planCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("\(milestone.plan.vaccineName) · \(milestone.plan.doseLabel)")
+                .font(.headline)
+
+            detailRow(title: "接种方案", value: selectedTrack.title)
+            detailRow(title: "推荐月龄", value: milestone.plan.ageDescription)
+            detailRow(title: "建议日期", value: dateText(milestone.dueDate))
+            detailRow(title: "参考依据", value: milestone.plan.referenceNote)
+        }
+        .padding(14)
+        .cardStyle()
+    }
+
+    private var pendingStatusCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("当前状态")
+                .font(.headline)
+
+            Text(milestone.isOverdue ? "已逾期，建议尽快咨询门诊并完成接种。" : "尚未登记接种记录。")
+                .font(.subheadline)
+                .foregroundStyle(milestone.isOverdue ? .red : .secondary)
+        }
+        .padding(14)
+        .cardStyle()
+    }
+
+    private var completedRecordCard: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text("登记记录")
+                .font(.headline)
+
+            if let record = milestone.record {
+                detailRow(title: "接种时间", value: dateTimeText(record.administeredAt))
+                detailRow(title: "接种机构", value: record.institution ?? "未填写")
+                detailRow(title: "疫苗批号", value: record.batchNumber ?? "未填写")
+                detailRow(title: "不良反应", value: record.hasAdverseReaction ? "有" : "无")
+                if record.hasAdverseReaction {
+                    detailRow(title: "反应记录", value: record.reactionNotes ?? "未填写")
+                }
+                detailRow(title: "备注", value: record.notes ?? "未填写")
+            }
+        }
+        .padding(14)
+        .cardStyle()
+    }
+
+    private var registerButton: some View {
+        Button("登记接种") {
+            onRegister(milestone)
+        }
+        .buttonStyle(.borderedProminent)
+        .controlSize(.large)
+        .tint(milestone.isOverdue ? .red : AppTheme.brand)
+        .font(.headline)
+        .minimumTappableSize()
+        .scaleButton(scale: 0.98)
+    }
+
+    private func detailRow(title: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(title)
+                .font(.caption)
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.subheadline)
+                .foregroundStyle(.primary)
+        }
+    }
+
+    private func dateText(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        return formatter.string(from: date)
+    }
+
+    private func dateTimeText(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd HH:mm"
+        return formatter.string(from: date)
     }
 }
 
