@@ -463,21 +463,26 @@ struct BabyDetailView: View {
     }
     
     private func saveBaby() {
-        baby.name = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedName = name.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedName.isEmpty else {
+            saveErrorMessage = "姓名不能为空"
+            showingSaveError = true
+            return
+        }
+
+        let parsedWeight = parseOptionalMeasurement(weight, field: "体重")
+        guard parsedWeight.isValid else { return }
+        let parsedHeight = parseOptionalMeasurement(height, field: "身高")
+        guard parsedHeight.isValid else { return }
+        let parsedHead = parseOptionalMeasurement(headCircumference, field: "头围")
+        guard parsedHead.isValid else { return }
+
+        baby.name = trimmedName
         baby.birthday = birthday
         baby.gender = gender
-        
-        if let weightValue = Double(weight) {
-            baby.latestWeight = weightValue
-        }
-        
-        if let heightValue = Double(height) {
-            baby.latestHeight = heightValue
-        }
-        
-        if let headValue = Double(headCircumference) {
-            baby.latestHeadCircumference = headValue
-        }
+        baby.latestWeight = parsedWeight.value
+        baby.latestHeight = parsedHeight.value
+        baby.latestHeadCircumference = parsedHead.value
         
         do {
             try modelContext.saveIfNeeded()
@@ -486,6 +491,17 @@ struct BabyDetailView: View {
             showingSaveError = true
             profileLogger.error("更新宝宝信息保存失败: \(error.localizedDescription, privacy: .public)")
         }
+    }
+
+    private func parseOptionalMeasurement(_ input: String, field: String) -> (isValid: Bool, value: Double?) {
+        let trimmed = input.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmed.isEmpty else { return (true, nil) }
+        guard let value = Double(trimmed) else {
+            saveErrorMessage = "\(field)请输入有效数字"
+            showingSaveError = true
+            return (false, nil)
+        }
+        return (true, value)
     }
 }
 
