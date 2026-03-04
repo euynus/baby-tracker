@@ -107,36 +107,32 @@ class NotificationManager: ObservableObject {
             of: reminderDay
         ) ?? reminderDay
 
-        if reminderDate <= Date.now {
-            // If the target time has passed, schedule an immediate one-time reminder.
-            let content = UNMutableNotificationContent()
-            content.title = "疫苗提醒"
-            content.body = "\(baby.name)：\(next.plan.vaccineName)\(next.plan.doseLabel)已到提醒时间"
-            content.sound = .default
+        let now = Date.now
+        let scheduledDate: Date
+        let bodyText: String
 
-            let trigger = UNTimeIntervalNotificationTrigger(timeInterval: 5, repeats: false)
-            let request = UNNotificationRequest(
-                identifier: "vaccine-\(baby.id.uuidString)",
-                content: content,
-                trigger: trigger
-            )
-
-            UNUserNotificationCenter.current().add(request) { error in
-                if let error {
-                    print("添加疫苗提醒失败: \(error.localizedDescription)")
-                }
+        if reminderDate <= now {
+            // Prevent repeated "immediate" notifications when users revisit pages.
+            let todayNine = calendar.date(bySettingHour: 9, minute: 0, second: 0, of: now) ?? now
+            if todayNine > now {
+                scheduledDate = todayNine
+            } else {
+                scheduledDate = calendar.date(byAdding: .day, value: 1, to: todayNine) ?? now.addingTimeInterval(3600)
             }
-            return
+            bodyText = "\(baby.name)：\(next.plan.vaccineName)\(next.plan.doseLabel)已到提醒时间，请尽快接种"
+        } else {
+            scheduledDate = reminderDate
+            bodyText = "\(baby.name)：请按时接种\(next.plan.vaccineName)\(next.plan.doseLabel)"
         }
 
         let components = calendar.dateComponents(
             [.year, .month, .day, .hour, .minute],
-            from: reminderDate
+            from: scheduledDate
         )
 
         let content = UNMutableNotificationContent()
         content.title = "疫苗提醒"
-        content.body = "\(baby.name)：请按时接种\(next.plan.vaccineName)\(next.plan.doseLabel)"
+        content.body = bodyText
         content.sound = .default
 
         let trigger = UNCalendarNotificationTrigger(dateMatching: components, repeats: false)
