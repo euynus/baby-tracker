@@ -97,7 +97,8 @@ class ExportManager {
         }
         
         // Save to temp file
-        let fileName = "宝宝日记_\(baby.name)_\(Date().timeIntervalSince1970).csv"
+        let safeName = safeFileComponent(baby.name)
+        let fileName = "宝宝日记_\(safeName)_\(Date().timeIntervalSince1970).csv"
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
         
         do {
@@ -122,7 +123,8 @@ class ExportManager {
         let pageSize = CGRect(x: 0, y: 0, width: 595, height: 842) // A4
         let renderer = UIGraphicsPDFRenderer(bounds: pageSize)
         
-        let fileName = "宝宝日记_\(baby.name)_\(Date().timeIntervalSince1970).pdf"
+        let safeName = safeFileComponent(baby.name)
+        let fileName = "宝宝日记_\(safeName)_\(Date().timeIntervalSince1970).pdf"
         let tempURL = FileManager.default.temporaryDirectory.appendingPathComponent(fileName)
         
         do {
@@ -246,5 +248,18 @@ class ExportManager {
 
         sanitized = sanitized.replacingOccurrences(of: "\"", with: "\"\"")
         return "\"\(sanitized)\""
+    }
+
+    private static func safeFileComponent(_ raw: String) -> String {
+        let invalid = CharacterSet(charactersIn: "/\\?%*|\"<>:")
+            .union(.newlines)
+            .union(.controlCharacters)
+
+        let cleaned = raw
+            .components(separatedBy: invalid)
+            .joined(separator: "_")
+            .trimmingCharacters(in: .whitespacesAndNewlines)
+
+        return cleaned.isEmpty ? "未命名宝宝" : cleaned
     }
 }
