@@ -397,7 +397,7 @@ struct StatisticsView: View {
     
     private func getSleepData(for baby: Baby) -> [ChartData] {
         let calendar = Calendar.current
-        let records = sleepRecords.filter { $0.babyId == baby.id && $0.endTime != nil }
+        let records = sleepRecords.filter { $0.babyId == baby.id }
         
         let startDate: Date
         switch timeRange {
@@ -409,11 +409,25 @@ struct StatisticsView: View {
             startDate = baby.birthday
         }
         
+        let referenceNow = Date.now
         var dataDict: [Date: TimeInterval] = [:]
-        
-        for record in records where record.startTime >= startDate {
-            let dayStart = calendar.startOfDay(for: record.startTime)
-            dataDict[dayStart, default: 0] += record.duration
+
+        for record in records {
+            let intervalEnd = record.endTime ?? referenceNow
+            guard intervalEnd > startDate, record.startTime < referenceNow else { continue }
+
+            let effectiveStart = max(record.startTime, startDate)
+            var dayStart = calendar.startOfDay(for: effectiveStart)
+
+            while dayStart < intervalEnd {
+                let overlap = record.duration(overlapping: dayStart, calendar: calendar, now: referenceNow)
+                if overlap > 0 {
+                    dataDict[dayStart, default: 0] += overlap
+                }
+
+                guard let nextDay = calendar.date(byAdding: .day, value: 1, to: dayStart) else { break }
+                dayStart = nextDay
+            }
         }
         
         return dataDict.map { ChartData(date: $0.key, count: 0, hours: $0.value / 3600) }

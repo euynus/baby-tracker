@@ -304,13 +304,10 @@ struct HomeView: View {
     }
 
     private var todaySleepHours: Double {
-        selectedBabySleepRecords
-            .filter { Calendar.current.isDateInToday($0.startTime) }
+        let today = Date.now
+        return selectedBabySleepRecords
             .reduce(0.0) { total, record in
-                if record.isActive {
-                    return total + Date.now.timeIntervalSince(record.startTime)
-                }
-                return total + record.duration
+                total + record.duration(overlapping: today)
             } / 3600
     }
 
@@ -391,7 +388,7 @@ struct HomeView: View {
             .forEach { records.append(.feeding($0)) }
 
         selectedBabySleepRecords
-            .filter { calendar.isDateInToday($0.startTime) }
+            .filter { $0.duration(overlapping: Date.now, calendar: calendar) > 0 }
             .forEach { records.append(.sleep($0)) }
 
         selectedBabyDiaperRecords

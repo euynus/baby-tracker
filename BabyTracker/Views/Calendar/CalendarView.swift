@@ -186,7 +186,7 @@ struct CalendarView: View {
         }.count
         
         let sleeps = babySleepRecords.filter {
-            calendar.isDate($0.startTime, inSameDayAs: selectedDate) && $0.endTime != nil
+            $0.duration(overlapping: selectedDate, calendar: calendar) > 0
         }
         
         let diaperCount = babyDiaperRecords.filter {
@@ -197,7 +197,9 @@ struct CalendarView: View {
             calendar.isDate($0.administeredAt, inSameDayAs: selectedDate)
         }.count
         
-        let totalSleepHours = sleeps.reduce(0.0) { $0 + $1.duration } / 3600
+        let totalSleepHours = sleeps.reduce(0.0) { total, record in
+            total + record.duration(overlapping: selectedDate, calendar: calendar)
+        } / 3600
         
         return VStack(alignment: .leading, spacing: 12) {
             Text(formatSelectedDate)
