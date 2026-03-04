@@ -35,6 +35,7 @@ struct ProfileView: View {
     ) private var babies: [Baby]
     
     @State private var showingAddBaby = false
+    @State private var quickAccessBabyId: UUID?
     
     var body: some View {
         NavigationStack {
@@ -42,6 +43,15 @@ struct ProfileView: View {
                 Section {
                     profileHero
                         .profileListRow()
+                }
+
+                if babies.count > 1 {
+                    Section {
+                        quickAccessBabySelector
+                            .profileListRow()
+                    } header: {
+                        sectionHeader("当前宝宝")
+                    }
                 }
 
                 Section {
@@ -71,7 +81,7 @@ struct ProfileView: View {
                     sectionHeader("我的宝宝")
                 }
                 
-                if let baby = babies.first {
+                if let baby = quickAccessBaby {
                     Section {
                         NavigationLink {
                             PhotoGalleryView(baby: baby)
@@ -92,7 +102,7 @@ struct ProfileView: View {
                 }
                 
                 Section {
-                    if let baby = babies.first {
+                    if let baby = quickAccessBaby {
                         NavigationLink {
                             ReminderSettingsView(baby: baby)
                         } label: {
@@ -171,6 +181,59 @@ struct ProfileView: View {
             .sheet(isPresented: $showingAddBaby) {
                 AddBabyView()
             }
+            .onAppear {
+                if quickAccessBabyId == nil {
+                    quickAccessBabyId = babies.first?.id
+                }
+            }
+            .onChange(of: babies) { _, newBabies in
+                guard let currentId = quickAccessBabyId else {
+                    quickAccessBabyId = newBabies.first?.id
+                    return
+                }
+                if !newBabies.contains(where: { $0.id == currentId }) {
+                    quickAccessBabyId = newBabies.first?.id
+                }
+            }
+        }
+    }
+
+    private var quickAccessBaby: Baby? {
+        guard let quickAccessBabyId else { return babies.first }
+        return babies.first(where: { $0.id == quickAccessBabyId }) ?? babies.first
+    }
+
+    private var quickAccessBabySelector: some View {
+        Menu {
+            ForEach(babies) { baby in
+                Button(baby.name) {
+                    quickAccessBabyId = baby.id
+                }
+            }
+        } label: {
+            HStack(spacing: 12) {
+                Image(systemName: "person.crop.circle.badge.checkmark")
+                    .font(.system(size: 15, weight: .semibold))
+                    .foregroundStyle(AppTheme.brand)
+                    .frame(width: 28, height: 28)
+                    .background(AppTheme.brand.opacity(0.14))
+                    .clipShape(RoundedRectangle(cornerRadius: 8, style: .continuous))
+
+                VStack(alignment: .leading, spacing: 2) {
+                    Text("用于照片/疫苗/提醒/生长曲线")
+                        .font(.caption)
+                        .foregroundStyle(.secondary)
+                    Text(quickAccessBaby?.name ?? "选择宝宝")
+                        .font(.subheadline.weight(.semibold))
+                        .foregroundStyle(.primary)
+                }
+                Spacer()
+                Image(systemName: "chevron.down")
+                    .font(.caption.weight(.semibold))
+                    .foregroundStyle(.secondary)
+            }
+            .padding(profileCardPadding)
+            .cardStyle()
         }
     }
 
