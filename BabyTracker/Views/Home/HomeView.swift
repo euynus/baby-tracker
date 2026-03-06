@@ -34,6 +34,7 @@ struct HomeView: View {
                         noBabyCard
                     } else {
                         babySelector
+                        todayFocusCard
                         quickActionsGrid
                         timelineSection
                     }
@@ -196,6 +197,57 @@ struct HomeView: View {
             )
         }
         .slideIn(from: .bottom)
+    }
+
+    private var todayFocusCard: some View {
+        let focus = currentFocus
+
+        return VStack(alignment: .leading, spacing: 14) {
+            HStack {
+                Label("今日关注", systemImage: focus.icon)
+                    .font(.headline)
+                    .foregroundStyle(.white.opacity(0.92))
+                Spacer()
+                if case .activeSleep(let sleep, _) = focus {
+                    TimelineView(.periodic(from: .now, by: 1)) { context in
+                        Text(formatDuration(max(0, context.date.timeIntervalSince(sleep.startTime))))
+                            .font(.caption.weight(.semibold))
+                            .monospacedDigit()
+                            .foregroundStyle(.white)
+                            .padding(.horizontal, 10)
+                            .padding(.vertical, 6)
+                            .background(.white.opacity(0.18))
+                            .clipShape(Capsule())
+                    }
+                }
+            }
+
+            Text(focus.title)
+                .font(.title3.weight(.bold))
+                .foregroundStyle(.white)
+
+            Text(focus.detail)
+                .font(.subheadline)
+                .foregroundStyle(.white.opacity(0.9))
+
+            if let secondary = focus.secondary {
+                Text(secondary)
+                    .font(.caption)
+                    .foregroundStyle(.white.opacity(0.84))
+            }
+
+            Button(focus.buttonTitle) {
+                handleFocusAction(focus.action)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(.white)
+            .foregroundStyle(focus.buttonForeground)
+            .minimumTappableSize()
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+        .padding(16)
+        .gradientCard(focus.gradient)
+        .fadeIn(delay: 0.05)
     }
 
     private var timelineSection: some View {
@@ -364,6 +416,57 @@ struct HomeView: View {
         return next.plan.ageDescription
     }
 
+    private var currentFocus: HomeFocus {
+        if let activeSleep {
+            return .activeSleep(
+                sleep: activeSleep,
+                startedAt: formatClock(activeSleep.startTime)
+            )
+        }
+
+        if let selectedBaby {
+            let track = VaccinationSchedule.storedTrack(for: selectedBaby.id)
+            if let next = VaccinationSchedule.nextPendingMilestone(
+                for: selectedBaby,
+                records: selectedBabyVaccinationRecords,
+                track: track
+            ) {
+                let calendar = Calendar.current
+                let dayOffset = calendar.dateComponents(
+                    [.day],
+                    from: calendar.startOfDay(for: Date.now),
+                    to: calendar.startOfDay(for: next.dueDate)
+                ).day ?? 0
+
+                if dayOffset <= 0 {
+                    return .vaccination(
+                        title: "\(next.plan.vaccineName) \(next.plan.doseLabel)",
+                        detail: dayOffset < 0 ? "已逾期，建议尽快补种或登记记录。" : "今天应种，建议尽快查看接种安排。",
+                        secondary: "方案：\(track.title) · 推荐：\(next.plan.ageDescription)"
+                    )
+                }
+
+                if dayOffset <= 7 {
+                    return .vaccination(
+                        title: "\(next.plan.vaccineName) \(next.plan.doseLabel)",
+                        detail: "\(dayOffset)天后应种，提前确认门诊安排会更稳妥。",
+                        secondary: "方案：\(track.title) · 建议日期：\(focusDateText(next.dueDate))"
+                    )
+                }
+            }
+        }
+
+        let todayRecords = getTodayRecords()
+        if todayRecords.isEmpty {
+            return .emptyDay
+        }
+
+        return .progress(
+            count: todayRecords.count,
+            latestSummary: timelineSummary(for: todayRecords[0])
+        )
+    }
+
     private func timeAgo(from date: Date) -> String {
         let interval = Date.now.timeIntervalSince(date)
         let hours = Int(interval) / 3600
@@ -376,6 +479,53 @@ struct HomeView: View {
         } else {
             return "刚刚"
         }
+    }
+
+    private func handleFocusAction(_ action: HomeFocusAction) {
+        switch action {
+        case .feeding:
+            showingFeedingSheet = true
+        case .sleep:
+            showingSleepSheet = true
+        case .vaccination:
+            showingVaccinationSheet = true
+        }
+    }
+
+    private func timelineSummary(for record: TimelineRecord) -> String {
+        switch record {
+        case .feeding(let feeding):
+            return "最近一次喂奶在\(timeAgo(from: feeding.timestamp))"
+        case .sleep(let sleep):
+            if sleep.isActive {
+                return "最近一次记录为睡眠中，开始于\(formatClock(sleep.startTime))"
+            }
+            return "最近一次睡眠开始于\(formatClock(sleep.startTime))"
+        case .diaper(let diaper):
+            return "最近一次尿布记录在\(timeAgo(from: diaper.timestamp))"
+        case .vaccination(let vaccination):
+            return "今天已登记\(vaccination.vaccineName)\(vaccination.doseLabel)"
+        }
+    }
+
+    private func formatClock(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "HH:mm"
+        return formatter.string(from: date)
+    }
+
+    private func focusDateText(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "M月d日"
+        return formatter.string(from: date)
+    }
+
+    private func formatDuration(_ duration: TimeInterval) -> String {
+        let total = Int(duration)
+        let hours = total / 3600
+        let minutes = (total % 3600) / 60
+        let seconds = total % 60
+        return String(format: "%d:%02d:%02d", hours, minutes, seconds)
     }
 
     private func getTodayRecords() -> [TimelineRecord] {
@@ -400,6 +550,121 @@ struct HomeView: View {
             .forEach { records.append(.vaccination($0)) }
 
         return records.sorted { $0.timestamp > $1.timestamp }
+    }
+}
+
+private enum HomeFocusAction {
+    case feeding
+    case sleep
+    case vaccination
+}
+
+private enum HomeFocus {
+    case activeSleep(sleep: SleepRecord, startedAt: String)
+    case vaccination(title: String, detail: String, secondary: String)
+    case emptyDay
+    case progress(count: Int, latestSummary: String)
+
+    var icon: String {
+        switch self {
+        case .activeSleep:
+            return "moon.zzz.fill"
+        case .vaccination:
+            return "syringe.fill"
+        case .emptyDay:
+            return "sparkles"
+        case .progress:
+            return "checklist"
+        }
+    }
+
+    var title: String {
+        switch self {
+        case .activeSleep:
+            return "宝宝正在睡眠"
+        case .vaccination(let title, _, _):
+            return title
+        case .emptyDay:
+            return "开始今天第一条记录"
+        case .progress(let count, _):
+            return "今天已记录 \(count) 条"
+        }
+    }
+
+    var detail: String {
+        switch self {
+        case .activeSleep(_, let startedAt):
+            return "本次睡眠从 \(startedAt) 开始，首页会持续显示实时计时。"
+        case .vaccination(_, let detail, _):
+            return detail
+        case .emptyDay:
+            return "先记一条喂奶、睡眠或尿布，今天的时间线就会自动建立。"
+        case .progress(_, let latestSummary):
+            return latestSummary
+        }
+    }
+
+    var secondary: String? {
+        switch self {
+        case .activeSleep:
+            return "需要结束本次睡眠时，可直接从这里进入计时页。"
+        case .vaccination(_, _, let secondary):
+            return secondary
+        case .emptyDay:
+            return "建议先从最常用的喂奶记录开始。"
+        case .progress:
+            return "继续补充记录，晚些时候回看会更完整。"
+        }
+    }
+
+    var buttonTitle: String {
+        switch self {
+        case .activeSleep:
+            return "查看计时"
+        case .vaccination:
+            return "查看疫苗"
+        case .emptyDay:
+            return "记录喂奶"
+        case .progress:
+            return "继续记录"
+        }
+    }
+
+    var buttonForeground: Color {
+        switch self {
+        case .activeSleep:
+            return AppTheme.sleep
+        case .vaccination:
+            return AppTheme.vaccine
+        case .emptyDay:
+            return AppTheme.feeding
+        case .progress:
+            return AppTheme.brand
+        }
+    }
+
+    var gradient: [Color] {
+        switch self {
+        case .activeSleep:
+            return AppTheme.sleepGradient
+        case .vaccination:
+            return AppTheme.vaccineGradient
+        case .emptyDay:
+            return AppTheme.feedingGradient
+        case .progress:
+            return AppTheme.heroGradient
+        }
+    }
+
+    var action: HomeFocusAction {
+        switch self {
+        case .activeSleep:
+            return .sleep
+        case .vaccination:
+            return .vaccination
+        case .emptyDay, .progress:
+            return .feeding
+        }
     }
 }
 
