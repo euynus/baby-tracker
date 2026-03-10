@@ -63,7 +63,11 @@ struct FeedingRecordView: View {
                     dismiss()
                 }
             }
-            .saveSuccessOverlay(isPresented: $showingSaveSuccess) {
+            .saveSuccessOverlay(
+                isPresented: $showingSaveSuccess,
+                title: "喂养已记录",
+                subtitle: "首页时间线已更新，可继续补充尿布或睡眠记录。"
+            ) {
                 dismiss()
             }
         }

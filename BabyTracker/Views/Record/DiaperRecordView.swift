@@ -58,7 +58,11 @@ struct DiaperRecordView: View {
             } message: {
                 Text(saveErrorMessage)
             }
-            .saveSuccessOverlay(isPresented: $showingSaveSuccess) {
+            .saveSuccessOverlay(
+                isPresented: $showingSaveSuccess,
+                title: "尿布已记录",
+                subtitle: "记录已加入今天时间线，之后回看会更完整。"
+            ) {
                 dismiss()
             }
         }

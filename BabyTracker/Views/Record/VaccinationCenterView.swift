@@ -487,7 +487,11 @@ private struct VaccinationRecordEntryView: View {
             } message: {
                 Text(saveErrorMessage)
             }
-            .saveSuccessOverlay(isPresented: $showingSaveSuccess) {
+            .saveSuccessOverlay(
+                isPresented: $showingSaveSuccess,
+                title: "接种记录已保存",
+                subtitle: "接种进度和提醒计划已同步更新。"
+            ) {
                 dismiss()
             }
         }

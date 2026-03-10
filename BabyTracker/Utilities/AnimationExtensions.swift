@@ -229,6 +229,8 @@ struct CheckmarkAnimation: View {
 
 struct SaveSuccessOverlayModifier: ViewModifier {
     @Binding var isPresented: Bool
+    var title: String
+    var subtitle: String?
     var onDismiss: () -> Void
 
     func body(content: Content) -> some View {
@@ -241,9 +243,17 @@ struct SaveSuccessOverlayModifier: ViewModifier {
 
                         VStack(spacing: 16) {
                             CheckmarkAnimation()
-                            Text("已保存")
-                                .font(.headline)
-                                .foregroundStyle(AppTheme.accent)
+                            VStack(spacing: 6) {
+                                Text(title)
+                                    .font(.headline)
+                                    .foregroundStyle(AppTheme.accent)
+                                if let subtitle {
+                                    Text(subtitle)
+                                        .font(.subheadline)
+                                        .foregroundStyle(.secondary)
+                                        .multilineTextAlignment(.center)
+                                }
+                            }
                         }
                         .padding(32)
                         .background(.ultraThinMaterial)
@@ -251,7 +261,7 @@ struct SaveSuccessOverlayModifier: ViewModifier {
                     }
                     .transition(.opacity)
                     .onAppear {
-                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+                        DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
                             withAnimation(.smooth) {
                                 isPresented = false
                             }
@@ -267,7 +277,19 @@ struct SaveSuccessOverlayModifier: ViewModifier {
 }
 
 extension View {
-    func saveSuccessOverlay(isPresented: Binding<Bool>, onDismiss: @escaping () -> Void = {}) -> some View {
-        modifier(SaveSuccessOverlayModifier(isPresented: isPresented, onDismiss: onDismiss))
+    func saveSuccessOverlay(
+        isPresented: Binding<Bool>,
+        title: String = "已保存",
+        subtitle: String? = nil,
+        onDismiss: @escaping () -> Void = {}
+    ) -> some View {
+        modifier(
+            SaveSuccessOverlayModifier(
+                isPresented: isPresented,
+                title: title,
+                subtitle: subtitle,
+                onDismiss: onDismiss
+            )
+        )
     }
 }

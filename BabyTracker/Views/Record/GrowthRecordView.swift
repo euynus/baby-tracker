@@ -52,7 +52,11 @@ struct GrowthRecordView: View {
             } message: {
                 Text(alertMessage)
             }
-            .saveSuccessOverlay(isPresented: $showingSaveSuccess) {
+            .saveSuccessOverlay(
+                isPresented: $showingSaveSuccess,
+                title: "生长数据已保存",
+                subtitle: "现在可以在生长曲线里查看最新变化。"
+            ) {
                 dismiss()
             }
         }
