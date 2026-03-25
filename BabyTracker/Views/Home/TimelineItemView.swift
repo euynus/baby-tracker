@@ -11,39 +11,49 @@ struct TimelineItemView: View {
     let record: TimelineRecord
 
     var body: some View {
-        HStack(alignment: .top, spacing: 12) {
-            iconBadge
+        HStack(alignment: .top, spacing: 14) {
+            VStack(spacing: 0) {
+                iconBadge
 
-            VStack(alignment: .leading, spacing: 4) {
+                Rectangle()
+                    .fill(iconGradient.last?.opacity(0.18) ?? AppTheme.brand.opacity(0.18))
+                    .frame(width: 2)
+                    .padding(.top, 8)
+            }
+
+            VStack(alignment: .leading, spacing: 10) {
                 HStack(alignment: .firstTextBaseline) {
-                    Text(titleText)
-                        .font(.subheadline.weight(.semibold))
-                    Spacer()
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(titleText)
+                            .font(.subheadline.weight(.bold))
+                            .foregroundStyle(AppTheme.ink)
+
+                        if let detail = detailText {
+                            Text(detail)
+                                .font(.subheadline)
+                                .foregroundStyle(.secondary)
+                        }
+                    }
+
+                    Spacer(minLength: 12)
+
                     Text(timeText)
                         .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
-                }
-
-                if let detail = detailText {
-                    Text(detail)
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
+                        .padding(.horizontal, 10)
+                        .padding(.vertical, 6)
+                        .background(Color.primary.opacity(0.05))
+                        .clipShape(Capsule())
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
         }
-        .padding(14)
+        .padding(16)
         .cardStyle()
     }
 
     private var iconBadge: some View {
-        Image(systemName: iconSymbol)
-            .font(.system(size: 14, weight: .bold))
-            .foregroundStyle(.white)
-            .padding(9)
-            .background(
-                LinearGradient(colors: iconGradient, startPoint: .topLeading, endPoint: .bottomTrailing)
-            )
-            .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+        AppIconBadge(symbol: iconSymbol, colors: iconGradient, size: 42)
     }
 
     private var iconSymbol: String {

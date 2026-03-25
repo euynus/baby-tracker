@@ -335,6 +335,7 @@ private struct VaccinationMilestoneDetailView: View {
             ScrollView(showsIndicators: false) {
                 VStack(spacing: 16) {
                     planCard
+                    educationCard
                     if milestone.isCompleted {
                         completedRecordCard
                     } else {
@@ -385,6 +386,22 @@ private struct VaccinationMilestoneDetailView: View {
         .cardStyle()
     }
 
+    private var educationCard: some View {
+        let education = milestone.plan.education
+
+        return VStack(alignment: .leading, spacing: 10) {
+            Text("疫苗介绍")
+                .font(.headline)
+
+            detailParagraph(title: "作用", value: education.summary)
+            detailParagraph(title: "主要预防", value: education.protectsAgainst)
+            detailParagraph(title: "为什么要接种", value: education.whyItMatters)
+            detailParagraph(title: "接种提醒", value: education.reminder)
+        }
+        .padding(14)
+        .cardStyle()
+    }
+
     private var completedRecordCard: some View {
         VStack(alignment: .leading, spacing: 8) {
             Text("登记记录")
@@ -425,6 +442,18 @@ private struct VaccinationMilestoneDetailView: View {
             Text(value)
                 .font(.subheadline)
                 .foregroundStyle(.primary)
+        }
+    }
+
+    private func detailParagraph(title: String, value: String) -> some View {
+        VStack(alignment: .leading, spacing: 5) {
+            Text(title)
+                .font(.caption.weight(.semibold))
+                .foregroundStyle(.secondary)
+            Text(value)
+                .font(.subheadline)
+                .foregroundStyle(.primary)
+                .fixedSize(horizontal: false, vertical: true)
         }
     }
 

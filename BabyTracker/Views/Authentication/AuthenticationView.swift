@@ -19,16 +19,16 @@ struct AuthenticationView: View {
                 .ignoresSafeArea()
 
             Circle()
-                .fill(AppTheme.brand.opacity(colorScheme == .dark ? 0.18 : 0.24))
-                .frame(width: 300, height: 300)
-                .blur(radius: 24)
-                .offset(x: 130, y: -250)
+                .fill(AppTheme.brand.opacity(colorScheme == .dark ? 0.16 : 0.22))
+                .frame(width: 320, height: 320)
+                .blur(radius: 34)
+                .offset(x: 150, y: -250)
 
             Circle()
                 .fill(AppTheme.secondary.opacity(colorScheme == .dark ? 0.16 : 0.20))
-                .frame(width: 240, height: 240)
-                .blur(radius: 22)
-                .offset(x: -140, y: 280)
+                .frame(width: 260, height: 260)
+                .blur(radius: 26)
+                .offset(x: -140, y: 260)
 
             VStack(spacing: 24) {
                 Spacer()
@@ -44,6 +44,7 @@ struct AuthenticationView: View {
                 Spacer()
             }
             .padding(.horizontal, 20)
+            .padding(.vertical, 24)
         }
         .task {
             await authManager.authenticate()
@@ -51,83 +52,85 @@ struct AuthenticationView: View {
     }
 
     private var hero: some View {
-        VStack(spacing: 12) {
-            Image(systemName: "lock.shield.fill")
-                .font(.system(size: 48, weight: .semibold))
-                .foregroundStyle(.white)
-                .padding(14)
-                .background(.white.opacity(0.22))
-                .clipShape(Circle())
+        VStack(alignment: .leading, spacing: 18) {
+            HStack {
+                AppIconBadge(symbol: "heart.text.square.fill", colors: AppTheme.mintHeroGradient, size: 60)
+                Spacer()
+                Text("安全访问")
+                    .font(.caption.weight(.bold))
+                    .foregroundStyle(.white.opacity(0.82))
+            }
 
-            Text("宝宝日记")
-                .font(.system(size: 34, weight: .bold, design: .rounded))
-                .foregroundStyle(.white)
+            VStack(alignment: .leading, spacing: 8) {
+                Text("宝宝日记")
+                    .font(.system(size: 34, weight: .bold, design: .rounded))
+                    .foregroundStyle(.white)
 
-            Text("安全登录后继续记录宝宝成长")
-                .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.88))
+                Text("进入记录中心之前，先完成一次安全验证。")
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.90))
+            }
+
+            HStack(spacing: 10) {
+                AppStatusChip(title: "保护内容", value: "成长数据")
+                AppStatusChip(title: "支持方式", value: authManager.usePasscode ? "密码" : "Face ID")
+            }
         }
-        .padding(.vertical, 24)
-        .frame(maxWidth: .infinity)
+        .padding(22)
         .gradientCard(AppTheme.heroGradient)
     }
 
     private var passcodeInput: some View {
-        VStack(spacing: 14) {
-            SecureField("输入密码", text: $passcode)
-                .textFieldStyle(.roundedBorder)
-                .keyboardType(.numberPad)
+        VStack(alignment: .leading, spacing: 14) {
+            AppSectionTitle(
+                eyebrow: "Unlock",
+                title: "输入密码",
+                subtitle: "验证通过后进入首页和记录流。"
+            )
 
-            Button(action: verifyPasscode) {
-                Text("解锁")
-                    .font(.headline)
-                    .frame(maxWidth: .infinity)
-                    .padding(.vertical, 12)
-                    .background(
-                        LinearGradient(colors: AppTheme.heroGradient, startPoint: .topLeading, endPoint: .bottomTrailing)
-                    )
-                    .foregroundStyle(.white)
-                    .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous))
+            SecureField("输入密码", text: $passcode)
+                .keyboardType(.numberPad)
+                .appInputFieldStyle()
+
+            Button("解锁") {
+                verifyPasscode()
             }
-            .buttonStyle(.plain)
-            .scaleButton()
+            .buttonStyle(AppPrimaryButtonStyle())
 
             if showError {
-                Text("密码错误")
-                    .foregroundStyle(.red)
+                Text("密码错误，请重新输入。")
                     .font(.caption)
+                    .foregroundStyle(AppTheme.danger)
             }
         }
-        .padding(14)
+        .padding(18)
         .cardStyle()
     }
 
     private var biometricButton: some View {
-        Button(action: {
-            Task {
-                await authManager.authenticate()
-            }
-        }) {
-            HStack(spacing: 12) {
-                Image(systemName: "faceid")
-                    .font(.system(size: 32, weight: .semibold))
-                Text("使用 Face ID 解锁")
-                    .font(.headline)
-            }
-            .foregroundStyle(.white)
-            .frame(maxWidth: .infinity)
-            .padding(.vertical, 18)
-            .background(
-                LinearGradient(colors: AppTheme.sleepGradient, startPoint: .topLeading, endPoint: .bottomTrailing)
+        VStack(alignment: .leading, spacing: 14) {
+            AppSectionTitle(
+                eyebrow: "Biometric",
+                title: "生物识别解锁",
+                subtitle: "保持进入速度，同时不牺牲数据安全。"
             )
-            .clipShape(RoundedRectangle(cornerRadius: AppTheme.cornerRadiusLarge, style: .continuous))
-            .overlay(
-                RoundedRectangle(cornerRadius: AppTheme.cornerRadiusLarge, style: .continuous)
-                    .stroke(Color.white.opacity(0.26), lineWidth: 1)
-            )
+
+            Button(action: {
+                Task {
+                    await authManager.authenticate()
+                }
+            }) {
+                HStack(spacing: 12) {
+                    Image(systemName: "faceid")
+                        .font(.system(size: 28, weight: .semibold))
+                    Text("使用 Face ID 解锁")
+                        .font(.headline)
+                }
+            }
+            .buttonStyle(AppPrimaryButtonStyle(gradient: AppTheme.sleepGradient))
         }
-        .buttonStyle(.plain)
-        .scaleButton()
+        .padding(18)
+        .cardStyle()
     }
 
     private func verifyPasscode() {

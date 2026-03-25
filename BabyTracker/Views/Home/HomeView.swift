@@ -27,22 +27,39 @@ struct HomeView: View {
     var body: some View {
         NavigationStack {
             ScrollView(showsIndicators: false) {
-                VStack(spacing: 18) {
-                    headerCard
+                VStack(spacing: 20) {
+                    heroSection
 
                     if babies.isEmpty {
-                        noBabyCard
+                        AppEmptyStateCard(
+                            symbol: "person.crop.circle.badge.plus",
+                            title: "还没有宝宝档案",
+                            message: "先去“我的”里添加宝宝资料，首页和记录流才会完整启动。"
+                        )
                     } else {
                         babySelector
-                        todayFocusCard
-                        quickActionsGrid
+                        todayMetricsSection
+                        quickActionsSection
+                        focusSection
                         timelineSection
                     }
                 }
                 .padding(.horizontal, AppTheme.paddingMedium)
-                .padding(.vertical, 12)
+                .padding(.top, 12)
+                .padding(.bottom, 22)
             }
-            .navigationTitle("宝宝日记")
+            .navigationBarTitleDisplayMode(.inline)
+            .toolbar {
+                ToolbarItem(placement: .principal) {
+                    VStack(spacing: 2) {
+                        Text("Baby Tracker")
+                            .font(.caption2.weight(.bold))
+                            .foregroundStyle(AppTheme.brand)
+                        Text("记录")
+                            .font(.headline.weight(.bold))
+                    }
+                }
+            }
             .sheet(isPresented: $showingFeedingSheet) {
                 if let baby = selectedBaby {
                     FeedingRecordView(baby: baby)
@@ -84,36 +101,40 @@ struct HomeView: View {
         }
     }
 
-    private var headerCard: some View {
-        VStack(alignment: .leading, spacing: 14) {
+    private var heroSection: some View {
+        VStack(alignment: .leading, spacing: 18) {
             HStack(alignment: .top) {
-                VStack(alignment: .leading, spacing: 6) {
-                    Text("今日概览")
-                        .font(.caption)
-                        .foregroundStyle(.white.opacity(0.88))
-                    Text(selectedBaby?.name ?? "欢迎使用")
-                        .font(.system(size: 28, weight: .bold, design: .rounded))
+                VStack(alignment: .leading, spacing: 8) {
+                    Text("今日照护")
+                        .font(.caption.weight(.bold))
+                        .foregroundStyle(.white.opacity(0.82))
+
+                    Text(selectedBaby?.name ?? "宝宝日记")
+                        .font(.system(size: 31, weight: .bold, design: .rounded))
                         .foregroundStyle(.white)
-                    Text(selectedBaby?.age ?? "先添加宝宝开始记录")
+
+                    Text(selectedBaby?.age ?? "把喂养、睡眠、尿布和疫苗整理进一条清晰时间线。")
                         .font(.subheadline)
-                        .foregroundStyle(.white.opacity(0.88))
+                        .foregroundStyle(.white.opacity(0.90))
                 }
+
                 Spacer()
-                Image(systemName: babyGlyph)
-                    .font(.system(size: 24, weight: .semibold))
-                    .foregroundStyle(.white.opacity(0.95))
-                    .padding(10)
-                    .background(.white.opacity(0.20))
-                    .clipShape(Circle())
+
+                VStack(alignment: .trailing, spacing: 10) {
+                    AppIconBadge(symbol: babyGlyph, colors: AppTheme.mintHeroGradient, size: 52)
+                    Text(Date.now, format: .dateTime.month().day().weekday(.wide))
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.white.opacity(0.84))
+                }
             }
 
-            HStack(spacing: 8) {
-                metricChip(title: "喂奶", value: "\(todayFeedingCount)次")
-                metricChip(title: "尿布", value: "\(todayDiaperCount)次")
-                metricChip(title: "睡眠", value: String(format: "%.1fh", todaySleepHours))
+            HStack(spacing: 10) {
+                AppStatusChip(title: "今日记录", value: "\(todayTotalRecordCount) 条")
+                AppStatusChip(title: "最近喂奶", value: lastFeedingTime)
+                AppStatusChip(title: "疫苗提醒", value: nextVaccinationDueText)
             }
         }
-        .padding(18)
+        .padding(20)
         .gradientCard(AppTheme.heroGradient)
     }
 
@@ -125,197 +146,225 @@ struct HomeView: View {
                 }
             }
         } label: {
-            HStack(spacing: 12) {
-                ZStack {
-                    Circle()
-                        .fill(AppTheme.brand.opacity(0.18))
-                        .frame(width: 36, height: 36)
-                    Image(systemName: "figure.and.child.holdinghands")
-                        .font(.system(size: 14, weight: .semibold))
-                        .foregroundStyle(AppTheme.brand)
-                }
+            HStack(spacing: 14) {
+                AppIconBadge(
+                    symbol: "figure.and.child.holdinghands",
+                    colors: AppTheme.mintHeroGradient,
+                    size: 44
+                )
 
-                VStack(alignment: .leading, spacing: 2) {
-                    Text("当前宝宝")
-                        .font(.caption)
+                VStack(alignment: .leading, spacing: 4) {
+                    Text("当前照护对象")
+                        .font(.caption.weight(.semibold))
                         .foregroundStyle(.secondary)
                     Text(selectedBaby?.name ?? "选择宝宝")
-                        .font(.headline)
-                        .foregroundStyle(.primary)
+                        .font(.headline.weight(.bold))
+                        .foregroundStyle(AppTheme.ink)
                 }
+
                 Spacer()
-                Image(systemName: "chevron.down")
-                    .font(.footnote.weight(.semibold))
-                    .foregroundStyle(.secondary)
+
+                VStack(alignment: .trailing, spacing: 4) {
+                    Text(selectedBaby?.age ?? "--")
+                        .font(.subheadline.weight(.bold))
+                        .foregroundStyle(AppTheme.ink)
+                    Image(systemName: "chevron.up.chevron.down")
+                        .font(.caption.weight(.semibold))
+                        .foregroundStyle(.secondary)
+                }
             }
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
+            .padding(16)
             .cardStyle()
         }
     }
 
-    private var quickActionsGrid: some View {
-        LazyVGrid(columns: actionColumns, spacing: 14) {
-            QuickActionButton(
-                symbol: "drop.fill",
-                title: "喂奶",
-                subtitle: lastFeedingTime,
-                gradient: AppTheme.feedingGradient,
-                action: { showingFeedingSheet = true }
+    private var todayMetricsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            AppSectionTitle(
+                eyebrow: "Dashboard",
+                title: "今日节奏",
+                subtitle: "把喂养、睡眠、尿布和照护提醒放在同一屏。"
             )
 
-            QuickActionButton(
-                symbol: "moon.stars.fill",
-                title: "睡眠",
-                subtitle: activeSleep != nil ? "进行中" : lastSleepTime,
-                gradient: AppTheme.sleepGradient,
-                action: { showingSleepSheet = true }
+            LazyVGrid(columns: actionColumns, spacing: 12) {
+                AppMetricTile(
+                    title: "喂奶",
+                    value: "\(todayFeedingCount) 次",
+                    detail: lastFeedingTime == "暂无" ? "今天还没开始记录" : "上次 \(lastFeedingTime)",
+                    symbol: "drop.fill",
+                    gradient: AppTheme.feedingGradient,
+                    emphasized: true
+                )
+
+                AppMetricTile(
+                    title: "睡眠",
+                    value: String(format: "%.1f 小时", todaySleepHours),
+                    detail: activeSleep != nil ? "当前睡眠进行中" : sleepStatusText,
+                    symbol: "moon.stars.fill",
+                    gradient: AppTheme.sleepGradient,
+                    emphasized: true
+                )
+
+                AppMetricTile(
+                    title: "尿布",
+                    value: "\(todayDiaperCount) 次",
+                    detail: lastDiaperTime == "暂无" ? "今日暂无更换" : "上次 \(lastDiaperTime)",
+                    symbol: "sparkles.rectangle.stack.fill",
+                    gradient: AppTheme.diaperGradient
+                )
+
+                AppMetricTile(
+                    title: "疫苗",
+                    value: nextVaccinationDueText,
+                    detail: vaccinationProgressDescription,
+                    symbol: "syringe.fill",
+                    gradient: AppTheme.vaccineGradient
+                )
+            }
+        }
+    }
+
+    private var quickActionsSection: some View {
+        VStack(alignment: .leading, spacing: 12) {
+            AppSectionTitle(
+                eyebrow: "Actions",
+                title: "快捷记录",
+                subtitle: "常用操作保持大按钮、短路径和明确反馈。"
             )
 
-            QuickActionButton(
-                symbol: "sparkles.rectangle.stack.fill",
-                title: "尿布",
-                subtitle: lastDiaperTime,
-                gradient: AppTheme.diaperGradient,
-                action: { showingDiaperSheet = true }
-            )
+            LazyVGrid(columns: actionColumns, spacing: 14) {
+                QuickActionButton(
+                    symbol: "drop.fill",
+                    title: "喂奶",
+                    subtitle: "直接补一条喂养记录",
+                    gradient: AppTheme.feedingGradient,
+                    action: { showingFeedingSheet = true }
+                )
 
-            QuickActionButton(
-                symbol: "thermometer.medium",
-                title: "体温",
-                subtitle: "记录测量",
-                gradient: AppTheme.growthGradient,
-                action: { showingTemperatureSheet = true }
-            )
+                QuickActionButton(
+                    symbol: "moon.stars.fill",
+                    title: "睡眠",
+                    subtitle: activeSleep != nil ? "查看当前计时" : "开始或结束睡眠",
+                    gradient: AppTheme.sleepGradient,
+                    action: { showingSleepSheet = true }
+                )
 
-            QuickActionButton(
-                symbol: "syringe.fill",
-                title: "疫苗",
-                subtitle: nextVaccinationDueText,
-                gradient: AppTheme.vaccineGradient,
-                action: { showingVaccinationSheet = true }
-            )
+                QuickActionButton(
+                    symbol: "sparkles.rectangle.stack.fill",
+                    title: "尿布",
+                    subtitle: "快速登记状态变化",
+                    gradient: AppTheme.diaperGradient,
+                    action: { showingDiaperSheet = true }
+                )
+
+                QuickActionButton(
+                    symbol: "thermometer.medium",
+                    title: "体温/生长",
+                    subtitle: "补充今天的测量数据",
+                    gradient: AppTheme.growthGradient,
+                    action: { showingTemperatureSheet = true }
+                )
+
+                QuickActionButton(
+                    symbol: "syringe.fill",
+                    title: "疫苗中心",
+                    subtitle: "查看计划与接种登记",
+                    gradient: AppTheme.vaccineGradient,
+                    action: { showingVaccinationSheet = true }
+                )
+            }
         }
         .slideIn(from: .bottom)
     }
 
-    private var todayFocusCard: some View {
+    private var focusSection: some View {
         let focus = currentFocus
 
-        return VStack(alignment: .leading, spacing: 14) {
-            HStack {
-                Label("今日关注", systemImage: focus.icon)
-                    .font(.headline)
-                    .foregroundStyle(.white.opacity(0.92))
-                Spacer()
-                if case .activeSleep(let sleep, _) = focus {
-                    TimelineView(.periodic(from: .now, by: 1)) { context in
-                        Text(formatDuration(max(0, context.date.timeIntervalSince(sleep.startTime))))
-                            .font(.caption.weight(.semibold))
-                            .monospacedDigit()
-                            .foregroundStyle(.white)
-                            .padding(.horizontal, 10)
-                            .padding(.vertical, 6)
-                            .background(.white.opacity(0.18))
-                            .clipShape(Capsule())
+        return VStack(alignment: .leading, spacing: 12) {
+            AppSectionTitle(
+                eyebrow: "Focus",
+                title: "当前关注",
+                subtitle: "把最该处理的一件事提到首页第二层。"
+            )
+
+            VStack(alignment: .leading, spacing: 14) {
+                HStack(alignment: .center) {
+                    Label("正在关注", systemImage: focus.icon)
+                        .font(.headline.weight(.bold))
+                        .foregroundStyle(.white.opacity(0.92))
+
+                    Spacer()
+
+                    if case .activeSleep(let sleep, _) = focus {
+                        TimelineView(.periodic(from: .now, by: 1)) { context in
+                            Text(formatDuration(max(0, context.date.timeIntervalSince(sleep.startTime))))
+                                .font(.caption.weight(.bold))
+                                .monospacedDigit()
+                                .foregroundStyle(.white)
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 7)
+                                .background(.white.opacity(0.18))
+                                .clipShape(Capsule())
+                        }
                     }
                 }
+
+                Text(focus.title)
+                    .font(.title3.weight(.bold))
+                    .foregroundStyle(.white)
+
+                Text(focus.detail)
+                    .font(.subheadline)
+                    .foregroundStyle(.white.opacity(0.92))
+
+                if let secondary = focus.secondary {
+                    Text(secondary)
+                        .font(.caption)
+                        .foregroundStyle(.white.opacity(0.82))
+                }
+
+                Button(focus.buttonTitle) {
+                    handleFocusAction(focus.action)
+                }
+                .buttonStyle(
+                    AppPrimaryButtonStyle(
+                        gradient: [.white.opacity(0.98), .white.opacity(0.90)],
+                        foregroundColor: focus.buttonForeground
+                    )
+                )
             }
-
-            Text(focus.title)
-                .font(.title3.weight(.bold))
-                .foregroundStyle(.white)
-
-            Text(focus.detail)
-                .font(.subheadline)
-                .foregroundStyle(.white.opacity(0.9))
-
-            if let secondary = focus.secondary {
-                Text(secondary)
-                    .font(.caption)
-                    .foregroundStyle(.white.opacity(0.84))
-            }
-
-            Button(focus.buttonTitle) {
-                handleFocusAction(focus.action)
-            }
-            .buttonStyle(.borderedProminent)
-            .tint(.white)
-            .foregroundStyle(focus.buttonForeground)
-            .minimumTappableSize()
+            .frame(maxWidth: .infinity, alignment: .leading)
+            .padding(18)
+            .gradientCard(focus.gradient)
         }
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .padding(16)
-        .gradientCard(focus.gradient)
         .fadeIn(delay: 0.05)
     }
 
     private var timelineSection: some View {
-        VStack(alignment: .leading, spacing: 12) {
-            HStack {
-                Text("今日时间线")
-                    .font(.title3.weight(.bold))
-                Spacer()
-                Text(Date.now, format: .dateTime.month().day())
-                    .font(.subheadline)
-                    .foregroundStyle(.secondary)
-            }
+        let todayRecords = getTodayRecords()
 
-            let todayRecords = getTodayRecords()
+        return VStack(alignment: .leading, spacing: 12) {
+            AppSectionTitle(
+                eyebrow: "Timeline",
+                title: "今日时间线",
+                subtitle: "按时间回看今天的照护节奏和关键节点。"
+            )
+
             if todayRecords.isEmpty {
-                VStack(spacing: 10) {
-                    Image(systemName: "text.badge.plus")
-                        .font(.system(size: 36, weight: .medium))
-                        .foregroundStyle(.secondary.opacity(0.7))
-                    Text("今天还没有记录")
-                        .font(.headline)
-                    Text("点击上方卡片，开始记录宝宝动态。")
-                        .font(.subheadline)
-                        .foregroundStyle(.secondary)
-                }
-                .frame(maxWidth: .infinity)
-                .padding(.vertical, 26)
-                .cardStyle()
+                AppEmptyStateCard(
+                    symbol: "text.badge.plus",
+                    title: "今天还没有记录",
+                    message: "先从上面的快捷记录开始，时间线会自动形成。"
+                )
             } else {
-                ForEach(Array(todayRecords.enumerated()), id: \.element.id) { index, record in
-                    TimelineItemView(record: record)
-                        .fadeIn(delay: Double(index) * 0.04)
+                VStack(spacing: 12) {
+                    ForEach(Array(todayRecords.enumerated()), id: \.element.id) { index, record in
+                        TimelineItemView(record: record)
+                            .fadeIn(delay: Double(index) * 0.05)
+                    }
                 }
             }
         }
-    }
-
-    private var noBabyCard: some View {
-        VStack(spacing: 10) {
-            Image(systemName: "person.crop.circle.badge.plus")
-                .font(.system(size: 34, weight: .medium))
-                .foregroundStyle(AppTheme.brand)
-            Text("还没有宝宝档案")
-                .font(.headline)
-            Text("请到“我的”页面添加宝宝信息后开始记录。")
-                .font(.subheadline)
-                .foregroundStyle(.secondary)
-                .multilineTextAlignment(.center)
-        }
-        .frame(maxWidth: .infinity)
-        .padding(.vertical, 30)
-        .cardStyle()
-    }
-
-    private func metricChip(title: String, value: String) -> some View {
-        VStack(alignment: .leading, spacing: 2) {
-            Text(title)
-                .font(.caption2)
-                .foregroundStyle(.white.opacity(0.88))
-            Text(value)
-                .font(.subheadline.weight(.semibold))
-                .foregroundStyle(.white)
-        }
-        .padding(.horizontal, 10)
-        .padding(.vertical, 8)
-        .frame(maxWidth: .infinity, alignment: .leading)
-        .background(.white.opacity(0.18))
-        .clipShape(RoundedRectangle(cornerRadius: 12, style: .continuous))
     }
 
     private var babyGlyph: String {
@@ -355,6 +404,10 @@ struct HomeView: View {
         selectedBabyDiaperRecords.filter { Calendar.current.isDateInToday($0.timestamp) }.count
     }
 
+    private var todayTotalRecordCount: Int {
+        getTodayRecords().count
+    }
+
     private var todaySleepHours: Double {
         let today = Date.now
         return selectedBabySleepRecords
@@ -388,6 +441,13 @@ struct HomeView: View {
         return timeAgo(from: last.timestamp)
     }
 
+    private var sleepStatusText: String {
+        if activeSleep != nil {
+            return "正在睡眠"
+        }
+        return lastSleepTime == "暂无" ? "今日暂无睡眠记录" : "上次 \(lastSleepTime)"
+    }
+
     private var nextVaccinationDueText: String {
         guard let selectedBaby else {
             return "暂无"
@@ -416,6 +476,19 @@ struct HomeView: View {
         return next.plan.ageDescription
     }
 
+    private var vaccinationProgressDescription: String {
+        guard let selectedBaby else { return "还未选择宝宝" }
+        let track = VaccinationSchedule.storedTrack(for: selectedBaby.id)
+        guard let next = VaccinationSchedule.nextPendingMilestone(
+            for: selectedBaby,
+            records: selectedBabyVaccinationRecords,
+            track: track
+        ) else {
+            return "首年方案已记录完成"
+        }
+        return "\(track.title) · \(focusDateText(next.dueDate))"
+    }
+
     private var currentFocus: HomeFocus {
         if let activeSleep {
             return .activeSleep(
@@ -441,7 +514,7 @@ struct HomeView: View {
                 if dayOffset <= 0 {
                     return .vaccination(
                         title: "\(next.plan.vaccineName) \(next.plan.doseLabel)",
-                        detail: dayOffset < 0 ? "已逾期，建议尽快补种或登记记录。" : "今天应种，建议尽快查看接种安排。",
+                        detail: dayOffset < 0 ? "已经逾期，建议尽快补种或先登记既往接种记录。" : "今天应种，建议提前确认门诊安排。",
                         secondary: "方案：\(track.title) · 推荐：\(next.plan.ageDescription)"
                     )
                 }
@@ -449,7 +522,7 @@ struct HomeView: View {
                 if dayOffset <= 7 {
                     return .vaccination(
                         title: "\(next.plan.vaccineName) \(next.plan.doseLabel)",
-                        detail: "\(dayOffset)天后应种，提前确认门诊安排会更稳妥。",
+                        detail: "\(dayOffset) 天后应种，现在安排会更从容。",
                         secondary: "方案：\(track.title) · 建议日期：\(focusDateText(next.dueDate))"
                     )
                 }
@@ -495,16 +568,16 @@ struct HomeView: View {
     private func timelineSummary(for record: TimelineRecord) -> String {
         switch record {
         case .feeding(let feeding):
-            return "最近一次喂奶在\(timeAgo(from: feeding.timestamp))"
+            return "最近一次喂奶在 \(timeAgo(from: feeding.timestamp))"
         case .sleep(let sleep):
             if sleep.isActive {
-                return "最近一次记录为睡眠中，开始于\(formatClock(sleep.startTime))"
+                return "最近一次记录仍在睡眠中，开始于 \(formatClock(sleep.startTime))"
             }
-            return "最近一次睡眠开始于\(formatClock(sleep.startTime))"
+            return "最近一次睡眠开始于 \(formatClock(sleep.startTime))"
         case .diaper(let diaper):
-            return "最近一次尿布记录在\(timeAgo(from: diaper.timestamp))"
+            return "最近一次尿布记录在 \(timeAgo(from: diaper.timestamp))"
         case .vaccination(let vaccination):
-            return "今天已登记\(vaccination.vaccineName)\(vaccination.doseLabel)"
+            return "今天已登记 \(vaccination.vaccineName)\(vaccination.doseLabel)"
         }
     }
 
@@ -594,11 +667,11 @@ private enum HomeFocus {
     var detail: String {
         switch self {
         case .activeSleep(_, let startedAt):
-            return "本次睡眠从 \(startedAt) 开始，首页会持续显示实时计时。"
+            return "这次睡眠从 \(startedAt) 开始，首页会持续显示计时。"
         case .vaccination(_, let detail, _):
             return detail
         case .emptyDay:
-            return "先记一条喂奶、睡眠或尿布，今天的时间线就会自动建立。"
+            return "先补一条喂奶、睡眠或尿布，今天的节奏就会自动建立。"
         case .progress(_, let latestSummary):
             return latestSummary
         }
@@ -607,13 +680,13 @@ private enum HomeFocus {
     var secondary: String? {
         switch self {
         case .activeSleep:
-            return "需要结束本次睡眠时，可直接从这里进入计时页。"
+            return "需要结束本次睡眠时，可以直接从这里进入计时页。"
         case .vaccination(_, _, let secondary):
             return secondary
         case .emptyDay:
             return "建议先从最常用的喂奶记录开始。"
         case .progress:
-            return "继续补充记录，晚些时候回看会更完整。"
+            return "继续补齐今天的照护轨迹，回看会更完整。"
         }
     }
 
@@ -668,7 +741,6 @@ private enum HomeFocus {
     }
 }
 
-// Timeline record wrapper
 enum TimelineRecord: Identifiable {
     case feeding(FeedingRecord)
     case sleep(SleepRecord)

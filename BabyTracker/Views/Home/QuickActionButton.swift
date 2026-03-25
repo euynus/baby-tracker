@@ -19,35 +19,44 @@ struct QuickActionButton: View {
             HapticManager.shared.light()
             action()
         }) {
-            HStack(spacing: 12) {
-                Image(systemName: symbol)
-                    .font(.system(size: 16, weight: .semibold))
-                    .foregroundStyle(.white)
-                    .frame(width: 32, height: 32)
-                    .background(
-                        LinearGradient(colors: gradient, startPoint: .topLeading, endPoint: .bottomTrailing)
-                    )
-                    .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+            VStack(alignment: .leading, spacing: 18) {
+                HStack(alignment: .top) {
+                    AppIconBadge(symbol: symbol, colors: gradient, size: 46)
+                    Spacer()
+                    Image(systemName: "arrow.up.right")
+                        .font(.footnote.weight(.bold))
+                        .foregroundStyle(.secondary)
+                        .frame(width: 28, height: 28)
+                        .background(Color.primary.opacity(0.05))
+                        .clipShape(Circle())
+                }
 
-                VStack(alignment: .leading, spacing: 2) {
+                VStack(alignment: .leading, spacing: 6) {
                     Text(title)
-                        .font(.headline)
-                        .foregroundStyle(.primary)
+                        .font(.headline.weight(.bold))
+                        .foregroundStyle(AppTheme.ink)
+
                     Text(subtitle)
                         .font(.subheadline)
                         .foregroundStyle(.secondary)
+                        .lineLimit(2)
                 }
-
-                Spacer(minLength: 8)
-
-                Image(systemName: "chevron.right")
-                    .font(.footnote.weight(.semibold))
-                    .foregroundStyle(.tertiary)
             }
-            .frame(maxWidth: .infinity, alignment: .leading)
-            .frame(minHeight: 54)
-            .padding(.horizontal, 14)
-            .padding(.vertical, 10)
+            .frame(maxWidth: .infinity, minHeight: 132, alignment: .leading)
+            .padding(16)
+            .background(
+                RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMedium, style: .continuous)
+                    .fill(.clear)
+                    .overlay(alignment: .topLeading) {
+                        RoundedRectangle(cornerRadius: 18, style: .continuous)
+                            .fill(
+                                LinearGradient(colors: gradient, startPoint: .topLeading, endPoint: .bottomTrailing)
+                            )
+                            .frame(width: 110, height: 8)
+                            .padding(.top, 12)
+                            .padding(.leading, 12)
+                    }
+            )
             .cardStyle()
         }
         .buttonStyle(.plain)
